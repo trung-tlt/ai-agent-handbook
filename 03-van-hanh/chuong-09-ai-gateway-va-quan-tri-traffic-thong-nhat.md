@@ -31,7 +31,15 @@ Tương tự, việc tái dùng **KV cache (Key-Value Cache)** là tối ưu hi�
 
 ### 9.1.3 Ba ngữ nghĩa quản trị có thể tổ hợp
 
-![image](../assets/imgs/chapter-09/image-001.svg)
+```mermaid
+flowchart LR
+    C["Client / Agent"] --> AG["Agent Gateway<br/>Identity · routing · affinity · correlation"]
+    AG --> LG["LLM Gateway<br/>Model routing · rate limit · failover · metering"]
+    AG --> MG["MCP Gateway<br/>Protocol proxy · authorization · tool policy"]
+    LG --> M["Model endpoints"]
+    MG --> T["Tools / MCP servers"]
+    AG -. "Không sở hữu" .-> S["Task State / Checkpoint / Outcome<br/>do hệ nghiệp vụ và Runtime quản lý"]
+```
 
 *Hình 9-1 - Ba ngữ nghĩa quản trị có thể tổ hợp. Đây là khung phân tích chương này dựng theo đối tượng quản trị, không biểu thị một lộ trình nâng cấp năng lực tuyến tính.*
 
@@ -75,7 +83,17 @@ Bản thân gateway cũng phải được thiết kế như một hạ tầng tr
 
 LLM Gateway phải phối hợp ba vấn đề trong một lần gọi: chọn model hay endpoint thoả yêu cầu, kiểm soát ảnh hưởng của thất bại và retry, và chịu trách nhiệm cho mọi mức tiêu hao thực tế. **Một model rẻ nhưng gây ra nhiều lần làm lại thì tổng chi phí task có thể còn cao hơn; việc tự động chịu lỗi nếu bỏ qua tính tương thích giao thức và ngữ nghĩa tính phí thì cũng có thể biến một sự cố khả dụng thành sự cố chất lượng hoặc chi phí.**
 
-![image](../assets/imgs/chapter-09/image-002.svg)
+```mermaid
+flowchart LR
+    R["Model call"] --> I["Identity + policy"] --> Q{"Rate / quota<br/>cho phép?"}
+    Q -- "Không" --> X["Từ chối + audit"]
+    Q -- "Có" --> B{"Ngân sách nghiêm ngặt?"}
+    B -- "Có" --> H["Giữ chỗ nguyên tử<br/>trước khi gọi"]
+    B -- "Không" --> C["Kiểm tra ngưỡng / cảnh báo"]
+    H --> M["Gọi model / các attempt thực tế"]
+    C --> M
+    M --> U["Usage thực tế"] --> F["Quyết toán · hoàn phần dư · đối soát"]
+```
 
 *Hình 9-2 - Chấp nhận lời gọi model và quyết toán ngân sách. Kiểm tra ngưỡng và ngân sách nghiêm ngặt là hai cam kết khác nhau; cái sau đòi hỏi giữ chỗ nguyên tử TRƯỚC khi gọi, chứ không chỉ trừ đi sau khi có phản hồi.*
 
@@ -180,7 +198,14 @@ MCP dùng JSON-RPC (JSON Remote Procedure Call) để biểu đạt tương tác
 
 Một tool xuất hiện trong danh sách chỉ nói lên rằng server đã thông báo nó; còn bên gọi có quyền thực thi không, hệ thống phụ thuộc có khả dụng không, lời gọi này có thành công không - vẫn phải đánh giá độc lập. Vì vậy MCP Gateway nên quản trị **tách bạch** phần proxy giao thức, tích hợp danh mục tài nguyên, uỷ quyền và kết quả thực thi thực tế.
 
-![image](../assets/imgs/chapter-09/image-003.svg)
+```mermaid
+flowchart LR
+    A["Agent / MCP client"] --> R["Registry<br/>Khám phá danh mục và capability"]
+    A --> G["MCP Gateway<br/>Xác thực · uỷ quyền · policy · audit"]
+    R -. "Metadata / endpoint" .-> G
+    G --> S["MCP Server / Tool"] --> B["Backend system<br/>Thao tác thực tế"]
+    G -. "Discovery không đồng nghĩa authorization" .-> R
+```
 
 *Hình 9-3 - Tách bạch việc khám phá, uỷ quyền và thực thi trong MCP. Registry cung cấp thông tin danh mục, gateway thực thi policy ở lối vào, còn tool và hệ thống backend lo thao tác thực tế; ba thứ không thay thế cho nhau.*
 
@@ -270,7 +295,15 @@ Một Agent Task có thể gồm nhiều Session, nhiều lượt gọi model v�
 
 Vai trò của Agent Gateway là đưa định danh đáng tin và thông tin liên kết task vào policy lối vào, cung cấp một interface thống nhất cho routing, quota và quan sát xuyên request. Nó có thể từ chối lời gọi mới, báo cáo áp lực ngân sách, chuyển request tới một Runtime đã khai báo có năng lực tương ứng - nhưng **Task tạm dừng, lưu state và khôi phục ra sao thì phải do mô hình task nghiệp vụ và hệ thống thực thi quyết định.**
 
-![image](../assets/imgs/chapter-09/image-004.svg)
+```mermaid
+flowchart LR
+    C["Client"] --> G["Agent Gateway<br/>Route + correlation<br/>Task / Session / Call / Attempt"]
+    G --> R["Agent Runtime / Harness"] --> E["Model · tool · environment"]
+    R --> L["Task ledger có thẩm quyền<br/>Task State · Evidence · Outcome"]
+    E --> L
+    L --> R
+    G -. "Chỉ giữ thông tin liên kết,<br/>không diễn giải state nghiệp vụ" .-> L
+```
 
 *Hình 9-4 - Sổ cái Task và ranh giới trách nhiệm thực thi. Thông tin liên kết task có thể đi xuyên gateway, nhưng trạng thái nghiệp vụ và ngữ nghĩa khôi phục KHÔNG vì thế mà chuyển sang gateway.*
 
@@ -364,7 +397,16 @@ Dịch vụ phân tích có thể phơi năng lực liệt kê Task, xem chi ti�
 
 Mô hình chung về định danh thống nhất và phê duyệt xem phần Quản trị; mục này chỉ nói chúng ràng buộc việc chuyển tiếp thực tế ra sao. Nếu lối vào model, tool và Agent mỗi bên tự định nghĩa định danh và chiều chi phí, thì cùng một bên gọi có thể chịu những ràng buộc uỷ quyền và quota không nhất quán trên các đường khác nhau. **Dùng chung ánh xạ chủ thể, ngữ nghĩa policy và định danh liên kết, trong khi vẫn cho phép sổ cái lời gọi, sổ cái tài chính và sổ cái Task nghiệp vụ giữ ranh giới thẩm quyền riêng - đó là yêu cầu cơ bản của phía chuyển tiếp đối với việc quản trị thống nhất.**
 
-![image](../assets/imgs/chapter-09/image-005.svg)
+```mermaid
+flowchart LR
+    R["Request"] --> I["Xác thực chủ thể<br/>và uỷ nhiệm"] --> P{"Policy + budget"}
+    P -- "Từ chối" --> D["Deny + audit"]
+    P -- "Cho phép" --> E["Thực thi"] --> O["Ghi kết quả + quyết toán"]
+    P -- "Cần phê duyệt" --> H["Bền vững hoá trạng thái chờ<br/>Không treo HTTP request"]
+    H --> A{"Approval event"}
+    A -- "Hết hạn / từ chối" --> D
+    A -- "Được duyệt" --> V["Kiểm chứng lại<br/>scope · parameter digest · budget"] --> E
+```
 
 *Hình 9-5 - Quy trình quản trị có từ chối và phê duyệt bất đồng bộ. Phê duyệt là một trạng thái nghiệp vụ được bền vững hoá, KHÔNG phải một bước đồng bộ treo vô hạn request HTTP trong gateway.*
 
@@ -444,7 +486,15 @@ Policy quản lý tập trung, còn việc thực thi thì phân tán ở các l
 
 Mặt phẳng dữ liệu thực thi các policy đã phát hành; hệ quan sát ghi lại sự thật vận hành; hệ đánh giá sinh ra điểm số và chẩn đoán. Tối ưu liên tục cần nối các khâu đó, nhưng **Evaluation không tự nhiên có quyền phát hành, và cũng không được sửa trực tiếp routing hay ngân sách production.** Đường đi đầy đủ phải là: quan sát hình thành đề xuất ứng viên → đề xuất đi vào xây dựng và kiểm chứng → rồi qua uỷ quyền quản trị, cổng phát hành và canary mới vào mặt phẳng điều khiển.
 
-![image](../assets/imgs/chapter-09/image-006.svg)
+```mermaid
+flowchart LR
+    O["Observability<br/>Log · metric · trace · outcome"] --> E["Evaluation"] --> C["Ứng viên thay đổi<br/>route · policy · model"]
+    C --> V["Build + verification"] --> A["Authorization / release gate"] --> P["Control plane<br/>Versioned configuration"]
+    P --> D["Production data plane"]
+    U["Business requests"] --> D --> X["Model · MCP server · Agent Runtime"]
+    D -. "Telemetry" .-> O
+    X -. "Result / evidence" .-> O
+```
 
 *Hình 9-6 - Đánh giá vào production sau khi được kiểm chứng và uỷ quyền. Thay đổi ứng viên, việc phát cấu hình, request nghiệp vụ và dòng quan sát chảy ngược là những chuỗi khác hướng, khác quyền.*
 

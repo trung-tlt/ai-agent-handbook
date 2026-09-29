@@ -30,7 +30,33 @@ Orchestration multi-agent **không tồn tại tách rời khỏi các năng l�
 
 Tầng orchestration cũng **không cần can dự vào mọi chi tiết thực thi của từng Agent.** Đội có thể thống nhất mục tiêu, phân công, ràng buộc và tiêu chí nghiệm thu, nhưng mỗi thành viên vẫn được chọn cách thực thi phù hợp trong phạm vi năng lực của mình. Nếu mọi thông tin đều phải tụ về một Agent chủ quản rồi nó quyết định từng bước, thì hệ multi-agent rất dễ quay lại mô hình ra quyết định đơn điểm, và **Agent chủ quản sẽ trở thành nút thắt mới về context và thực thi.** Cách hợp lý hơn là giữ cân bằng giữa việc phối hợp ở cấp đội và quyền tự chủ của thành viên: công việc thường nhật do thành viên tự đẩy tiến; chỉ khi task bị chặn, kết quả xung đột, thiếu tài nguyên hay chạm vào thao tác rủi ro cao thì mới cần phối hợp thêm hoặc đưa con người vào đánh giá.
 
-![image](../assets/imgs/chapter-11/image-001.png)
+```mermaid
+flowchart TB
+    subgraph U["Người dùng và nghiệm thu nghiệp vụ"]
+        O["Task owner<br/>Mục tiêu · phạm vi · ràng buộc"]
+        A["Người nghiệm thu<br/>Tải artifact · xác nhận · lưu trữ"]
+    end
+    subgraph C["Team orchestration"]
+        T["Team"]
+        P["Task & Plan<br/>Mục tiêu · trách nhiệm · dependency"]
+        D["Dispatch & Routing<br/>Song song · chờ · khôi phục"]
+        G["Aggregation & Stop condition<br/>Version · evidence · boundary"]
+        T --> P --> D --> G
+    end
+    subgraph M["Các Agent thành viên"]
+        B["Business Agent"]
+        X["Coding Agent"]
+        Q["Testing Agent"]
+    end
+    subgraph F["Nền tảng runtime và kết nối"]
+        R["Runtime / Environment"]
+        GW["Gateway / A2A / Messaging"]
+        MCP["MCP / Tool / Resource"]
+    end
+    U --> C
+    C <--> M
+    M <--> F
+```
 
 ### 11.1.4 Lợi ích cộng tác và chi phí phối hợp
 
@@ -124,7 +150,27 @@ Sau khi tiếp nhận, team đã biết được năng lực, điều kiện v�
 
 Khi các Agent với năng lực khác nhau đã gia nhập cùng một hệ cộng tác, còn phải làm rõ quan hệ tổ chức giữa chúng: thành viên nào lo mục tiêu tổng thể, thành viên nào gánh công việc chuyên môn, quyết định nào tự đưa ra được, và khi có bất đồng thì ai điều phối. Cách tổ chức không chỉ ảnh hưởng tới việc phân việc, mà còn ảnh hưởng tới truyền thông tin, hiệu suất ra quyết định và khả năng song song của đội. **Chủ quản – thực thi, cộng tác ngang hàng và orchestration phân tầng là ba cách sắp xếp khác nhau về quan hệ quyết định, uỷ nhiệm và báo cáo. Chúng không phải các giai đoạn tiến hoá từ thấp lên cao, mà nên chọn theo đặc điểm công việc thực tế.**
 
-![image](../assets/imgs/chapter-11/image-002.png)
+```mermaid
+flowchart LR
+    subgraph L["Leader–Worker"]
+        L0["Leader<br/>Thống nhất mục tiêu, dependency, kết quả"] --> L1["Worker A<br/>Phân tích"]
+        L0 --> L2["Worker B<br/>Hiện thực"]
+        L0 --> L3["Worker C<br/>Xác minh"]
+    end
+    subgraph P["Peer collaboration"]
+        A["Agent A"] <--> B["Agent B"]
+        B <--> C["Agent C"]
+        C <--> A
+        S[("Shared rule<br/>và task state")]
+        A --- S
+        B --- S
+        C --- S
+    end
+    subgraph H["Hierarchical orchestration"]
+        R["Root Team Leader"] --> H1["Subteam Leader A<br/>R&D delivery"] --> W1["Workers<br/>Build & review"]
+        R --> H2["Subteam Leader B<br/>Quality delivery"] --> W2["Workers<br/>Test & security"]
+    end
+```
 
 ### 11.3.1 Team và thành viên: quan hệ tổ chức và phân công vai trò
 
@@ -176,7 +222,16 @@ Cấu trúc chủ quản – thực thi vẫn có thể cho phép các thành vi
 
 Quan hệ tổ chức nói team gồm những ai, nhưng một công việc cụ thể còn phải tiến triển liên tục thông qua task. Mục này tiếp tục dùng bối cảnh vá dependency ở trên: Agent nghiệp vụ phát hiện dependency của dịch vụ cần nâng cấp, Coding Agent lo sửa code, Agent kiểm thử lo kiểm chứng, Leader lo điều phối bàn giao và tổng hợp, cuối cùng người dùng nghiệm thu. Quá trình này lần lượt đi qua định nghĩa task, lập kế hoạch, lập lịch thực thi và tổng hợp kết quả.
 
-![image](../assets/imgs/chapter-11/image-003.png)
+```mermaid
+flowchart LR
+    R["Root Task<br/>Hoàn tất dependency upgrade<br/>và tạo deliverable có thể nghiệm thu"] --> D["1. Định nghĩa task<br/>Coding subtask + verification subtask"]
+    D --> P["2. Lập kế hoạch<br/>Phạm vi sửa đổi · test environment<br/>Giữ quan hệ tiến độ và version"]
+    P --> E["3. Lập lịch và làm lại<br/>Task Run tạo Artifact V1"]
+    E --> V{"Verifier chấp nhận?"}
+    V -- "Không" --> F["Ghi failure evidence<br/>và yêu cầu sửa"] --> E2["Task Run mới<br/>Artifact V2"] --> V
+    V -- "Có" --> A["4. Tổng hợp và nghiệm thu<br/>Root Task đủ điều kiện hoàn tất"] --> U["Người dùng tải về / nghiệm thu"] --> Z["Lưu trữ — thực sự hoàn tất"]
+    S["Stop conditions<br/>Time/cost budget · delegation depth<br/>subtask count · retry/round limit · no progress"] -.-> E
+```
 
 ### 11.4.1 Task và Subtask: phân rã mục tiêu và trách nhiệm bàn giao
 

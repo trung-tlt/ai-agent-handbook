@@ -277,17 +277,59 @@ Ba lợi ích mà phương án này báo cáo tương ứng đúng với trục 
 
 Cách làm về observability đáng được ghi riêng, vì nó là biểu hiện trực tiếp của việc quản trị ở mức kênh: cấu hình cảnh báo theo ngưỡng tồn đọng message của từng kênh; khi kích hoạt thì xem trên console danh sách các kênh tồn đọng cao nhất cùng địa chỉ consumer tương ứng, khiến việc định vị sự cố đi **từ rà soát toàn cục sang định vị theo kênh.**
 
-![image](../assets/imgs/chapter-12/image-001.png)
+```mermaid
+flowchart LR
+    subgraph C["App / Web client"]
+        U["User sessions"]
+    end
+    subgraph G["Connection & login layer"]
+        N["Stateless gateway nodes"]
+    end
+    subgraph M["Message layer"]
+        R["Request<br/>Partition-ordered topic<br/>key = session_id"]
+        P["Response<br/>LiteTopic / channel<br/>key = session_id"]
+    end
+    subgraph B["Business processing"]
+        W["Stateless worker nodes"]
+    end
+    subgraph A["AI services"]
+        L["LLM"]
+        S["ASR"]
+        T["TTS"]
+    end
+    U --> N --> R --> W --> A
+    A --> W --> P --> N --> U
+```
 
 **Lấy người dùng làm khoá kênh: kênh chính là đơn vị quản trị.** Cùng một nền tảng dịch vụ mô hình lớn đưa ra hai loại khoá kênh trong hai bối cảnh, nhưng dùng chung một tư tưởng - **chọn khoá kênh trên đơn vị đồng thời của nghiệp vụ, để kênh tự nhiên trở thành đơn vị quản trị.**
 
 *Bối cảnh một: giới hạn tốc độ ở gateway.* Gateway của nền tảng Alibaba Cloud Bailian gánh lời gọi từ hàng triệu tenant tới hàng chục loại model; vài trăm nghìn tổ hợp "người dùng × model" chạy đồng thời là chuyện thường ngày; còn GPU phía sau là trần cứng và chu kỳ mở rộng dài. Vì vậy, giới hạn tốc độ không còn là câu hỏi nhị phân "chặn hay không chặn", mà là **"đút cho backend theo nhịp nào".** Nếu backend nhạy với đột biến thì phải giới hạn phần burst mà token bucket cho phép; còn leaky bucket trong process thì lúc đột biến sẽ dồn vài trăm nghìn request vào JVM của gateway cho tới khi OOM. Hành động then chốt của phương án là **đưa leaky bucket ra khỏi process**: gateway chỉ dùng cửa sổ cố định để đặt trần thô rồi ghi request vào kênh message; khoá kênh lấy tổ hợp "người dùng × model", để mỗi khách hàng có một kênh giới hạn riêng trên mỗi model; phía tiêu thụ thì subscribe topic cha bằng wildcard, và khi trúng giới hạn thì callback tiêu thụ trả về lệnh treo, server chỉ tạm dừng việc gửi cho kênh đó rồi tự khôi phục khi hết hạn. Cả chuỗi có thể quy thành: **"gateway quản trần cứng, mảng kênh quản nhịp, lệnh treo làm việc điều tốc hạt mịn".**
 
-![image](../assets/imgs/chapter-12/image-002.png)
+```mermaid
+flowchart LR
+    U["Users"] --> G["Model Gateway<br/>Fixed window + hard limit<br/>channel key = user + model"] --> Q
+    subgraph Q["LiteTopic channels — tạo theo nhu cầu, tự thu hồi theo TTL"]
+        A["user A · model X"]
+        B["user A · model Y"]
+        C["user B · model Z"]
+    end
+    Q --> C1["Unified consumer group<br/>subscribe parent/*<br/>consume đều + suspend để điều tốc"] --> M["Model inference clusters"]
+```
 
 *Bối cảnh hai: trung tâm tài sản.* Trong trung tâm tài sản của Alibaba Cloud Bailian, hình ảnh và video mà người dùng sinh ra mặc định rơi vào thư mục tạm của object storage và bị dọn khi hết hạn; còn trung tâm tài sản lo việc lưu giữ lâu dài và tái dùng tài nguyên; chuỗi này gồm kiểm tra whitelist, kiểm tra an toàn nội dung và ghi vào database. Đơn vị đồng thời nghiệp vụ ở đây tự nhiên là **"người dùng"**: một người dùng sinh hàng loạt trong thời gian ngắn sẽ tạo ra đột biến, và những người dùng khác không nên bị vạ lây. Phương án là **message chỉ mang metadata và index object storage, không truyền bản thân file**; khoá kênh lấy "người dùng", kênh tạo theo nhu cầu và tự thu hồi theo TTL; còn consumer group dưới cùng topic cha thì subscribe mọi kênh người dùng bằng wildcard, nên phần tồn đọng hay bất thường của một người dùng chỉ ảnh hưởng tới kênh của chính họ, không chặn người khác.
 
-![image](../assets/imgs/chapter-12/image-003.png)
+```mermaid
+flowchart TB
+    G["Model sinh ảnh / video"] --> O["Thư mục tạm trên object storage"] --> M["Message chỉ mang metadata<br/>và object reference"]
+    M --> Q
+    subgraph Q["LiteTopic — một kênh cho mỗi user"]
+        A["User A · consuming"]
+        B["User B · suspended / rate-limited"]
+        C["User C · consuming"]
+        N["… hàng triệu user"]
+    end
+    Q --> P["Asset center consumer<br/>Xử lý cô lập theo user"] --> W["Whitelist check"] --> S["Content safety"] --> D["Asset persistence"] --> R[("Kho tài sản dài hạn")]
+```
 
 Hai bối cảnh cho thấy kênh có thể đảm nhiệm giới hạn tốc độ, subscription và tạm dừng theo người dùng hay theo phiên. Hàng đợi dùng chung cũng xử lý được việc cô lập qua partition, lập lịch công bằng hay quota ứng dụng, **nhưng cần cơ chế bổ sung.** Khi so sánh, hãy kiểm chứng số kênh đang hoạt động, mức tồn đọng trên mỗi kênh, tính công bằng khi tiêu thụ và chi phí quản lý - **chứ không suy năng lực cô lập thẳng từ tên hàng đợi.**
 
@@ -316,7 +358,30 @@ Hợp đồng giao tiếp sau khi tách ba thứ có thể quy thành ba điều
 
 Phía quyết định và phía thực thi được RocketMQ tách rời; bus message gánh ba loại thông tin: **lệnh task** (QCA tới Worker, tách rời bất đồng bộ, cắt đỉnh traffic), **event thực thi** (Worker tới QCA, có thứ tự trong task, hỗ trợ retry và dead letter, gửi trễ), và **work item bất đồng bộ** (route theo task hay môi trường, tiêu thụ co giãn). Trong đó, RocketMQ cung cấp kênh ở mức phiên: kênh đặt tên theo định danh Session, có thứ tự trong cùng Session và song song giữa các Session, tạo thành các làn thực thi cô lập; Worker là consumer của kênh Session, nhận việc theo thời gian thực, chạy các lời gọi model, tool MCP, thực thi sandbox…, và có khả năng co giãn theo nhu cầu. Nhiều bối cảnh phức tạp được xử lý thống nhất trên kiến trúc này - multi-agent gửi xuống theo `Topic=session_id`, CAW nhận Claim rồi chạy song song, CAS tụ họp kết quả bằng Mailbox và Barrier; Webhook dùng `Topic=endpoint_id` để bảo đảm gửi đúng thứ tự cho cùng một khách hàng; còn việc treo và khôi phục thì bền vững hoá trạng thái chờ rồi giải phóng Worker, và khi event quay lại thì bất kỳ Worker nào cũng nối tiếp được.
 
-![image](../assets/imgs/chapter-12/image-004.png)
+```mermaid
+flowchart TB
+    I["Business entry<br/>Web/SDK · business system · event/timer · message channel"] --> C
+    subgraph C["Control plane — Agent Runtime / QCA"]
+        A["Access & authorization"]
+        O["Task orchestration"]
+        S["Session & state management"]
+        N["State update & result notification"]
+        A --> O --> S --> N
+    end
+    C -- "1. Task command" --> M
+    subgraph M["Message bus"]
+        T["Task command<br/>Control plane → Worker"]
+        E["Execution event<br/>Worker → Control plane"]
+        W["Async work item<br/>Route by task / environment"]
+    end
+    M -- "2. Elastic consumption" --> P
+    subgraph P["Elastic Agent Worker pool"]
+        C1["Claim & acknowledge"] --> X["Model / tool execution"] --> K["Checkpoint & wait"] --> R["Report progress / result"]
+    end
+    P -- "3. Progress & result" --> M
+    M -- "4. Execution event" --> C
+    P <--> D["State & object storage<br/>Task state · artifact · context"]
+```
 
 Case này cho thấy trong cùng một hệ thống có thể gánh nhiều luồng thông tin khác ngữ nghĩa trên nền kênh phiên, mỗi luồng ứng với một mức bảo đảm giao nhận và yêu cầu thứ tự riêng - lệnh cần cắt đỉnh và tách rời bất đồng bộ, event cần giữ thứ tự và retry, work item cần route và tiêu thụ co giãn - **chứ không cần thống nhất mọi giao tiếp nội bộ về một ngữ nghĩa duy nhất.** Tổng kết của kiến trúc này là **"phiên thường trú, tính toán lưu động, state nối tiếp được"**: task không thuộc về một cỗ máy nào; máy chỉ lo chặng hiện tại.
 

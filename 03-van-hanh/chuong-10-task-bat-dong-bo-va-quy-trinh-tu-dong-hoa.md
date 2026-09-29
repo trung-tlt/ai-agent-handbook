@@ -83,7 +83,13 @@ Hạt nhân của mô hình task bất đồng bộ là **tách rời vòng đ�
 
 Về mặt logic, một hệ thống task bất đồng bộ cấp production gồm ba nhóm component phối hợp: **hàng đợi task** đảm nhiệm sắp xếp và đệm; **scheduler** lo việc gửi Task tới Worker phù hợp và duy trì lease; **state machine thực thi task** duy trì vòng đời và tính hợp lệ của các chuyển đổi. Ranh giới trách nhiệm của chúng với Runtime, Environment và ứng dụng nghiệp vụ theo mục 10.1.1.
 
-![image](../assets/imgs/chapter-10/image-001.png)
+```mermaid
+flowchart LR
+    I["Task entry<br/>Identity · input · idempotency key"] --> Q["Task queue<br/>Buffer · priority · deduplication"] --> S["Scheduler<br/>Admission · slot allocation"] --> W["Worker<br/>Thực thi bước được uỷ quyền"]
+    S --> L[("Task ledger có thẩm quyền<br/>State version · wait object<br/>result & artifact reference")]
+    W -- "Commit / reconcile" --> L
+    L -. "Reschedule / recover" .-> Q
+```
 
 *Hình 10-1 - Sự phối hợp giữa lập lịch, thực thi và state có thẩm quyền của task*
 
@@ -117,7 +123,30 @@ State machine thực thi task duy trì vòng đời và các chuyển đổi h�
 
 Các chuyển đổi trạng thái của state machine như hình dưới:
 
-![image.png](../assets/imgs/chapter-10/image-002.png)
+```mermaid
+stateDiagram-v2
+    [*] --> waiting
+    waiting --> queued
+    waiting --> hold
+    waiting --> skipped
+    queued --> running
+    running --> succeeded
+    running --> failed
+    running --> killed
+    hold --> waiting: unhold
+    hold --> skipped
+    skipped --> waiting: unskip
+    succeeded --> queued: retry thủ công
+    failed --> queued: retry
+    killed --> queued: retry
+    waiting --> mark_succeeded
+    queued --> mark_succeeded
+    hold --> mark_succeeded
+    skipped --> mark_succeeded
+    failed --> mark_succeeded
+    killed --> mark_succeeded
+    mark_succeeded --> [*]
+```
 
 **Việc chọn kho lưu state ảnh hưởng trực tiếp tới độ tin cậy:** lưu trong bộ nhớ thì đọc ghi nhanh nhất nhưng restart process là mất; lưu file thì chịu được restart process nhưng không truy cập được khi máy hỏng; lưu database (PostgreSQL, MySQL) thì có bảo đảm sẵn sàng cao và bền vững nhưng thêm phụ thuộc và độ trễ. Môi trường production thường lấy database làm kho chính, cache bộ nhớ để tăng tốc truy vấn tần suất cao, và **coi database là nguồn thẩm quyền của Task State.**
 
@@ -141,7 +170,21 @@ Task Agent thường cần con người can thiệp (**HITL - Human-in-the-Loop*
 
 **Lập lịch bên ngoài** do một hệ thống chuyên biệt quản lý việc phân bổ thực thi và đánh thức; Agent sau khi hoàn tất bước hiện tại thì lưu state cùng tham chiếu cần cho khôi phục, rồi giải phóng Worker theo năng lực môi trường. Khi event phê duyệt tới, hệ lập lịch kiểm chứng task, uỷ quyền và điều kiện chờ, rồi phân bổ lại tài nguyên. **Trong lúc chờ vẫn phải gánh chi phí lập lịch, lưu state, kênh thông báo và có thể cả việc giữ môi trường.**
 
-![image](../assets/imgs/chapter-10/image-003.png)
+```mermaid
+flowchart TB
+    subgraph I["Lập lịch dựng sẵn"]
+        I1["Queue + scheduler tích hợp trong ứng dụng"]
+        I2["State chỉ ở memory → phải giữ process<br/>State bền vững → có thể giải phóng compute"]
+        I1 --> I2
+    end
+    subgraph E["Lập lịch bên ngoài"]
+        E1["Dịch vụ độc lập quản lý trigger và phân bổ"]
+        E2["Worker nhận theo nhu cầu<br/>thực thi rồi tiếp tục / giải phóng"]
+        E1 --> E2
+    end
+    I --> C["Hợp đồng chung<br/>Task State + tiêu chí thành công do nghiệp vụ định nghĩa<br/>Approval gắn task, action và version<br/>Khôi phục phải kiểm tra lại authorization"]
+    E --> C
+```
 
 *Hình 10-2 - Ranh giới trách nhiệm giữa lập lịch dựng sẵn và lập lịch bên ngoài*
 
@@ -207,7 +250,14 @@ Dưới đây là một số cách xử lý khi lỡ; **phạm vi hỗ trợ tu�
 
 Việc đặt năng lực lập lịch định kỳ bên trong Agent hay đưa ra ngoài cho một hệ lập lịch task chuyên biệt (XXL-JOB, Alibaba Cloud SchedulerX, Apache Airflow…) phải cân nhắc trên sáu chiều: tính thống nhất của kích hoạt, kiểm soát đồng thời, failover, hiệu suất tài nguyên, rào cản tích hợp và độ phức tạp vận hành - **chứ không quy giản thành "có cùng process hay không".**
 
-![image](../assets/imgs/chapter-10/image-004.png)
+```mermaid
+flowchart LR
+    T["Time trigger<br/>Cron · ScheduledAt · FixedRate"] --> R["Trigger record<br/>Kiểm tra identity/source<br/>Deduplicate occurrence/event key"]
+    E["Event trigger<br/>Webhook · message · state change"] --> R
+    R --> Q["Task queue<br/>Admission · backpressure<br/>Concurrency / waiting limit"] --> W["Worker<br/>Execute · recover<br/>Commit state & result"]
+    R --> S[("Business state<br/>Invocation record · result")]
+    W --> S
+```
 
 *Hình 10-3 - Kích hoạt theo thời gian và theo sự kiện dùng chung chuỗi thực thi task*
 

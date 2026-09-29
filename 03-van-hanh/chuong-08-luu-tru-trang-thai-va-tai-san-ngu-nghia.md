@@ -36,7 +36,24 @@ Xét về hình thái dữ liệu, state của Agent không phải một đối 
 
 **Loại thứ tư là ngữ nghĩa nghiệp vụ và trạng thái quản trị**, gồm đối tượng ontology, quan hệ, luật, tenant, quyền hạn và bản ghi audit. Chúng giúp Agent không chỉ hiểu các mẩu ngôn ngữ tự nhiên, mà còn hiểu được định danh, quan hệ và ranh giới của các đối tượng nghiệp vụ như "khách hàng trọng điểm", "người phụ trách", "điều kiện phê duyệt". Mục 8.6 sẽ bàn cách ontology trở thành bộ khung ngữ nghĩa để Agent hiểu thế giới nghiệp vụ; còn mục 8.7 quay lại các vấn đề nền tảng như cô lập multi-tenant, tính nhất quán, vòng đời, chi phí và khả năng quan sát.
 
-![image](../assets/imgs/chapter-08/image-001.png)
+```mermaid
+flowchart TB
+    subgraph O["Đối tượng state hướng Agent"]
+        R["Runtime state<br/>Event log · checkpoint · task progress · lease"]
+        W["Workspace & Artifact<br/>File · snapshot · version · deliverable"]
+        M["Memory & Knowledge<br/>Tóm tắt · preference · tài liệu · index"]
+        B["Ngữ nghĩa nghiệp vụ & quản trị<br/>Ontology · quyền · audit"]
+    end
+    O --> C["Hợp đồng state và metadata thống nhất<br/>Identity · liên kết · version/lineage · policy<br/>Read · update · freeze · recover"]
+    C --> P
+    subgraph P["Năng lực lưu trữ vật lý"]
+        T["Transaction / state store"]
+        F["Object / file store"]
+        V["Retrieval / vector store"]
+        G["Relationship / graph store"]
+    end
+    P --> U["Quản trị và vận hành thống nhất<br/>Multi-tenancy · permission · audit · lifecycle · backup · compliance"]
+```
 
 *Hình 8-1 - Các đối tượng state của Agent và kiến trúc lưu trữ phân tầng*
 
@@ -122,7 +139,27 @@ Trạng thái runtime bảo đảm Agent biết "task đang tới đâu"; worksp
 
 Vì vậy, **workspace không nên bị coi là một thư mục tạm trên instance thực thi.** File cục bộ của instance cho phép đọc ghi nhanh, nhưng không nên là nguồn sự thật duy nhất; một khi instance bị thay, nhánh task bị chuyển hay nhiều người cộng tác cùng tham gia, nội dung trong thư mục tạm sẽ khó định vị, khó tái dùng và khó audit. Kho workspace hướng tới Agent cần tiến hoá từ "môi trường tạm chạy được" thành **"không gian tài sản task quản lý được lâu dài".**
 
-![image](../assets/imgs/chapter-08/image-002.png)
+```mermaid
+flowchart TB
+    A["Các Agent đang hoạt động"] --> V
+    subgraph V["Workspace độc lập — Copy-on-Write"]
+        W1["Workspace A<br/>Tầng ghi riêng"]
+        W2["Workspace B<br/>Tầng ghi riêng"]
+        WN["Workspace N<br/>Tầng ghi riêng"]
+        S["Tầng dùng chung<br/>Dữ liệu và image dùng chung"]
+        B["Base layer<br/>Base image và dữ liệu công khai"]
+        B --> S
+        S --> W1
+        S --> W2
+        S --> WN
+    end
+    V --> E["Event Log & Checkpoint"]
+    V --> N["Snapshot"]
+    V --> R["Artifact Store<br/>Namespace + object reference"]
+    E --> C["Nền tảng Lakebase<br/>Metadata DB · object storage · cache"]
+    N --> C
+    R --> C
+```
 
 *Hình 8-2 - Kiến trúc tổng thể của Agent Workspace*
 
@@ -212,7 +249,25 @@ Bộ nhớ dài hạn có thể lưu các sở thích người dùng đã nói r
 
 ### 8.4.2 Mô hình phân tầng bộ nhớ và vật mang vật lý
 
-![c991893210c74d4ba4ce6995b47d02e1.png](../assets/imgs/chapter-08/image-003.png)
+```mermaid
+flowchart LR
+    subgraph D["Hai chiều bộ nhớ"]
+        DM["Dialog Memory"]
+        BM["Behavior Memory"]
+    end
+    D --> P["Agent Persona"]
+    D --> U["User Profile"]
+    D --> E["Event & Preference"]
+    P --> R
+    U --> R
+    E --> R
+    subgraph R["Hybrid Recall"]
+        S["Semantic vector<br/>Embedding"]
+        K["Keyword<br/>BM25"]
+        G["Entity relationship"]
+    end
+    R --> RR["Rerank"] --> F["Time decay + category filter"] --> O["Bộ nhớ được gọi lại"]
+```
 
 *Hình 8-3 - Tổ chức phân tầng của bộ nhớ dài hạn và recall lai*
 
@@ -274,7 +329,25 @@ Memory và kho tri thức tuy cùng là nguồn tri thức của Agent, nhưng r
 
 Cả memory lẫn knowledge đều cần kiểm chứng nguồn. Nội dung kho tri thức **không** tự nhiên có thẩm quyền chỉ vì đã được import; memory cũng không nhất thiết đúng chỉ vì đến từ tương tác thật. Phần Xây dựng đã bàn cách cả hai đi vào context; mục này tập trung nói cách nguồn tri thức được parse, lập index, cập nhật và trả về trong phạm vi đã uỷ quyền.
 
-![image](../assets/imgs/chapter-08/image-004.png)
+```mermaid
+flowchart LR
+    K["Nguồn tri thức doanh nghiệp<br/>Tài liệu · bảng · multimedia · log"] --> RAG
+    K --> GR
+    K --> DP
+    subgraph RAG["RAG"]
+        R1["Hiểu tài liệu"] --> R2["Chunking"] --> R3["Vector hoá"] --> R4["Hybrid retrieval<br/>Vector · keyword · filter"]
+    end
+    subgraph GR["GraphRAG"]
+        G1["Trích xuất entity / relation"] --> G2["Knowledge graph"] --> G3["Traversal / pattern matching"]
+    end
+    subgraph DP["DataProbe — truy cập có kiểm soát"]
+        D1["Câu hỏi tự nhiên"] --> D2["Read-only request<br/>Giới hạn schema / field"]
+    end
+    RAG --> X["Unified rerank<br/>Relevance · authority · freshness"]
+    GR --> X
+    DP --> X
+    X --> P["Provenance<br/>Nguồn · đoạn · phiên bản"] --> A["Agent"]
+```
 
 *Hình 8-4 - Kiến trúc truy hồi tri thức hai làn: RAG và GraphRAG*
 
@@ -324,7 +397,36 @@ Kho tri thức RAG giải quyết vấn đề "Agent tìm được thông tin li
 
 **Ontology** định nghĩa tường minh các khái niệm nghiệp vụ, quan hệ và luật, tạo ra cấu trúc cho việc truy vấn xuyên đối tượng và đánh giá theo luật. Khi task chỉ cần truy hồi một ít tài liệu thì có thể bắt đầu từ truy hồi thông thường; còn khi định danh thực thể, ràng buộc quan hệ và truy vấn nhiều bước trở thành nhu cầu thường trực thì mới đưa ontology vào và gánh chi phí mô hình hoá cùng bảo trì tương ứng.
 
-![image](../assets/imgs/chapter-08/image-005.png)
+```mermaid
+flowchart TB
+    subgraph S["Semantic layer"]
+        O["Objects<br/>Entity · attribute · constraint"]
+        R["Relationships<br/>Direction · cardinality · meaning"]
+        M["Semantic modeling<br/>Object · relation · action · rule"]
+        O --> M
+        R --> M
+    end
+    subgraph D["Data flow layer"]
+        A["Actions<br/>Trigger · execution · permission"]
+        Y["Data sync"]
+        L["Object association"]
+        X["Runtime execution<br/>Lifecycle · scheduling · recovery"]
+        A --> X
+        Y --> X
+        L --> X
+    end
+    subgraph I["Intelligent decision layer"]
+        U["Rules"]
+        P["Permission policy"]
+        B["Agent binding"]
+        G["Governance & authorization"]
+        U --> G
+        P --> G
+        B --> G
+    end
+    S --> D --> I
+    I --> Q["Rule reasoning + LLM semantic reasoning"] --> E["Suy luận giải thích được<br/>Đường quan hệ · luật áp dụng · context tham chiếu"]
+```
 
 *Hình 8-5 - Mô hình hoá ngữ nghĩa ba tầng của ontology và suy luận giải thích được*
 

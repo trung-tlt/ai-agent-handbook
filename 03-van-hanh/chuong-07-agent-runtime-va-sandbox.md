@@ -16,7 +16,22 @@ Năng lực lập trình được giúp Agent tổ chức các bước thao tác
 
 Kiểm soát thực thi quyết định những thao tác này có vào được production hay không. Nền tảng giới hạn task trong phần tài nguyên tính toán, workspace và phạm vi truy cập đã cấp, tránh để dependency, process và file tạm của một dự án làm nhiễu dự án khác, và thu hồi tài nguyên sau khi task kết thúc. **Cô lập là nền tảng**, nhưng môi trường có dùng được hay không còn phụ thuộc vào các khâu cài dependency, truy cập file, khởi động dịch vụ và trả kết quả. Code, trình duyệt, desktop và workspace có thể do một dịch vụ môi trường thống nhất cung cấp, và được quản lý qua interface vòng đời.
 
-![image](../assets/imgs/chapter-07/image-001.png)
+```mermaid
+flowchart LR
+    A["Task nghiệp vụ<br/>Mục tiêu và đầu vào"] --> H["Model + Harness<br/>Lập kế hoạch và chọn tool"]
+    H --> S
+    subgraph S["Sandbox — môi trường thực thi cô lập"]
+        C["Code, lệnh, kiểm thử"]
+        D["File, dependency, toolchain"]
+        B["Trình duyệt / desktop<br/>Tương tác và xác minh"]
+        W[("Task workspace<br/>Đầu vào · trung gian · kết quả")]
+        C <--> W
+        D <--> W
+        B <--> W
+    end
+    S -- "Phản hồi runtime" --> H
+    S --> O["Artifact / kết quả đã xác minh"]
+```
 
 *Hình 7-1 - Sandbox hỗ trợ vòng lặp khép kín thực thi thật và phản hồi*
 
@@ -28,7 +43,20 @@ Agent và sandbox có hai kiểu quan hệ triển khai phổ biến. **Agent us
 
 Huấn luyện và đánh giá là một chiều quan sát khác. **Agent RL/Eval** quan tâm tới tương tác môi trường theo lô, lấy mẫu quỹ đạo, reset và lặp lại thí nghiệm; nó có thể dùng bất kỳ kiểu quan hệ triển khai nào ở trên. Vì vậy, use, in và RL/Eval có thể được bàn như **ba loại workload điển hình**, nhưng **không** nên hiểu thành ba kiến trúc kỹ thuật loại trừ nhau, và cũng không cố định ứng với một version sản phẩm nào.
 
-![image](../assets/imgs/chapter-07/image-002.png)
+```mermaid
+flowchart TB
+    subgraph P1["Agent sử dụng Sandbox"]
+        A1["Agent orchestration"] --> S1["Sandbox<br/>Tool execution"]
+    end
+    subgraph P2["Agent chạy trong Sandbox"]
+        subgraph S2["Sandbox"]
+            A2["Agent orchestration / session"] --> T2["Tool execution + workspace"]
+        end
+        M["Remote model service"] <--> A2
+    end
+    R["RL / Evaluation<br/>Batch interaction · reset · fork · replay"] --> P1
+    R --> P2
+```
 
 *Hình 7-2 - Quan hệ triển khai giữa Agent và Sandbox cùng các loại workload*
 
@@ -58,7 +86,15 @@ Sandbox trình duyệt phù hợp với các task cần trạng thái trang th�
 
 Cung cấp riêng lẻ trình duyệt hay interpreter thì hoàn thành được các thao tác cục bộ, nhưng task xuyên nhiều tool còn cần **workspace dùng chung**. Lấy "tải dữ liệu nghiệp vụ về rồi sinh một báo cáo" làm ví dụ: trình duyệt lưu dữ liệu vào thư mục task, code interpreter đọc thẳng file đó để xử lý, trang sinh ra lại được trình duyệt mở lên kiểm tra, và báo cáo cuối được export từ cùng workspace ấy. Môi trường **All-in-One (AIO)** đặt trình duyệt, code và terminal vào một không gian làm việc chia sẻ file được, giảm bớt công sức upload–download qua lại, chuyển đổi đường dẫn và khớp version giữa các bước.
 
-![image](../assets/imgs/chapter-07/image-003.png)
+```mermaid
+flowchart LR
+    I["Browser<br/>Tải / lấy đầu vào"] --> C["Code<br/>Phân tích và tạo file"] --> V["Browser<br/>Xem trước, tương tác, xác minh"] --> O["Bàn giao<br/>File · trang · báo cáo"]
+    W[("Workspace dùng chung<br/>Đầu vào · mã nguồn · dependency<br/>trung gian · kết quả")]
+    I <--> W
+    C <--> W
+    V <--> W
+    O <--> W
+```
 
 *Hình 7-3 - Workspace dùng chung hỗ trợ task xuyên nhiều tool*
 
@@ -110,7 +146,13 @@ Khi instance khôi phục, phải đồng thời đối chiếu tính đọc đ�
 
 Nhu cầu tính toán trong một phiên dài không liên tục. Agent có thể đang chờ model trả về, chờ người dùng xác nhận, chờ trang web phản hồi hoặc chờ sự kiện nghiệp vụ kế tiếp. Giữ nguyên toàn bộ tài nguyên tính toán sẽ khiến chi phí tăng theo thời gian giữ phiên; còn cứ mỗi lần chờ lại huỷ môi trường thì lại tăng chi phí cài dependency và khôi phục context. **Ngủ đông và khôi phục** giảm mức chiếm tài nguyên ở giai đoạn chờ trong khi vẫn giữ state cần thiết, và khôi phục thực thi khi sự kiện kế tiếp tới.
 
-![image](../assets/imgs/chapter-07/image-004.png)
+```mermaid
+flowchart LR
+    E["Thực thi task<br/>Agent / tool"] --> W["Chờ người dùng hoặc kết quả"] --> P["Lưu state và ngủ đông<br/>Tạm dừng model loop"]
+    X["User · task · timer"] --> R["Đánh thức và kiểm tra<br/>identity · version · resource"]
+    P -. "Giữ session và workspace<br/>có thể giải phóng compute" .-> R
+    R --> E2["Tiếp tục thực thi<br/>không mất tiến độ"]
+```
 
 *Hình 7-4 - Chờ, ngủ đông và tiếp tục trong phiên dài*
 
@@ -142,7 +184,17 @@ Huấn luyện và đánh giá có yêu cầu khác nhau với môi trường. H
 
 Bốn năng lực này giải quyết những vấn đề khác nhau. Template khiến các task lặp lại có cùng điểm xuất phát nhất quán; Snapshot lưu lại phần chuẩn bị đã hoàn tất; Fork cho phép nhiều lần thử triển khai song song từ cùng một giai đoạn; Reset ngăn thay đổi của lượt thử trước làm ô nhiễm kết quả lượt sau. Tài liệu snapshot của Agents cũng phân biệt giữa **tạm dừng – khôi phục một-một** và **snapshot – clone một-nhiều**.
 
-![image](../assets/imgs/chapter-07/image-005.png)
+```mermaid
+flowchart LR
+    I["Template / code / input"] --> S["Snapshot<br/>Trạng thái khởi tạo nhất quán"]
+    S --> A["Sandbox A<br/>Action ↔ feedback"]
+    S --> B["Sandbox B<br/>Action ↔ feedback"]
+    S --> C["Sandbox C<br/>Action ↔ feedback"]
+    A --> G["Tổng hợp trajectory<br/>và chấm điểm kết quả"]
+    B --> G
+    C --> G
+    G --> E["Training / Evaluation"]
+```
 
 *Hình 7-5 - Snapshot và fork hỗ trợ thăm dò song song*
 
@@ -217,7 +269,25 @@ Khi tích hợp, đội ứng dụng và đội nền tảng nên thoả thuận
 
 Mặt phẳng thực thi gánh vòng lặp task, chạy các component thực thi và instance sandbox; mặt phẳng dữ liệu và tài nguyên lưu image, workspace, bản ghi task, snapshot và sản phẩm; mặt phẳng điều khiển quản lý định danh, việc chấp nhận template, quyền hạn, quota và chính sách vòng đời. Việc quan sát xuyên suốt các mặt phẳng, liên kết một task người dùng với instance môi trường, version, kết quả thao tác và chi phí.
 
-![image](../assets/imgs/chapter-07/image-006.png)
+```mermaid
+flowchart TB
+    C["Control plane<br/>Identity · template · quota · lifecycle policy"] --> E
+    subgraph E["Execution plane"]
+        H["Harness orchestration"] --> R["Agent Runtime"] --> S["Sandbox task instance"]
+    end
+    subgraph D["Data & resource plane"]
+        I["Image"]
+        W["Workspace"]
+        N["Snapshot"]
+        A["Artifact"]
+        T["Task state"]
+    end
+    R --> D
+    S --> D
+    C --> O["Observability<br/>Event · log · metric · trace"]
+    E --> O
+    D --> O
+```
 
 *Hình 7-6 - Vị trí của Sandbox trong kiến trúc ba mặt phẳng*
 
@@ -239,7 +309,14 @@ Lập trình viên ứng dụng thường muốn hoàn tất việc tạo, kết
 
 Hai lối vào này có thể trỏ tới cùng một bộ năng lực nền dưới. Agents cung cấp đồng thời interface hướng ứng dụng và trừu tượng tài nguyên hướng nền tảng; Container Service của Alibaba Cloud cũng liệt kê hai cách tích hợp: SDK tương thích và tài nguyên khai báo. **Việc chọn interface và cách host có thể quyết định riêng rẽ; SDK cũng có thể nối tới dịch vụ tự dựng.** Ứng dụng cần đồng thời làm rõ **ai gánh việc vận hành môi trường**, và **tái dùng hạ tầng sẵn có ra sao**.
 
-![image](../assets/imgs/chapter-07/image-007.png)
+```mermaid
+flowchart TB
+    A["Application developer / nghiệp vụ"] --> S["SDK / API<br/>Tạo môi trường · chạy lệnh · quản lý session"]
+    P["Platform engineering / vận hành cluster"] --> K["Kubernetes API / CRD<br/>Khai báo môi trường · controller reconcile"]
+    S --> F
+    K --> F
+    F["Nền tảng Sandbox dùng chung<br/>Template · session · isolation · storage · autoscaling"]
+```
 
 *Hình 7-7 - Hai cách tích hợp và nền tảng năng lực chung*
 
