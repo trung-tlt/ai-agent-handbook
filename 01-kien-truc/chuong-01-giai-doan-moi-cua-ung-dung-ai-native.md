@@ -109,7 +109,24 @@ Công thức này trước hết nhấn mạnh **ranh giới trách nhiệm**. M
 
 Công thức này không phải một danh sách component đầy đủ, và cũng không có nghĩa Harness là một hộp đen không tách được. Để làm nổi bật tầm quan trọng của hệ thống kỹ thuật bên ngoài model, ở tầng trừu tượng cuốn sách này dùng **Harness theo nghĩa rộng**; còn khi triển khai thực tế thì tách tiếp thành: Agent Loop; Context, State và Memory; Tool, Skill và Protocol; Runtime và Sandbox; Observability và Evaluation; cùng Security và Governance. Các sản phẩm khác nhau có thể chọn ranh giới component và cách hiện thực hoá khác nhau, nhưng đều phải trả lời: những năng lực này do ai cung cấp, phối hợp thế nào, và làm sao tạo thành ràng buộc có tính xác định mà model không tự vòng qua được.
 
-![image.png](../assets/imgs/chapter-01/image-001.png)
+```mermaid
+flowchart TB
+    Agent["Agent"]
+    Model["Model<br/>Hiểu · Suy luận · Tạo sinh · Ra quyết định"]
+    Harness["Harness<br/>Tổ chức · Ràng buộc · Điều phối thực thi"]
+
+    Agent -->|Cấu thành từ| Model
+    Agent -->|Cấu thành từ| Harness
+
+    Harness --> Loop["Agent Loop<br/>Quan sát · Nhận định · Hành động · Phản hồi"]
+    Harness --> Context["Context · State · Memory<br/>Input nhận thức · Sự thật về task · Bộ nhớ xuyên phiên"]
+    Harness --> Capability["Tool · Skill · Protocol<br/>Đóng gói năng lực · Kết nối hệ thống"]
+    Harness --> Runtime["Runtime · Sandbox<br/>Lập lịch · Khôi phục · Quản lý tài nguyên · Cô lập môi trường"]
+    Harness --> Quality["Observability · Evaluation<br/>Quan sát quá trình · Kiểm chứng kết quả · Đánh giá liên tục"]
+    Harness --> Control["Security · Governance<br/>Định danh · Quyền hạn · Policy · Ngân sách · Audit"]
+
+    Model -. Phối hợp trong vòng lặp .-> Loop
+```
 
 *Hình 1-1 - Từ công thức nền tảng của Agent đến việc bóc tách kiến trúc kỹ thuật*
 
