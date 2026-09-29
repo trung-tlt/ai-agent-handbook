@@ -1,7 +1,4 @@
 # README
-
-Tiếng Việt | [English](./README_EN.md)
-
 # AI Agent HandBook
 
 Bám theo vòng đời của ứng dụng Agent — kiến trúc, xây dựng, vận hành, quản trị và tối ưu — cuốn sách cung cấp một khung kỹ thuật có hệ thống để đưa Agent từ bản demo vào môi trường production.
