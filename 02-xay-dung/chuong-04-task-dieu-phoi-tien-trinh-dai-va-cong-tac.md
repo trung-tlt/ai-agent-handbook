@@ -1,12 +1,12 @@
-# Chương 4 — Task: điều phối, tiến trình dài và luân chuyển cộng tác
+# Chương 4 - Task: điều phối, tiến trình dài và luân chuyển cộng tác
 
-Chương trước đã bàn về các lối vào khác nhau khi doanh nghiệp xây Agent: tự xây Harness dựa trên Agent Framework high-code, tái sử dụng Harness đóng gói sản phẩm, dùng dịch vụ Managed Agents để bàn giao Agent, và xây nhanh Agent trên nền các năng lực dựng sẵn của sản phẩm cloud. Chương này đi tiếp xuống dưới theo trục "lối vào xây dựng", tập trung vào một vấn đề cụ thể hơn: **khi task không thể hoàn thành bằng một lần gọi model, Harness tổ chức những nhận định rời rạc của model thành một quá trình task tiến triển bền bỉ, gián đoạn rồi khôi phục được, kết thúc kiểm chứng được — ra sao.**
+Chương trước đã bàn về các lối vào khác nhau khi doanh nghiệp xây Agent: tự xây Harness dựa trên Agent Framework high-code, tái sử dụng Harness đóng gói sản phẩm, dùng dịch vụ Managed Agents để bàn giao Agent, và xây nhanh Agent trên nền các năng lực dựng sẵn của sản phẩm cloud. Chương này đi tiếp xuống dưới theo trục "lối vào xây dựng", tập trung vào một vấn đề cụ thể hơn: **khi task không thể hoàn thành bằng một lần gọi model, Harness tổ chức những nhận định rời rạc của model thành một quá trình task tiến triển bền bỉ, gián đoạn rồi khôi phục được, kết thúc kiểm chứng được - ra sao.**
 
 Một lần output của model chỉ là một nhận định rời rạc, trong khi việc giải một task cấp doanh nghiệp thường là một **quá trình liên tục**. Nó có thể cần hiểu môi trường trước, rồi lập kế hoạch, gọi liên tiếp nhiều tool, chờ phê duyệt trước những hành động then chốt, uỷ nhiệm một phần công việc cho sub-agent, trải qua thất bại và khôi phục, và cuối cùng còn phải dùng sự thật từ môi trường để chứng minh mục tiêu đã đạt. Trách nhiệm của **nhân lõi thực thi** trong Harness chính là tổ chức mỗi nhận định của model thành một quá trình task có state, kiểm soát được, khôi phục được.
 
 Chương này tập trung vào hệ thống thực thi và orchestration của Harness: Agent Loop đẩy task tiến triển ra sao, Planning và Todo đưa mục tiêu ra bên ngoài thế nào, Subagent hình thành uỷ nhiệm có kiểm soát ra sao, task bất đồng bộ vượt qua ranh giới request, process và cửa sổ context thế nào, và làm sao đánh giá rằng Agent **thực sự hoàn thành** chứ không chỉ *dừng lại*. Việc tổ chức thông tin của Context, Memory và Workspace sẽ triển khai ở chương 5; còn tool, Sandbox, quyền hạn, Streaming, Trace và Evaluation là nội dung chính của chương 6.
 
-Chương này dùng một case doanh nghiệp xuyên suốt. Case này vừa chứa thực thi tiến trình dài, vừa chứa uỷ nhiệm song song, chờ bất đồng bộ, con người can thiệp và kiểm chứng có tính xác định — đủ đại diện cho rất nhiều task kỹ thuật trong doanh nghiệp.
+Chương này dùng một case doanh nghiệp xuyên suốt. Case này vừa chứa thực thi tiến trình dài, vừa chứa uỷ nhiệm song song, chờ bất đồng bộ, con người can thiệp và kiểm chứng có tính xác định - đủ đại diện cho rất nhiều task kỹ thuật trong doanh nghiệp.
 
 > **Agent vá lỗ hổng dịch vụ production và phát hành thay đổi:** sau khi nhận task về lỗ hổng phụ thuộc rủi ro cao trong dịch vụ thanh toán, Agent cần định vị code và instance đang chạy bị ảnh hưởng, lập phương án nâng cấp, phân bổ việc phân tích phụ thuộc, sửa code và thẩm định độc lập cho các bên thực thi khác nhau, sửa code và chạy test trong môi trường cô lập, sinh phiếu thay đổi; khi liên quan tới phát hành thì chờ người chịu trách nhiệm phê duyệt; cuối cùng dùng diff code, báo cáo test, kết quả quét bảo mật và trạng thái phát hành để kiểm chứng task đã hoàn thành hay chưa.
 
@@ -16,7 +16,7 @@ Chương này dùng một case doanh nghiệp xuyên suốt. Case này vừa ch�
 
 ### 4.1.1 Từ lời gọi model đến vòng lặp task
 
-Agent Loop là phần nhân ổn định nhất của Harness. Nó không đòi hỏi model phải đưa ra câu trả lời hoàn chỉnh trong một lần, mà cho phép model lặp lại chu trình "nhận định — hành động — quan sát — nhận định tiếp" dựa trên mục tiêu hiện tại và phản hồi từ môi trường, cho tới khi task được kiểm chứng là hoàn thành, hoặc chuyển sang trạng thái chờ, thất bại hay bị huỷ.
+Agent Loop là phần nhân ổn định nhất của Harness. Nó không đòi hỏi model phải đưa ra câu trả lời hoàn chỉnh trong một lần, mà cho phép model lặp lại chu trình "nhận định - hành động - quan sát - nhận định tiếp" dựa trên mục tiêu hiện tại và phản hồi từ môi trường, cho tới khi task được kiểm chứng là hoàn thành, hoặc chuyển sang trạng thái chờ, thất bại hay bị huỷ.
 
 Một Loop tối thiểu nhưng hoàn chỉnh có thể trừu tượng thành năm giai đoạn:
 
@@ -79,7 +79,7 @@ Lịch sử message ghi lại những gì model và người dùng đã trao đ�
 
 `WAITING` không phải thất bại, `PAUSED` cũng không phải kết thúc. Chỉ khi những state này được làm tường minh thì Runtime ở tầng trên mới giải phóng được tài nguyên tính toán trong lúc chờ và khôi phục chính xác; giao diện tương tác mới nói được Agent đang chờ cái gì; hệ thống quan sát mới phân biệt được *thực thi chậm*, *phê duyệt chậm* và *tool chậm*.
 
-Loop còn bắt buộc phải có **ranh giới chấm dứt từ bên ngoài**. Số bước, tổng thời lượng, token và chi phí, số lần gọi tool, số subtask chạy song song, số hành động rủi ro cao — tất cả đều nên đi vào ngân sách. Khi ngân sách gần chạm ngưỡng, Harness có thể yêu cầu model thu hẹp phạm vi, dừng uỷ nhiệm mới, ưu tiên hoàn tất phần bàn giao được, hoặc để người dùng chọn; khi ngân sách cạn, phải sinh ra một trạng thái cuối rõ ràng cùng danh sách việc chưa xong, **chứ không cắt ngang một cách lặng lẽ**.
+Loop còn bắt buộc phải có **ranh giới chấm dứt từ bên ngoài**. Số bước, tổng thời lượng, token và chi phí, số lần gọi tool, số subtask chạy song song, số hành động rủi ro cao - tất cả đều nên đi vào ngân sách. Khi ngân sách gần chạm ngưỡng, Harness có thể yêu cầu model thu hẹp phạm vi, dừng uỷ nhiệm mới, ưu tiên hoàn tất phần bàn giao được, hoặc để người dùng chọn; khi ngân sách cạn, phải sinh ra một trạng thái cuối rõ ràng cùng danh sách việc chưa xong, **chứ không cắt ngang một cách lặng lẽ**.
 
 ### 4.1.3 Case: một task vá lỗ hổng tiến triển ra sao
 
@@ -127,7 +127,7 @@ Tuỳ độ phức tạp của task, Harness có thể dùng ba cách kiểm so�
 | Plan Mode | Thăm dò chỉ-đọc, hình thành kế hoạch, xác nhận rồi mới thực thi | Diện ảnh hưởng lớn, cần thẩm định, môi trường chưa rõ |
 | Planner–Executor | Planner duy trì giai đoạn và phụ thuộc, Executor thực thi từng mục | Task dài, nhiều phụ thuộc, chạy song song được hoặc cần vai trò chuyên môn |
 
-**Kế hoạch bắt buộc phải cho phép sửa đổi.** Kết quả tool có thể lật ngược giả định, người dùng có thể đổi mục tiêu, và môi trường cũng có thể lộ ra ràng buộc mới. Mỗi lần lập lại kế hoạch đều phải nêu rõ sự thật đã kích hoạt việc đó và giữ lại các mục đã hoàn thành — **không được viết lại mục tiêu để che đi thất bại.** Còn Todo thì không cần ghi từng lời gọi tool nhỏ, chỉ ghi những việc làm thay đổi trạng thái bàn giao được của task, và giữ duy nhất một mục đang tiến hành hoặc một nhóm song song rõ ràng.
+**Kế hoạch bắt buộc phải cho phép sửa đổi.** Kết quả tool có thể lật ngược giả định, người dùng có thể đổi mục tiêu, và môi trường cũng có thể lộ ra ràng buộc mới. Mỗi lần lập lại kế hoạch đều phải nêu rõ sự thật đã kích hoạt việc đó và giữ lại các mục đã hoàn thành - **không được viết lại mục tiêu để che đi thất bại.** Còn Todo thì không cần ghi từng lời gọi tool nhỏ, chỉ ghi những việc làm thay đổi trạng thái bàn giao được của task, và giữ duy nhất một mục đang tiến hành hoặc một nhóm song song rõ ràng.
 
 ### 4.2.2 Ràng buộc việc thực thi bằng cổng kiểm soát theo giai đoạn
 
@@ -141,7 +141,7 @@ Task dài không nên đợi đến tận cuối mới kiểm chứng. Case vá 
 | Kiểm chứng độc lập | Unit test, integration test, quét bảo mật, ý kiến thẩm định | Mọi kiểm tra bắt buộc đều pass, hoặc khoảng hụt được chấp nhận một cách tường minh |
 | Chuẩn bị phát hành | Phiếu thay đổi, cửa sổ phát hành, đường rollback | Người chịu trách nhiệm phê duyệt; chương này **không** tự động phát hành lên production |
 
-Cổng kiểm soát theo giai đoạn vừa giảm việc tiếp tục đổ công sức theo hướng sai, vừa tạo ra ranh giới ổn định cho việc nén Context, cho con người tiếp quản và cho việc nối tiếp xuyên cửa sổ. Một mô tả giai đoạn hiệu quả phải trả lời được *output là gì, bằng chứng nằm ở đâu, ai xác nhận* — chứ không chỉ viết chung chung kiểu "phân tích vấn đề", "xử lý code", "đảm bảo chất lượng".
+Cổng kiểm soát theo giai đoạn vừa giảm việc tiếp tục đổ công sức theo hướng sai, vừa tạo ra ranh giới ổn định cho việc nén Context, cho con người tiếp quản và cho việc nối tiếp xuyên cửa sổ. Một mô tả giai đoạn hiệu quả phải trả lời được *output là gì, bằng chứng nằm ở đâu, ai xác nhận* - chứ không chỉ viết chung chung kiểu "phân tích vấn đề", "xử lý code", "đảm bảo chất lượng".
 
 ### 4.2.3 Tách riêng thăm dò, lập kế hoạch và thực thi
 
@@ -159,7 +159,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 ```
 
-Plan Mode chia quá trình thực thi thành "thăm dò chỉ-đọc → ghi kế hoạch → con người xác nhận → vào thực thi". Giai đoạn thăm dò chỉ mở các tool chỉ-đọc cùng các tool kế hoạch như `plan_enter`, `plan_write`, `plan_exit`, `todo_write`; `plan_exit` kích hoạt xác nhận của con người, và chỉ sau khi được duyệt mới vào giai đoạn được sửa workspace. Kế hoạch được ghi vào `plans/PLAN.md`, Todo lưu trong state của Agent — nên cả hai đều khôi phục được xuyên các lần gọi.
+Plan Mode chia quá trình thực thi thành "thăm dò chỉ-đọc → ghi kế hoạch → con người xác nhận → vào thực thi". Giai đoạn thăm dò chỉ mở các tool chỉ-đọc cùng các tool kế hoạch như `plan_enter`, `plan_write`, `plan_exit`, `todo_write`; `plan_exit` kích hoạt xác nhận của con người, và chỉ sau khi được duyệt mới vào giai đoạn được sửa workspace. Kế hoạch được ghi vào `plans/PLAN.md`, Todo lưu trong state của Agent - nên cả hai đều khôi phục được xuyên các lần gọi.
 
 Cách hiện thực này cho thấy khác biệt giữa **Prompt và kiểm soát bằng Harness**: Prompt có thể yêu cầu model "lập kế hoạch trước rồi mới sửa", nhưng chỉ khi chế độ quyền hạn, whitelist tool, state bền vững và HITL cùng có hiệu lực, hệ thống mới thực sự có được ràng buộc "chưa duyệt kế hoạch thì không được ghi".
 
@@ -212,7 +212,7 @@ flowchart TB
 
 ```
 
-Việc phân tích và thăm dò codebase có thể chạy song song, nhưng việc sửa code phải dựa trên version mục tiêu đã được xác nhận; còn việc thẩm định bắt buộc phải đọc diff cố định và kết quả test, chứ không được chia sẻ những nhận định trung gian chưa commit với bên thực thi. Nếu nhiều bên thực thi cùng sửa một workspace, phải dùng nhánh cô lập, khoá ở mức đối tượng hoặc hợp nhất patch — **không thể trông cậy vào kiểu "mọi người cẩn thận đừng đụng nhau".**
+Việc phân tích và thăm dò codebase có thể chạy song song, nhưng việc sửa code phải dựa trên version mục tiêu đã được xác nhận; còn việc thẩm định bắt buộc phải đọc diff cố định và kết quả test, chứ không được chia sẻ những nhận định trung gian chưa commit với bên thực thi. Nếu nhiều bên thực thi cùng sửa một workspace, phải dùng nhánh cô lập, khoá ở mức đối tượng hoặc hợp nhất patch - **không thể trông cậy vào kiểu "mọi người cẩn thận đừng đụng nhau".**
 
 AgentScope hỗ trợ khai báo sub-agent thành các đặc tả có version trong workspace. Ví dụ:
 
@@ -267,7 +267,7 @@ sequenceDiagram
 
 Task nền, sự kiện và việc khôi phục nên dùng chung một bộ hợp đồng: ID task ổn định, ID task cha, state hiện tại, người tạo và người thực thi, tham chiếu tới input và Artifact, số thứ tự event, ngữ nghĩa timeout – huỷ – idempotent, vị trí kết quả, phân loại lỗi, cùng phần Continuation cần cho việc khôi phục.
 
-Trước khi tạm dừng, Harness nên ngừng tạo hành động mới, xử lý xong các thao tác gián đoạn được và lưu state mới nhất; khi khôi phục thì kiểm tra lại mục tiêu, điều kiện bên ngoài, tool đã thực sự chạy hay chưa, quyền hạn còn hiệu lực không, workspace có thay đổi không và ngân sách còn bao nhiêu. Việc huỷ cần lan truyền dọc theo quan hệ cha–con, nhưng **những tác dụng phụ bên ngoài đã xảy ra thì không thể giả vờ là không có** — phải giữ lại sự thật và thực hiện bù trừ khi cần.
+Trước khi tạm dừng, Harness nên ngừng tạo hành động mới, xử lý xong các thao tác gián đoạn được và lưu state mới nhất; khi khôi phục thì kiểm tra lại mục tiêu, điều kiện bên ngoài, tool đã thực sự chạy hay chưa, quyền hạn còn hiệu lực không, workspace có thay đổi không và ngân sách còn bao nhiêu. Việc huỷ cần lan truyền dọc theo quan hệ cha–con, nhưng **những tác dụng phụ bên ngoài đã xảy ra thì không thể giả vờ là không có** - phải giữ lại sự thật và thực hiện bù trừ khi cần.
 
 Context Reset chỉ lo phần **ngữ nghĩa kiểm soát**: tạo ra một điểm nối nhất quán trước khi cửa sổ cũ kết thúc, và dựng lại view task hiện tại từ state có thẩm quyền trong cửa sổ mới. Continuation nên gồm mục tiêu, Plan hiện tại, các sự thật đã xác nhận, những lần thử thất bại, Artifact, các mục đang chờ, ngân sách còn lại và chế độ quyền hạn. Cách lưu trữ, nén và lắp ráp cụ thể của nó sẽ triển khai ở chương 5.
 
@@ -298,7 +298,7 @@ for await (const message of query({
 
 ```
 
-SDK cung cấp interface gọi và event ngay trong process ứng dụng, còn CLI Runtime ở tầng dưới lo việc lập kế hoạch, gọi model và thực thi tool. Dịch vụ doanh nghiệp vẫn phải bù ở vòng ngoài phần định danh tenant, hàng đợi task, index Session, lưu trữ Artifact, chính sách quyền hạn và nghiệm thu nghiệp vụ — **không thể đánh đồng một process SDK cục bộ với một dịch vụ online phân tán.**
+SDK cung cấp interface gọi và event ngay trong process ứng dụng, còn CLI Runtime ở tầng dưới lo việc lập kế hoạch, gọi model và thực thi tool. Dịch vụ doanh nghiệp vẫn phải bù ở vòng ngoài phần định danh tenant, hàng đợi task, index Session, lưu trữ Artifact, chính sách quyền hạn và nghiệm thu nghiệp vụ - **không thể đánh đồng một process SDK cục bộ với một dịch vụ online phân tán.**
 
 Trong môi trường nhiều instance hoặc co giãn, Session nên được lưu vào kho dùng chung. Bên gọi ghi lại `session_id` trả về ở lần chạy đầu, các request sau khôi phục qua `resume`; instance nào cũng đọc được cùng một Session, thay vì phụ thuộc vào container ban đầu. Session Store bên ngoài giải quyết việc **nối tiếp phiên**; còn hàng đợi task, kiểm soát đồng thời và tính idempotent nghiệp vụ thì vẫn thuộc trách nhiệm của tầng dịch vụ doanh nghiệp.
 
@@ -342,7 +342,7 @@ Một vấn đề tiến hoá thường gặp là: cứ thêm một năng lực 
 
 Bản thân phần mở rộng cũng cần có thứ tự, phạm vi đọc–ghi, quy tắc xung đột, ngữ nghĩa thất bại và khả năng quan sát. Tốt nhất là để phần mở rộng trả về một Decision hoặc Patch có cấu trúc, rồi Loop lõi commit một cách thống nhất, thay vì cho phép sửa tuỳ ý đối tượng dùng chung.
 
-`HarnessAgent` của AgentScope dùng cách tổ hợp năng lực, chồng workspace, kho state, kế hoạch, Subagent, Memory, nén, Skill, Sandbox và Channel lên một runtime context thống nhất. Vì vậy con đường Framework có không gian tinh chỉnh nghiệp vụ lớn nhất — và cũng có nghĩa đội ứng dụng phải chịu trách nhiệm về việc tổ hợp năng lực, thứ tự vòng đời và hiệu quả cuối cùng.
+`HarnessAgent` của AgentScope dùng cách tổ hợp năng lực, chồng workspace, kho state, kế hoạch, Subagent, Memory, nén, Skill, Sandbox và Channel lên một runtime context thống nhất. Vì vậy con đường Framework có không gian tinh chỉnh nghiệp vụ lớn nhất - và cũng có nghĩa đội ứng dụng phải chịu trách nhiệm về việc tổ hợp năng lực, thứ tự vòng đời và hiệu quả cuối cùng.
 
 ### 4.5.2 Test hợp đồng cho phần có tính xác định
 

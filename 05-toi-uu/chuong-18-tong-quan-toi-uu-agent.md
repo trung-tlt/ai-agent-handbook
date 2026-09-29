@@ -1,10 +1,10 @@
-# Chương 18 — Tổng quan tối ưu Agent
+# Chương 18 - Tổng quan tối ưu Agent
 
 Tối ưu model thay đổi năng lực của bản thân model; còn tối ưu Agent thay đổi cách một Agent đã lên production sử dụng model, tool và luật nghiệp vụ để làm tốt task một cách lặp đi lặp lại. Các chương 18 đến 23 triển khai quanh cùng một mạch chính: gom những sự thật mà mỗi lần chạy thật để lại thành mẫu tái dùng được, chuẩn kiểm tra được và thay đổi kiểm chứng được, rồi đưa những thay đổi hữu hiệu trở lại môi trường vận hành, tạo thành một **data flywheel** cải tiến liên tục.
 
 Chương này trước hết đưa ra bức tranh tổng thể của data flywheel, giải thích vì sao sau khi Agent lên production vẫn phải liên tục trả lời "task có làm tốt không, và làm tốt thì tốn bao nhiêu", cùng cách các module nối với nhau quanh cùng một task. Năm chương tiếp theo lần lượt triển khai từng khâu của bánh đà: chương 19 tổ chức các bản ghi vận hành rời rạc thành trajectory đọc được và phân tích được; chương 20 dùng Pipeline khai báo để liên tục gia công trajectory thành mẫu nghiệp vụ; chương 21 xác nhận mẫu thành golden dataset tái dùng được; chương 22 dùng đánh giá liên tục để phát hiện vấn đề và dùng thí nghiệm để so sánh thay đổi; chương 23 kết tinh những phương pháp đã kiểm chứng hữu hiệu thành Skill, kinh nghiệm và cải tiến cơ chế vận hành.
 
-Về cách đọc, nên đọc chương này trước để có nhận thức tổng thể, rồi lần lượt tìm hiểu các khâu nối tiếp nhau ra sao. Khi thực sự bắt tay làm thì không cần đọc hết: có thể khởi đầu từ vấn đề mà đội đang muốn giải quyết nhất — gỡ lỗi, chi phí hay kiểm định chất lượng nghiệp vụ — rồi đi theo mạch "tìm ra vấn đề, xác nhận chuẩn, kiểm chứng thay đổi" để làm trọn vòng đầu tiên trước, sau đó bổ sung dần các khâu còn lại. Các chương đều theo cùng một thứ tự: trước hết nói bắt đầu từ đâu, thao tác ra sao, rồi nói có kết quả rồi thì làm gì tiếp.
+Về cách đọc, nên đọc chương này trước để có nhận thức tổng thể, rồi lần lượt tìm hiểu các khâu nối tiếp nhau ra sao. Khi thực sự bắt tay làm thì không cần đọc hết: có thể khởi đầu từ vấn đề mà đội đang muốn giải quyết nhất - gỡ lỗi, chi phí hay kiểm định chất lượng nghiệp vụ - rồi đi theo mạch "tìm ra vấn đề, xác nhận chuẩn, kiểm chứng thay đổi" để làm trọn vòng đầu tiên trước, sau đó bổ sung dần các khâu còn lại. Các chương đều theo cùng một thứ tự: trước hết nói bắt đầu từ đâu, thao tác ra sao, rồi nói có kết quả rồi thì làm gì tiếp.
 
 ## 18.1 Sau khi Agent lên production, còn phải liên tục trả lời những câu hỏi nào
 
@@ -52,13 +52,13 @@ Thứ mà data flywheel giải quyết chính là sự đứt gãy đó. Nó gom
 
 **Tuyến kia cải thiện hành vi của Agent.** Sau khi đánh giá xác nhận là thiếu bước cấu hình, đội có thể bổ sung Skill; phát hiện dùng sai tool thì sửa mô tả tool; phát hiện gửi lại nhiều lần sau timeout thì kiểm tra logic retry và logic kiểm chứng kết quả. Những sửa đổi này trước hết thành ứng viên, rồi qua thí nghiệm cùng điều kiện và hồi quy, mới quyết định có áp dụng không.
 
-Vì vậy, dữ liệu trong việc tối ưu đảm nhận hai vai: giúp đánh giá nên sửa ở đâu, và giúp bác bỏ những sửa đổi không có tác dụng hay gây thụt lùi. Số mẫu tăng lên, kinh nghiệm được nhập kho, ứng viên được sinh ra — tất cả vẫn chỉ là sản phẩm trung gian. Chỉ sau khi thay đổi hữu hiệu đi vào vận hành, thì kết quả của các task mới mới cung cấp được phản hồi cho vòng kế tiếp.
+Vì vậy, dữ liệu trong việc tối ưu đảm nhận hai vai: giúp đánh giá nên sửa ở đâu, và giúp bác bỏ những sửa đổi không có tác dụng hay gây thụt lùi. Số mẫu tăng lên, kinh nghiệm được nhập kho, ứng viên được sinh ra - tất cả vẫn chỉ là sản phẩm trung gian. Chỉ sau khi thay đổi hữu hiệu đi vào vận hành, thì kết quả của các task mới mới cung cấp được phản hồi cho vòng kế tiếp.
 
 ## 18.3 Nối các module quanh cùng một task
 
 Hình dưới trình bày quan hệ giữa những phần việc này trong bức tranh quan sát và tối ưu Agent. Mạch chính bắt đầu từ việc chạy thật, đi qua khâu tổ chức trajectory và gia công bằng Pipeline, hình thành dữ liệu cho các mục đích khác nhau, rồi vào đánh giá, thí nghiệm và tối ưu; còn các nhánh phụ lo việc con người soát lại, hiệu chỉnh evaluator và sử dụng kinh nghiệm.
 
-*Hình 1 — Kiến trúc tổng thể của data flywheel cho Agent*
+*Hình 1 - Kiến trúc tổng thể của data flywheel cho Agent*
 
 ![image](../assets/imgs/chapter-18/image-001.png)
 

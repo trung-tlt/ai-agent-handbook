@@ -1,8 +1,8 @@
 # Từ eval-driven tới bàn giao đầu cuối: thực tiễn nâng hiệu suất R&D cho sản phẩm bảo mật AI Agent
 
-## Một — Nút thắt hiệu suất của việc phát triển sản phẩm AI Agent nằm ở đâu?
+## Một - Nút thắt hiệu suất của việc phát triển sản phẩm AI Agent nằm ở đâu?
 
-Sau khi sản phẩm AI Agent vào môi trường production, thứ mà đội R&D đối diện là các task, dữ liệu và đường thực thi liên tục thay đổi. Một lần nâng cấp model, chỉnh prompt hay sửa tool có thể giải quyết được vấn đề trước mắt, nhưng cũng có thể ảnh hưởng tới các kịch bản khác. Chứng minh phần sửa hữu hiệu ra sao, tránh làm lại lặp đi lặp lại ra sao — đó là những vấn đề then chốt trong quá trình bàn giao.
+Sau khi sản phẩm AI Agent vào môi trường production, thứ mà đội R&D đối diện là các task, dữ liệu và đường thực thi liên tục thay đổi. Một lần nâng cấp model, chỉnh prompt hay sửa tool có thể giải quyết được vấn đề trước mắt, nhưng cũng có thể ảnh hưởng tới các kịch bản khác. Chứng minh phần sửa hữu hiệu ra sao, tránh làm lại lặp đi lặp lại ra sao - đó là những vấn đề then chốt trong quá trình bàn giao.
 
 **Agentic SOC** là sản phẩm vận hành bảo mật lấy việc cộng tác nhiều Agent làm cốt lõi, gom các cảnh báo rời rạc từ nhiều cloud, nhiều sản phẩm bảo mật thành những sự kiện bảo mật điều tra được và xử trí được, phủ các khâu thẩm định cảnh báo, điều tra ứng phó, săn tìm mối đe doạ và vòng lặp khép kín vận hành. Các thất bại, phần người dùng chỉnh sai và kết quả task trong production thật liên tục cung cấp input cải tiến cho đội R&D.
 
@@ -12,7 +12,7 @@ Vì vậy, muốn nâng hiệu suất thì phải thông đồng thời hai chu�
 
 ![image](../../assets/imgs/chapter-25/image-038.png)
 
-## Hai — Từ một lần sửa khiếm khuyết tới tài sản R&D tái dùng bền vững
+## Hai - Từ một lần sửa khiếm khuyết tới tài sản R&D tái dùng bền vững
 
 Một vấn đề điển hình là việc nhận diện kẻ tấn công và nạn nhân bị đảo ngược: thực tế là A tấn công B, nhưng báo cáo lại xuất ra B tấn công A. Loại lỗi này ảnh hưởng tới kết luận điều tra, thậm chí ảnh hưởng tới hướng xử trí về sau, nên không thể chỉ sửa câu chữ của báo cáo là xong.
 
@@ -28,7 +28,7 @@ Với đội R&D, điểm kết của việc xử lý khiếm khuyết đã mở
 
 ![image](../../assets/imgs/chapter-25/image-039.png)
 
-## Ba — R&D do đánh giá dẫn dắt: làm rõ hướng đi và chuẩn hoàn thành của mỗi vòng lặp
+## Ba - R&D do đánh giá dẫn dắt: làm rõ hướng đi và chuẩn hoàn thành của mỗi vòng lặp
 
 ### Dựng baseline đánh giá so sánh được và tái lập được
 
@@ -44,11 +44,11 @@ Việc đánh giá đảm nhận ba trách nhiệm liên tiếp: **định vị 
 
 Trước khi phát hành thì kết hợp thêm việc đo lại khiếm khuyết, đánh giá trên tập test độc lập, phát lại task production và kiểm chứng canary. Qua được phần đánh giá nghĩa là hình thành một version ứng viên; còn việc lên production cuối cùng thì vẫn cần con người phê duyệt dựa trên bằng chứng đánh giá và rủi ro.
 
-Giá trị trực tiếp của hệ đánh giá với hiệu suất R&D là rút ngắn chu kỳ phản hồi "đề xuất sửa — xác nhận hữu hiệu". Đội phân bổ được đầu tư theo đúng khoảng hụt năng lực cụ thể, nhận ra thụt lùi sớm hơn, và tái dùng được quá trình kiểm chứng. Bản thân hệ đánh giá cũng cần được bảo trì; lợi ích của nó đến từ phần bất định và phần việc lặp giảm dần trong các vòng lặp về sau.
+Giá trị trực tiếp của hệ đánh giá với hiệu suất R&D là rút ngắn chu kỳ phản hồi "đề xuất sửa - xác nhận hữu hiệu". Đội phân bổ được đầu tư theo đúng khoảng hụt năng lực cụ thể, nhận ra thụt lùi sớm hơn, và tái dùng được quá trình kiểm chứng. Bản thân hệ đánh giá cũng cần được bảo trì; lợi ích của nó đến từ phần bất định và phần việc lặp giảm dần trong các vòng lặp về sau.
 
 ![image](../../assets/imgs/chapter-25/image-040.png)
 
-## Bốn — Tự chủ có kiểm soát: mở rộng phạm vi task R&D mà Agent gánh được
+## Bốn - Tự chủ có kiểm soát: mở rộng phạm vi task R&D mà Agent gánh được
 
 Khi mục tiêu task và điều kiện hoàn thành mô tả rõ ràng được, Agent gánh được nhiều phần việc phân tích, sửa và kiểm chứng hơn. Nhưng việc tự chủ đẩy tới cần có ranh giới, nếu không thì việc lệch mục tiêu hay retry vô ích sẽ ngốn nhiều thời gian R&D hơn.
 
@@ -60,7 +60,7 @@ Việc cộng tác người – máy nhờ đó đi từ hỗ trợ thực thi, 
 
 ![image](../../assets/imgs/chapter-25/image-041.png)
 
-## Năm — Tái cấu trúc việc cộng tác bàn giao: để phần nâng hiệu suất kỹ thuật chuyển thành chu kỳ nhu cầu ngắn hơn
+## Năm - Tái cấu trúc việc cộng tác bàn giao: để phần nâng hiệu suất kỹ thuật chuyển thành chu kỳ nhu cầu ngắn hơn
 
 Sau khi phía Agent đã hình thành vòng lặp khép kín cho task, việc bàn giao sản phẩm vẫn có thể mắc kẹt trong kiểu cộng tác tuần tự: bộ phận sản phẩm làm xong nhu cầu, thiết kế làm xong tương tác, bảo mật chốt xong thước đo, front-end và back-end mỗi bên hiện thực, rồi test nghiệm thu tập trung ở cuối. Mỗi vị trí đều có chuẩn hoàn thành cục bộ, nhưng kết quả cuối thì phải tới cuối chuỗi mới kiểm chứng được.
 
@@ -68,7 +68,7 @@ Muốn rút ngắn chuỗi thì phải dựng lại bốn cơ chế. **Thứ nh�
 
 Dưới cơ chế này, trải nghiệm sản phẩm, phần bàn giao kỹ thuật và hiệu quả bảo mật đẩy tới song song quanh cùng một bộ điều kiện nghiệm thu. Nhận định về sản phẩm được kiểm chứng sớm qua nguyên mẫu chạy được, thước đo bảo mật đi vào hệ thống ngay từ giai đoạn thiết kế và hiện thực, còn phần hiện thực kỹ thuật thì liên tục nhận phản hồi về hiệu quả. Độ lệch phơi ra sớm hơn, và áp lực tích hợp tập trung cùng làm lại ở cuối chuỗi cũng giảm theo.
 
-Trách nhiệm của từng vị trí cũng mở rộng theo. Product manager bắt đầu bàn giao một phần front-end và nguyên mẫu chạy được; kỹ sư bảo mật tham gia vào thiết kế sản phẩm và hiện thực kỹ thuật, chuyển kinh nghiệm lĩnh vực thành năng lực đánh giá được; kỹ sư R&D hoàn thành vòng lặp khép kín front-end — back-end, và nhìn ngược lên để hiểu nhu cầu khách hàng, lộ trình sản phẩm cùng tác động thương mại. Agent cung cấp phần hỗ trợ thực thi cho việc mở rộng trách nhiệm đó.
+Trách nhiệm của từng vị trí cũng mở rộng theo. Product manager bắt đầu bàn giao một phần front-end và nguyên mẫu chạy được; kỹ sư bảo mật tham gia vào thiết kế sản phẩm và hiện thực kỹ thuật, chuyển kinh nghiệm lĩnh vực thành năng lực đánh giá được; kỹ sư R&D hoàn thành vòng lặp khép kín front-end - back-end, và nhìn ngược lên để hiểu nhu cầu khách hàng, lộ trình sản phẩm cùng tác động thương mại. Agent cung cấp phần hỗ trợ thực thi cho việc mở rộng trách nhiệm đó.
 
 Việc mở rộng trách nhiệm vẫn phải theo phân công theo rủi ro. Các task xuyên lĩnh vực nhưng rủi ro kiểm soát được thì Owner làm được nhờ Agent; còn các task rủi ro cao, bất định cao thì vẫn do chuyên gia dẫn dắt. Trọng tâm của việc tối ưu tổ chức là giảm những lần bàn giao không cần thiết, đồng thời để nhận định chuyên môn đi vào quy trình kịp thời.
 
@@ -76,7 +76,7 @@ Tương ứng, đội cần tăng cường năng lực cấu trúc hoá vấn đ
 
 ![image](../../assets/imgs/chapter-25/image-042.png)
 
-## Sáu — Tóm tắt
+## Sáu - Tóm tắt
 
 Việc nâng hiệu suất bền vững cho R&D sản phẩm AI Agent đòi hỏi nối được vấn đề thật, phần cải tiến kỹ thuật và kết quả với khách hàng lại với nhau. Các thất bại trong production và phần người dùng chỉnh sai cung cấp hướng cải tiến; hệ đánh giá thống nhất cung cấp căn cứ đánh giá; còn cơ chế trách nhiệm xuyên suốt thì đẩy phần cải tiến đi tới chỗ bàn giao được. Ba thứ cùng quyết định đội có chuyển được tốc độ thực thi nhanh hơn thành chu kỳ bàn giao ngắn hơn không.
 

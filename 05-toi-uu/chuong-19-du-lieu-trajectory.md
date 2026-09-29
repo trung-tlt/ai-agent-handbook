@@ -1,8 +1,8 @@
-# Chương 19 — Dữ liệu trajectory của Agent
+# Chương 19 - Dữ liệu trajectory của Agent
 
 Khi người dùng phản hồi rằng câu trả lời không giải quyết được vấn đề, đội ngũ cần biết: Agent chưa hiểu nhu cầu, chưa tìm được tài liệu, hay chưa dùng đúng tài liệu? Trajectory đặt input, hành động, phản hồi tool và output cạnh nhau, giúp người phụ trách nghiệp vụ lần theo quá trình thực tế mà tìm ra hướng cải thiện.
 
-Như chương trước đã nói: trước hết đọc hiểu việc chạy thật, xác nhận vấn đề, rồi mới giao dữ liệu cùng loại cho Pipeline gia công — khi đó việc đánh giá và thí nghiệm mới có đối tượng rõ ràng.
+Như chương trước đã nói: trước hết đọc hiểu việc chạy thật, xác nhận vấn đề, rồi mới giao dữ liệu cùng loại cho Pipeline gia công - khi đó việc đánh giá và thí nghiệm mới có đối tượng rõ ràng.
 
 ## 19.1 Trước hết hãy tìm một task mà mình biết đã xảy ra chuyện gì
 

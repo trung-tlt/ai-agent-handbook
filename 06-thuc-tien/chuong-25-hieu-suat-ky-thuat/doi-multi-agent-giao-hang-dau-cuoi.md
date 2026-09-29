@@ -4,7 +4,7 @@ Coding Agent đang nâng tốc độ sinh code rất nhanh, nhưng một Feature
 
 Vì vậy chúng tôi đổi mục tiêu từ "để Agent viết code" thành **"để một AgentTeam bàn giao kết quả"**: AgentCore tổ chức các Agent với vai trò khác nhau cộng tác, để task đi vào từ Issue, qua nghiên cứu, phương án, hiện thực, kiểm chứng, và cuối cùng cho ra PR soát được cùng bằng chứng đầy đủ; rồi AgentLoop thu thập trajectory vận hành thật để liên tục đánh giá và cải thiện chính đội kỹ thuật này.
 
-## Một — Coding đã rất nhanh, vì sao việc bàn giao vẫn chậm?
+## Một - Coding đã rất nhanh, vì sao việc bàn giao vẫn chậm?
 
 Ước tính theo chuỗi điển hình của một Feature phức tạp trong đội, từ nhu cầu tới lên production mất khoảng 20 ngày làm việc, trong đó phần hiện thực code chiếm khoảng 2 ngày. Ngay cả khi Coding Agent nâng tốc độ viết code lên 10 lần, đưa thời gian viết code từ 2 ngày xuống 0,2 ngày, thì chu kỳ đầu cuối cũng chỉ giảm từ 20 ngày xuống 18,2 ngày.
 
@@ -12,7 +12,7 @@ Lý do rất trực tiếp: R&D không phải một task sinh code, mà là mộ
 
 Vì vậy, trọng tâm nâng hiệu suất ở bước tiếp theo không phải tiếp tục nén 0,2 ngày đó, mà là để Agent tiếp quản và nối được phần quy trình còn lại: giảm việc context bị kể đi kể lại giữa các vai, để kết quả kiểm chứng dẫn dắt thẳng bước tiếp theo, và để con người chỉ can thiệp vào phần mục tiêu, kiến trúc và nhận định rủi ro.
 
-## Hai — AgentTeam: tổ chức nhiều Agent thành một đội kỹ thuật
+## Hai - AgentTeam: tổ chức nhiều Agent thành một đội kỹ thuật
 
 AgentTeam không phải là để nhiều Agent cùng "tự do phát huy", mà là dựng một hệ cộng tác có vai trò rõ ràng, trạng thái nhìn thấy được và sản phẩm kiểm chứng được. Chúng tôi gom 15 Agent hướng tới các công đoạn khác nhau thành một pool năng lực, với AgentCore làm Leader, điều phối theo nhu cầu dựa trên trạng thái task.
 
@@ -32,7 +32,7 @@ Thứ AgentCore lo không phải một lần sinh nào đó, mà là việc vậ
 
 Input của task có thể là một Issue, cũng có thể đến từ phần con người bổ sung trong Chat; còn output thì không chỉ là code và PR, mà còn gồm báo cáo test, bằng chứng soát, trạng thái tiến độ và chỗ tắc, cùng trọn phần trajectory quan sát được. Nhờ vậy, việc bàn giao trong R&D chuyển từ "mấy người mỗi người làm một đoạn" sang "một đội liên tục đẩy tới quanh cùng một trạng thái và cùng một chuẩn nghiệm thu".
 
-## Ba — Coding Loop: không phải sinh một lần, mà là hội tụ liên tục
+## Ba - Coding Loop: không phải sinh một lần, mà là hội tụ liên tục
 
 Việc nhiều Agent cộng tác có đáng tin không thì mấu chốt không nằm ở số lượng Agent, mà ở cơ chế cộng tác. Chúng tôi thiết kế Coding Loop cốt lõi nhất thành hai vòng lồng nhau: **vòng trong giải quyết "code có chạy được không", vòng ngoài đánh giá "phương án có đúng không".**
 
@@ -50,9 +50,9 @@ Loop này có bốn thiết kế then chốt:
 
 4. **Kiểm chứng phân cấp**: tính đúng đắn, bảo mật và độ lệch kiến trúc thì bắt buộc phải sửa; các mục cải thiện không chặn thì ghi lại lưu hồ sơ; còn khi liên tục không hội tụ thì kịp thời chuyển cho con người.
 
-Vì vậy, cách làm việc của AgentTeam giống một đội kỹ thuật thật hơn: có người nghiên cứu, có người hiện thực, có người soát độc lập, thất bại thì làm lại dựa trên bằng chứng — chứ không phải quăng một Prompt to cho một Agent duy nhất làm một phát cho xong.
+Vì vậy, cách làm việc của AgentTeam giống một đội kỹ thuật thật hơn: có người nghiên cứu, có người hiện thực, có người soát độc lập, thất bại thì làm lại dựa trên bằng chứng - chứ không phải quăng một Prompt to cho một Agent duy nhất làm một phát cho xong.
 
-## Bốn — Từ một lần bàn giao tới tiến hoá liên tục
+## Bốn - Từ một lần bàn giao tới tiến hoá liên tục
 
 AgentTeam vận hành thông suốt được một task chỉ chứng minh quy trình dùng được. Luật nghiệp vụ, code và môi trường vận hành sẽ liên tục thay đổi; và một chỉnh sửa cục bộ ở Prompt hay Skill cũng có thể làm các task khác thụt lùi. Nếu không có việc tối ưu liên tục do dữ liệu thật dẫn dắt, Agent sẽ lặp lại đúng những cái hố cũ, tiêu tốn lặp đi lặp lại, và rốt cuộc vẫn phải dựa vào con người bảo đảm dự phòng.
 
@@ -66,7 +66,7 @@ Hiện có hai đường tối ưu chính:
 
 Nhờ vậy, mỗi lần bàn giao không chỉ cho ra một phần code, mà còn để lại kinh nghiệm và tài sản kiểm chứng tái dùng được cho task sau.
 
-## Năm — Kết quả từng chặng: chứng minh quy trình vận hành thông suốt trước, rồi mới chứng minh lợi ích ở quy mô
+## Năm - Kết quả từng chặng: chứng minh quy trình vận hành thông suốt trước, rồi mới chứng minh lợi ích ở quy mô
 
 Hiện tại, AgentTeam này đã hoàn tất vòng lặp khép kín từ nhu cầu tới lên production trong hai task thực tế: một là sửa vấn đề làm sạch trajectory phi chuẩn của Trace2Trajectory, và hai là thêm toán tử mới cho pipeline xử lý dữ liệu. Cả hai task đều hoàn tất phần sửa code, kiểm chứng test, soát và lên production, chứng minh chuỗi cộng tác nhiều Agent đã đi vào được quy trình R&D thật.
 

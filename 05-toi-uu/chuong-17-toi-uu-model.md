@@ -1,4 +1,4 @@
-# Chương 17 — Tối ưu model
+# Chương 17 - Tối ưu model
 
 **Model là hạt nhân ra quyết định để Agent hiểu task, chọn tool, tổ chức hành động nhiều bước và điều chỉnh chiến lược theo phản hồi từ môi trường.** Với tiền đề là Harness cùng môi trường thực thi đã đáp ứng yêu cầu vận hành, năng lực model chủ yếu quyết định trần ra quyết định của Agent, đồng thời ảnh hưởng rõ rệt tới hiệu quả task và chi phí trên mỗi task thành công. Vì vậy, trong các biện pháp tối ưu Agent, tối ưu model là khâu cốt lõi để nâng trần năng lực và cải thiện hiệu suất vận hành ở quy mô lớn.
 
@@ -22,7 +22,7 @@ Mục này triển khai quanh bốn câu hỏi:
 
 ![image.png](../assets/imgs/chapter-17/image-001.png)
 
-*Hình 17.1-1 — Toàn cảnh vòng lặp khép kín tối ưu Agent*
+*Hình 17.1-1 - Toàn cảnh vòng lặp khép kín tối ưu Agent*
 
 ### 17.1.1 Đánh giá đối tượng tối ưu: model, Harness và môi trường thực thi
 
@@ -36,9 +36,9 @@ Năng lực đầu cuối của Agent được hình thành chung bởi **model,
 
 ![image.png](../assets/imgs/chapter-17/image-002.png)
 
-*Hình 17.1-2 — Ranh giới trách nhiệm model — Harness — môi trường thực thi*
+*Hình 17.1-2 - Ranh giới trách nhiệm model - Harness - môi trường thực thi*
 
-Vì vậy, tối ưu Agent trước hết phải đánh giá vấn đề xảy ra ở tầng nào. Lấy việc khôi phục sau thất bại làm ví dụ: model đánh giá lỗi hiện tại có khôi phục được không, bước tiếp theo nên làm gì — đó là năng lực ra quyết định; Harness dựa trên đề xuất của model và chính sách đặt trước để quyết định retry, dừng hay xin uỷ quyền — đó là điều khiển vận hành; còn môi trường thực thi không hoàn tất được hành động vì dịch vụ không khả dụng hay thiếu tài nguyên — đó là sự cố môi trường. Cả ba có thể biểu hiện thành hiện tượng thất bại giống nhau, nhưng biện pháp tối ưu tương ứng thì khác nhau.
+Vì vậy, tối ưu Agent trước hết phải đánh giá vấn đề xảy ra ở tầng nào. Lấy việc khôi phục sau thất bại làm ví dụ: model đánh giá lỗi hiện tại có khôi phục được không, bước tiếp theo nên làm gì - đó là năng lực ra quyết định; Harness dựa trên đề xuất của model và chính sách đặt trước để quyết định retry, dừng hay xin uỷ quyền - đó là điều khiển vận hành; còn môi trường thực thi không hoàn tất được hành động vì dịch vụ không khả dụng hay thiếu tài nguyên - đó là sự cố môi trường. Cả ba có thể biểu hiện thành hiện tượng thất bại giống nhau, nhưng biện pháp tối ưu tương ứng thì khác nhau.
 
 Nguyên tắc cơ bản khi quy kết thất bại là: trước hết hãy đánh giá xem lúc ra quyết định sai, model đã có được thông tin chính xác và đầy đủ chưa, có interface hành động rõ ràng và dùng được không, và môi trường thực thi có bình thường không. Nếu thiếu thông tin cần thiết, giao thức tool mơ hồ, trạng thái không nhìn thấy được hay phản hồi bị cắt cụt, thì nên ưu tiên sửa Harness; nếu tool không khả dụng, thiếu tài nguyên hay dịch vụ ngoài bất thường, thì nên sửa môi trường thực thi; chỉ khi thông tin, không gian hành động và điều kiện phản hồi đều rõ ràng và ổn định mà cùng một loại lỗi quyết định vẫn lặp lại qua nhiều biến thể task, thì mới đủ lý do để liệt nó vào mục tiêu tối ưu năng lực model.
 
@@ -46,7 +46,7 @@ Việc một Agent phân tích dữ liệu liên tục sinh SQL sai minh hoạ n
 
 Bản thân hiện tượng thất bại không quyết định được việc quy kết. Chẳng hạn, chọn sai tool vừa có thể do model yếu, vừa có thể do mô tả tool mơ hồ. Bảng 17.1-1 vì thế kết hợp hiện tượng với điều kiện đánh giá, và đưa thẳng ra đối tượng nên ưu tiên tối ưu.
 
-*Bảng 17.1-1 — Quy kết thất bại của Agent*
+*Bảng 17.1-1 - Quy kết thất bại của Agent*
 
 | **Đối tượng quy kết** | **Tình huống thất bại thường gặp** | **Kiểm chứng ra sao** |
 | --- | --- | --- |
@@ -62,13 +62,13 @@ Ngoài ra, tối ưu model cũng có thể do mục tiêu chi phí dẫn dắt. 
 
 ### 17.1.2 Yêu cầu năng lực model của Agent
 
-Sau khi vấn đề đã được quy về model, cần đánh giá tiếp là năng lực ra quyết định loại nào của model còn thiếu. Trong vòng lặp "nhận quan sát — ra quyết định — nhận phản hồi — điều chỉnh quyết định", vấn đề của model có thể quy về bốn loại:
+Sau khi vấn đề đã được quy về model, cần đánh giá tiếp là năng lực ra quyết định loại nào của model còn thiếu. Trong vòng lặp "nhận quan sát - ra quyết định - nhận phản hồi - điều chỉnh quyết định", vấn đề của model có thể quy về bốn loại:
 
 * **Hiểu task và nhận diện ràng buộc.** Model cần chuyển yêu cầu bằng ngôn ngữ tự nhiên thành mục tiêu thực thi được, nhận ra tiêu chí hoàn thành, điều kiện tiên quyết và phạm vi thao tác được phép. Chẳng hạn, Agent phân tích dữ liệu khi nhận "so sánh tăng trưởng khách hàng giữa hai quý" thì cần làm rõ thước đo khách hàng, khoảng thời gian và luật loại bỏ trùng lặp, đồng thời đánh giá thông tin hiện có đã đủ chưa; khi điều kiện cần chưa rõ, thì việc nêu câu hỏi làm rõ cũng là một cách đẩy task tiến lên hữu hiệu.
 
 * **Dùng tool và hiểu phản hồi.** Model cần chọn tool phù hợp, sinh hành động khớp yêu cầu interface, và đánh giá kết quả trả về có hỗ trợ được quyết định tiếp theo không. Gọi thành công chỉ nói lên rằng interface đã hoàn thành request; model còn phải nhận ra kết quả có đầy đủ không, thước đo dữ liệu có nhất quán không, và có cần kiểm chứng thêm không.
 
-* **Quyết định nhiều bước và tận dụng trạng thái.** Model cần hiểu phần việc đã xong, vấn đề chưa giải quyết và thông tin hiện có, rồi điều chỉnh thứ tự hành động theo phản hồi. Với các task có sự cộng tác của người dùng, còn phải xác nhận người dùng đã hoàn tất thao tác cần thiết chưa. τ²-Bench đưa trường hợp cả người dùng lẫn Agent đều thao tác được lên môi trường chung vào phạm vi đánh giá, và dùng thí nghiệm ablation để phân biệt lỗi suy luận với lỗi giao tiếp, phối hợp — cho thấy năng lực hoàn thành task phải phủ cả quyết định lẫn tương tác.
+* **Quyết định nhiều bước và tận dụng trạng thái.** Model cần hiểu phần việc đã xong, vấn đề chưa giải quyết và thông tin hiện có, rồi điều chỉnh thứ tự hành động theo phản hồi. Với các task có sự cộng tác của người dùng, còn phải xác nhận người dùng đã hoàn tất thao tác cần thiết chưa. τ²-Bench đưa trường hợp cả người dùng lẫn Agent đều thao tác được lên môi trường chung vào phạm vi đánh giá, và dùng thí nghiệm ablation để phân biệt lỗi suy luận với lỗi giao tiếp, phối hợp - cho thấy năng lực hoàn thành task phải phủ cả quyết định lẫn tương tác.
 
 * **Khôi phục sau thất bại và kết thúc hợp lý.** Sau khi tool báo lỗi, model cần đánh giá nên sửa tham số, bổ sung thông tin, đổi đường hay xin trợ giúp; còn khi kết quả đã thoả điều kiện hoàn thành, thì cần đánh giá task có thể kết thúc chưa.
 
@@ -82,7 +82,7 @@ Sau khi xác định đối tượng tối ưu, cần chuyển "mạnh hơn" hay
 
 * **Độ tin cậy.** Đo Agent có hoàn thành task liên tục được trong các điều kiện khác nhau không. Cùng một task nên chạy nhiều lần, phủ các tình huống input thay đổi, tương tác dài, tool bất thường và người dùng bổ sung điều kiện. Khi tỉ lệ thành công trung bình tăng, vẫn phải xác nhận các kịch bản nghiệp vụ then chốt không bị thụt lùi; còn những trường hợp vi phạm ranh giới quyền hạn hay ranh giới thực thi thì phải báo cáo riêng.
 
-* **Chi phí.** Đo tổng đầu tư để có được kết quả hữu hiệu, bao gồm lời gọi model, thực thi tool, retry thất bại và sự can thiệp của con người; đồng thời quan sát độ trễ đầu cuối cùng biểu hiện ở các phân vị cao. Có thể dùng **"chi phí trên mỗi task thành công"**, tức chi phí thực thi của toàn bộ task trong kỳ thống kê chia cho số task hoàn thành thành công — tài nguyên mà các task thất bại tiêu tốn cũng tính vào tử số. Khi so sánh thì nên cố định cấu thành task và báo cáo kèm tỉ lệ thành công, tránh việc bỏ các task khó tạo ra một sự giảm chi phí bề ngoài.
+* **Chi phí.** Đo tổng đầu tư để có được kết quả hữu hiệu, bao gồm lời gọi model, thực thi tool, retry thất bại và sự can thiệp của con người; đồng thời quan sát độ trễ đầu cuối cùng biểu hiện ở các phân vị cao. Có thể dùng **"chi phí trên mỗi task thành công"**, tức chi phí thực thi của toàn bộ task trong kỳ thống kê chia cho số task hoàn thành thành công - tài nguyên mà các task thất bại tiêu tốn cũng tính vào tử số. Khi so sánh thì nên cố định cấu thành task và báo cáo kèm tỉ lệ thành công, tránh việc bỏ các task khó tạo ra một sự giảm chi phí bề ngoài.
 
 Hướng hiệu suất không có nghĩa là huấn luyện model tất yếu làm giảm chi phí. SFT chỉ có thể giảm chi phí đầu cuối khi nó rút ngắn được prompt, giảm số lần retry và soát lại, hoặc khiến một model nhỏ hơn đảm đương được task mục tiêu; ngược lại, khoản đầu tư một lần cho việc chuẩn bị dữ liệu, huấn luyện, đánh giá, phát hành và bảo trì có thể triệt tiêu phần tiết kiệm khi vận hành. Với các task tần suất thấp hay thay đổi nhanh, một chỉnh sửa Harness nhẹ nhàng có thể kinh tế hơn; với các task tần suất cao và tương đối ổn định, phần tiết kiệm trên mỗi lần thực thi nhờ huấn luyện model hay distillation mới dễ tích luỹ thành lợi ích. Kết luận cụ thể cần tính toán dựa trên quy mô nghiệp vụ thực tế.
 
@@ -102,7 +102,7 @@ Ba loại phương pháp không loại trừ nhau. Riêng với phần distillat
 
 ![image.png](../assets/imgs/chapter-17/image-003.png)
 
-*Hình 17.1-3 — Đường chọn phương pháp tối ưu model*
+*Hình 17.1-3 - Đường chọn phương pháp tối ưu model*
 
 Trước khi vào các khâu huấn luyện tiếp theo, nên hình thành một định nghĩa nhiệm vụ tối ưu rõ ràng: task mục tiêu và phân bố của nó là gì, khoảng hụt năng lực cần cải thiện là gì, bằng chứng quy kết ra sao, Harness và môi trường thực thi hiện tại đã cung cấp những điều kiện nào, dùng tín hiệu học và phương pháp tối ưu nào, ngưỡng chất lượng, độ tin cậy, chi phí và bảo mật lần lượt là bao nhiêu, và sẽ dùng bộ task độc lập cùng phạm vi hồi quy nào để nghiệm thu. Các mục sau sẽ triển khai theo đó các phương pháp SFT, Agentic RL, model distillation và kiểm chứng lên production.
 
@@ -116,9 +116,9 @@ Nối tiếp ví dụ phân tích dữ liệu ở trên: người dùng yêu c�
 
 ![image.png](../assets/imgs/chapter-17/image-004.png)
 
-*Hình 17.2-1 — Cơ chế tác động của Agent SFT lên hành vi model*
+*Hình 17.2-1 - Cơ chế tác động của Agent SFT lên hành vi model*
 
-Như hình 17.2-1 cho thấy, trong điều kiện mục tiêu task, thông tin nhìn thấy được và không gian hành động giữ nguyên, SFT dùng cặp "điều kiện quyết định hiện tại — hành vi mục tiêu đã kiểm chứng" làm tín hiệu giám sát, điều chỉnh tham số model để xu hướng sinh ra hành vi mục tiêu trong các context tương tự tăng lên. Thứ nó thay đổi là phân bố hành vi có điều kiện của model, chứ không phải việc duy trì trạng thái, thực thi tool và kiểm soát quyền hạn của Harness; nó cũng không dựa vào tương tác với môi trường để khám phá chiến lược tối ưu chưa biết.
+Như hình 17.2-1 cho thấy, trong điều kiện mục tiêu task, thông tin nhìn thấy được và không gian hành động giữ nguyên, SFT dùng cặp "điều kiện quyết định hiện tại - hành vi mục tiêu đã kiểm chứng" làm tín hiệu giám sát, điều chỉnh tham số model để xu hướng sinh ra hành vi mục tiêu trong các context tương tự tăng lên. Thứ nó thay đổi là phân bố hành vi có điều kiện của model, chứ không phải việc duy trì trạng thái, thực thi tool và kiểm soát quyền hạn của Harness; nó cũng không dựa vào tương tác với môi trường để khám phá chiến lược tối ưu chưa biết.
 
 Phần trước đã bàn về xử lý trajectory và việc xây dựng tài sản chất lượng. Mục này tiếp nối các thành quả đó, tập trung nói cách xác định mục tiêu giám sát từ trajectory, cách tổ chức mẫu huấn luyện, và cách dùng đánh giá theo thực thi để đánh giá model có thực sự thu được năng lực thực thi task chuyển giao được hay không.
 
@@ -132,7 +132,7 @@ SFT hướng Agent thường phủ các loại hành vi mục tiêu sau: trả l
 
 ### 17.2.2 Dựng mẫu giám sát được từ trajectory
 
-Trajectory ghi lại quá trình thực thi task, nhưng bản thân trajectory không đồng nghĩa với mục tiêu giám sát. Một trajectory có thể đồng thời chứa system instruction, request người dùng, định nghĩa tool, hành động model, phản hồi môi trường và các lần sửa về sau; trong đó chỉ những hành vi model đã được kiểm chứng và đáng tái dùng mới nên tham gia giám sát. Việc dựng mẫu hướng Agent, về bản chất, là chuyển trajectory trọn vẹn thành một số mẫu "context nhìn thấy được — hành vi mục tiêu" **trong khi vẫn giữ nguyên quan hệ nhân quả của quyết định.**
+Trajectory ghi lại quá trình thực thi task, nhưng bản thân trajectory không đồng nghĩa với mục tiêu giám sát. Một trajectory có thể đồng thời chứa system instruction, request người dùng, định nghĩa tool, hành động model, phản hồi môi trường và các lần sửa về sau; trong đó chỉ những hành vi model đã được kiểm chứng và đáng tái dùng mới nên tham gia giám sát. Việc dựng mẫu hướng Agent, về bản chất, là chuyển trajectory trọn vẹn thành một số mẫu "context nhìn thấy được - hành vi mục tiêu" **trong khi vẫn giữ nguyên quan hệ nhân quả của quyết định.**
 
 Mỗi hành vi mục tiêu chỉ được dựa vào thông tin đã nhìn thấy được tại đúng thời điểm quyết định đó. Khi một lời gọi tool chưa trả về, hành động mục tiêu không được dùng kết quả của nó; những điều kiện mà người dùng bổ sung ở các lượt sau cũng không được vào sớm trong input của quyết định trước đó. Ngược lại, điều kiện thông tin lúc huấn luyện offline sẽ tốt hơn điều kiện vận hành thật, và model dù có khớp được dữ liệu giám sát cũng khó tái hiện cùng biểu hiện khi lên production.
 
@@ -150,7 +150,7 @@ Với kịch bản sửa sai, có thể giữ hành động sai trong context l�
 
 Vai trò của các loại nội dung tương tác trong huấn luyện có thể xử lý theo bảng 17.2-1.
 
-*Bảng 17.2-1 — Cách xử lý giám sát với các loại nội dung tương tác trong Agent SFT*
+*Bảng 17.2-1 - Cách xử lý giám sát với các loại nội dung tương tác trong Agent SFT*
 
 | Nội dung tương tác | Vai trò trong mẫu | Cách xử lý giám sát thường dùng |
 | --- | --- | --- |
@@ -196,13 +196,13 @@ SFT và Agentic RL đều tối ưu được việc gọi tool và quyết đị
 
 Nối tiếp mạch phân tích dữ liệu ở trên, giả sử task đổi thành "kiểm chứng đơn hàng có thoả luật không rồi phát yêu cầu hoàn tiền". Model có thể truy vấn đơn hàng đúng nhưng bỏ qua khâu kiểm chứng chính sách hoàn tiền; cũng có thể hoàn tiền xong nhưng dùng những lời gọi tool không cần thiết. Việc gán nhãn hành động đúng duy nhất cho từng bước không dễ, nhưng task có hoàn thành không, số tiền hoàn có đúng không, chính sách có thoả không, có xảy ra thao tác vượt quyền không thì thường kiểm chứng được. Loại task như vậy đủ điều kiện cơ bản để vào Agentic RL.
 
-Agentic RL không phải để bù cho khiếm khuyết của Harness hay môi trường thực thi. Nếu context cần thiết không vào được model, định nghĩa tool có chỗ nhập nhằng, kiểm soát quyền hạn né được, hay môi trường không tái hiện ổn định được, thì huấn luyện chỉ cố định những quan sát và phản hồi sai vào trong chiến lược. Mục này vì thế triển khai theo thứ tự: đánh giá điều kiện vào — môi trường và task — reward và Verifier — Rollout và cập nhật chiến lược — tối ưu tầm xa — kiểm chứng độc lập.
+Agentic RL không phải để bù cho khiếm khuyết của Harness hay môi trường thực thi. Nếu context cần thiết không vào được model, định nghĩa tool có chỗ nhập nhằng, kiểm soát quyền hạn né được, hay môi trường không tái hiện ổn định được, thì huấn luyện chỉ cố định những quan sát và phản hồi sai vào trong chiến lược. Mục này vì thế triển khai theo thứ tự: đánh giá điều kiện vào - môi trường và task - reward và Verifier - Rollout và cập nhật chiến lược - tối ưu tầm xa - kiểm chứng độc lập.
 
 ### 17.3.1 Đánh giá task có hợp với Agentic RL không
 
 Trước khi vào Agentic RL, cần trả lời riêng hai câu hỏi: task này có đáng dùng học tăng cường không, và hệ thống hiện tại có đủ điều kiện huấn luyện không. Cái trước do khoảng hụt năng lực model và cấu trúc phản hồi của task quyết định; cái sau do môi trường, Verifier, ranh giới bảo mật và chi phí huấn luyện quyết định. Chỉ khi cả hai loại điều kiện cùng thoả thì Agentic RL mới là lựa chọn hợp lý.
 
-*Bảng 17.3-1 — Đánh giá điều kiện vào Agentic RL*
+*Bảng 17.3-1 - Đánh giá điều kiện vào Agentic RL*
 
 | Chiều đánh giá | Điều kiện hợp để vào Agentic RL | Xử lý ưu tiên khi chưa thoả điều kiện |
 | --- | --- | --- |
@@ -308,7 +308,7 @@ R(τ) = w₁R_task + w₂R_process - λC_execution - μP_violation
 
 Trong đó, `R_task` đo kết quả task, `R_process` đo các quá trình then chốt, `C_execution` biểu thị chi phí thực thi, `P_violation` biểu thị mức vi phạm ràng buộc. Trọng số không nên đặt chỉ bằng kinh nghiệm, mà nên hiệu chỉnh qua phát lại offline, lấy mẫu kiểm tra thủ công và thí nghiệm ablation.
 
-*Bảng 17.3-2 — Các tầng phản hồi trong task hoàn tiền*
+*Bảng 17.3-2 - Các tầng phản hồi trong task hoàn tiền*
 
 | Tầng phản hồi | Ví dụ trong task hoàn tiền | Ranh giới thiết kế |
 | --- | --- | --- |
@@ -337,7 +337,7 @@ Nguyên tắc kiểm soát tương ứng là tách riêng reward huấn luyện,
 
 ![image.png](../assets/imgs/chapter-17/image-005.png)
 
-*Hình 17.3-1 — Ba lớp ranh giới kiểm soát của Agentic RL*
+*Hình 17.3-1 - Ba lớp ranh giới kiểm soát của Agentic RL*
 
 ### 17.3.4 Tổ chức Rollout và cập nhật chiến lược
 
@@ -362,7 +362,7 @@ flowchart LR
     K --> L[Đánh giá điều kiện vào]
 ```
 
-*Hình 17.3-2 — Vòng khép kín huấn luyện của Agentic RL*
+*Hình 17.3-2 - Vòng khép kín huấn luyện của Agentic RL*
 
 Một vòng huấn luyện thường gồm các bước sau:
 
@@ -401,7 +401,7 @@ Khi huấn luyện bằng PPO dựa trên ước lượng giá trị, Rollout th
 
 Phương pháp tương đối theo nhóm chủ yếu thay đổi baseline của advantage: nó sinh nhiều trajectory cho cùng một task, dùng return tương đối trong nhóm thay cho một value model huấn luyện riêng; việc cập nhật chiến lược vẫn dùng được clipping kiểu PPO, và cũng phải để ý độ lệch giữa chiến lược lấy mẫu với chiến lược hiện tại. Nó hợp với các kịch bản lấy mẫu song song được và cùng một task có chênh lệch return rõ rệt; còn nếu kết quả trong nhóm gần như giống nhau thì tín hiệu advantage sẽ tiến về không, trong khi Rollout nhiều trajectory lại làm tăng chi phí thực thi.
 
-*Bảng 17.3-3 — Điều kiện chọn cách ước lượng advantage*
+*Bảng 17.3-3 - Điều kiện chọn cách ước lượng advantage*
 
 | Cách làm | Ưu thế chính | Cái giá chính | Điều kiện áp dụng |
 | --- | --- | --- | --- |
@@ -441,7 +441,7 @@ flowchart TD
     C --> A[Advantage cho từng bước quyết định]
 ```
 
-*Hình 17.3-3 — Cơ chế gán công trạng của Agentic RL*
+*Hình 17.3-3 - Cơ chế gán công trạng của Agentic RL*
 
 Có thể nâng hiệu suất học tầm xa từ bốn hướng. Thứ nhất, dùng cách lấy mẫu task theo kiểu chương trình học, bắt đầu từ trajectory ngắn và task có phản hồi mạnh, rồi tăng dần số tool, mức biến động trạng thái và độ dài chuỗi quyết định. Thứ hai, chỉ cấp phản hồi quá trình ở những trạng thái từng chặng kiểm chứng khách quan được, ví dụ "đơn hàng đã kiểm chứng", "chính sách đã thoả", chứ không chấm điểm cho từng bước suy luận bằng ngôn ngữ tự nhiên. Thứ ba, lấy mẫu nhiều trajectory cho cùng một task, dùng kết quả tương đối để nhận ra đường tốt hơn. Cuối cùng, phủ một cách tường minh các hành vi sửa tham số, đổi tool, quay lui trạng thái, xin làm rõ và kết thúc hợp lý, để hành vi khôi phục đi vào phân bố task khám phá được.
 
@@ -458,7 +458,7 @@ Agentic RL không đòi hỏi định nghĩa từng bước của trajectory B l
 
 ![image.png](../assets/imgs/chapter-17/image-006.png)
 
-*Hình 17.3-4 — Khám phá đa đường và tập chiến lược hữu hiệu*
+*Hình 17.3-4 - Khám phá đa đường và tập chiến lược hữu hiệu*
 
 Trajectory thất bại cần được phân biệt theo cách dùng. Chúng dùng trực tiếp được cho việc phân tích lỗi, lấy mẫu lại task và thiết kế reward; cũng chuyển được thành mẫu khôi phục cho SFT sau khi kiểm chứng. Nhưng nếu dùng cho việc cập nhật policy gradient xấp xỉ on-policy như PPO, thì phải giữ đủ gần với chiến lược hiện tại, hoặc áp hiệu chỉnh off-policy phù hợp. Phát lại vô hạn các trajectory thất bại trong lịch sử sẽ không tự nhiên sinh ra policy gradient hữu hiệu.
 
@@ -518,11 +518,11 @@ Vì vậy, distillation cho Agent phải trả lời hai câu hỏi ràng buộc
 
 Thiết kế distillation nên xuất phát từ trách nhiệm trên production, chứ không từ kích thước model. Teacher model cần có tỉ lệ thành công đủ cao và đủ ổn định trên task mục tiêu, và sinh được mẫu trình diễn kiểm chứng được; còn student model thì phải đạt một điểm cân bằng triển khai được giữa ngưỡng chất lượng tối thiểu, độ trễ suy luận, mức chiếm VRAM, thông lượng và chi phí mỗi lần gọi. Nếu bản thân teacher không ổn định trên một loại task nào đó, thì distillation chỉ sao chép lỗi của nó hiệu quả hơn. Nếu dung lượng student quá nhỏ, thì tăng số mẫu trình diễn cũng chưa chắc bù được phần thiếu hụt về năng lực biểu diễn và năng lực lập kế hoạch tầm xa.
 
-Có thể lập trước một ma trận "task — trách nhiệm — rủi ro", chia task thành ba loại: student thực thi độc lập, student thực thi và teacher soát, teacher thực thi thẳng. Ranh giới task ít nhất phải gồm phân bố input, các tool được phép gọi, số bước hành động tối đa, cách đánh giá thành công và các loại thất bại không chấp nhận được. Với các thao tác rủi ro cao hay không đảo ngược được, dù student đạt tỉ lệ thành công khá cao trong đánh giá offline thì cũng không nên chỉ dựa vào điểm trung bình mà bỏ khâu teacher soát.
+Có thể lập trước một ma trận "task - trách nhiệm - rủi ro", chia task thành ba loại: student thực thi độc lập, student thực thi và teacher soát, teacher thực thi thẳng. Ranh giới task ít nhất phải gồm phân bố input, các tool được phép gọi, số bước hành động tối đa, cách đánh giá thành công và các loại thất bại không chấp nhận được. Với các thao tác rủi ro cao hay không đảo ngược được, dù student đạt tỉ lệ thành công khá cao trong đánh giá offline thì cũng không nên chỉ dựa vào điểm trung bình mà bỏ khâu teacher soát.
 
 Việc di chuyển năng lực Agent thường có hai phạm vi. **Di chuyển hành vi Agent trọn vẹn** đòi hỏi student học cả quá trình liên tục từ hiểu mục tiêu, lập kế hoạch, chọn tool, sinh tham số, diễn giải quan sát tới trả lời cuối; còn **di chuyển ở mức kỹ năng** thì chỉ để student gánh một khâu ổn định trong đó, ví dụ định tuyến tool, sinh truy vấn, trích tham số, kiểm chứng kết quả hay chuyển đổi định dạng. Cách sau dễ định nghĩa tiêu chí thành công và ranh giới sự cố hơn, cũng hợp hơn để làm điểm khởi đầu cho lần triển khai đầu tiên.
 
-Thí nghiệm của AgentDistill cho thấy việc distill trajectory Thought — Action — Observation giúp model nhỏ hơn học được cách phối hợp dùng tool tra cứu và tool code, chứ không chỉ tái hiện đáp án cuối; loss huấn luyện của nó phủ các token suy nghĩ và hành động của teacher, không lấy observation do môi trường trả về làm mục tiêu dự đoán. Kết quả này cho thấy tên tool, nội dung truy vấn và tham số gọi, chỉ cần được tuần tự hoá thành hành động, thì đưa được vào một mục tiêu language modeling thống nhất. Nhưng công trình đó chỉ kiểm chứng trên giao thức tool cố định, số bước hữu hạn và một bộ task nhất định, nên không thể từ đó suy ra rằng mọi năng lực Agent phức tạp đều di chuyển trọn vẹn được.
+Thí nghiệm của AgentDistill cho thấy việc distill trajectory Thought - Action - Observation giúp model nhỏ hơn học được cách phối hợp dùng tool tra cứu và tool code, chứ không chỉ tái hiện đáp án cuối; loss huấn luyện của nó phủ các token suy nghĩ và hành động của teacher, không lấy observation do môi trường trả về làm mục tiêu dự đoán. Kết quả này cho thấy tên tool, nội dung truy vấn và tham số gọi, chỉ cần được tuần tự hoá thành hành động, thì đưa được vào một mục tiêu language modeling thống nhất. Nhưng công trình đó chỉ kiểm chứng trên giao thức tool cố định, số bước hữu hạn và một bộ task nhất định, nên không thể từ đó suy ra rằng mọi năng lực Agent phức tạp đều di chuyển trọn vẹn được.
 
 Việc chọn teacher và student có thể quyết định chung bởi bốn ràng buộc:
 
@@ -574,7 +574,7 @@ Với những token student đã lấy mẫu, có thể dùng ước lượng m�
 
 $\hat d\_t = \log \pi\_\theta(a\_t\mid s\_t) - \log \pi\_T(a\_t\mid s\_t).$
 
-Đại lượng này là một số hạng ước lượng Monte Carlo của hàm mục tiêu, không đồng nghĩa với gradient huấn luyện trọn vẹn; việc tối ưu thực tế vẫn phải kết hợp policy gradient hay một phương pháp ước lượng gradient tương đương. Điều đó nghĩa là hệ thống huấn luyện không nhất thiết phải lưu trọn bộ logits của teacher. Teacher có thể chấm điểm cho chuỗi mà student đã sinh dưới chế độ teacher forcing, chỉ trả về log-prob đã chuẩn hoá của từng token đã lấy mẫu; nhưng dịch vụ teacher vẫn phải hỗ trợ tính xác suất cho một chuỗi cho trước — nếu chỉ có interface sinh văn bản mà không có năng lực log-prob thì không dùng trực tiếp được phương án này. Việc căn chỉnh ổn định giữa các tokenizer khác nhau cũng cần kiểm chứng riêng.
+Đại lượng này là một số hạng ước lượng Monte Carlo của hàm mục tiêu, không đồng nghĩa với gradient huấn luyện trọn vẹn; việc tối ưu thực tế vẫn phải kết hợp policy gradient hay một phương pháp ước lượng gradient tương đương. Điều đó nghĩa là hệ thống huấn luyện không nhất thiết phải lưu trọn bộ logits của teacher. Teacher có thể chấm điểm cho chuỗi mà student đã sinh dưới chế độ teacher forcing, chỉ trả về log-prob đã chuẩn hoá của từng token đã lấy mẫu; nhưng dịch vụ teacher vẫn phải hỗ trợ tính xác suất cho một chuỗi cho trước - nếu chỉ có interface sinh văn bản mà không có năng lực log-prob thì không dùng trực tiếp được phương án này. Việc căn chỉnh ổn định giữa các tokenizer khác nhau cũng cần kiểm chứng riêng.
 
 Khi dung lượng student hay họ chiến lược biểu diễn được bị hạn chế, KL ngược thường thể hiện đặc tính **"mode-seeking" (tìm mode)**: khi teacher gán xác suất rất thấp cho một hành vi nào đó, việc student dồn xác suất lên hành vi đó sẽ bị phạt nặng; còn student thì không nhất thiết phải phủ mọi mode có thể của teacher. Với Agent, điều này giúp student hội tụ về một đường quyết định xác suất cao và mạch lạc, giảm xu hướng lấy trung bình giữa những tool hay phương án tham số loại trừ nhau. Nhưng **"teacher xác suất cao" không đồng nghĩa với "task đúng"**. KL ngược vẫn có thể chép lại thiên lệch của teacher, đè bẹp phần khám phá cần thiết, thậm chí khiến student bám chặt vào một chiến lược tối ưu cục bộ; vì vậy bắt buộc phải dùng kèm việc kiểm chứng task thành công và độ phủ bất thường.
 
@@ -602,7 +602,7 @@ Có thể tách trajectory thất bại thành bốn loại khoảng hụt:
 
 * Khoảng hụt khôi phục biểu hiện thành việc lặp lại đúng hành động cũ khi gặp kết quả rỗng, timeout, bằng chứng xung đột hay tool báo lỗi.
 
-Mỗi loại khoảng hụt cần cách bù dữ liệu khác nhau. Khoảng hụt tri thức hợp với việc thêm mẫu giải thích và mẫu đối chiếu; khoảng hụt quyết định hợp với việc thêm các hành động ứng viên lân cận cùng căn cứ lựa chọn; khoảng hụt thực thi hợp với việc thêm phần kiểm tra có cấu trúc; còn khoảng hụt khôi phục thì cần cấp tường minh các trajectory sửa sai theo mạch "phát hiện bất thường — chẩn đoán nguyên nhân — đổi đường — kiểm chứng lại".
+Mỗi loại khoảng hụt cần cách bù dữ liệu khác nhau. Khoảng hụt tri thức hợp với việc thêm mẫu giải thích và mẫu đối chiếu; khoảng hụt quyết định hợp với việc thêm các hành động ứng viên lân cận cùng căn cứ lựa chọn; khoảng hụt thực thi hợp với việc thêm phần kiểm tra có cấu trúc; còn khoảng hụt khôi phục thì cần cấp tường minh các trajectory sửa sai theo mạch "phát hiện bất thường - chẩn đoán nguyên nhân - đổi đường - kiểm chứng lại".
 
 Một vòng lặp khép kín bù năng lực chạy được là: trước hết gom cụm theo vị trí lỗi đầu tiên, loại tool và nguyên nhân thất bại; rồi bổ sung task khó, phản ví dụ và mẫu sửa sai cục bộ cho những khoảng hụt tần suất cao hay tổn thất lớn; tiếp đó để student mới tự chạy trên các task cùng loại; cuối cùng kiểm tra đồng thời tỉ lệ thành công, tỉ lệ khôi phục, số bước gọi và các kiểu thất bại mới phát sinh. Chỉ khi student cải thiện trên cả tập holdout độc lập lẫn tập áp lực ngoài phân bố, thì mới nên coi phần bù chuyên đề là hữu hiệu, chứ không phải là việc học thuộc tập huấn luyện.
 
@@ -654,7 +654,7 @@ _Vòng khép kín đầu cuối của model distillation: data pipeline cho ra m
 
 1. **Trước hết chốt tuyến kỹ thuật: hộp đen ở mức chuỗi hay hộp trắng ở mức phân bố**
 
-   Bước đầu của hiện thực kỹ thuật không phải chọn framework, mà là xác nhận dạng tín hiệu mà teacher cấp được — chính nó quyết định độ phức tạp của cả tuyến về sau.
+   Bước đầu của hiện thực kỹ thuật không phải chọn framework, mà là xác nhận dạng tín hiệu mà teacher cấp được - chính nó quyết định độ phức tạp của cả tuyến về sau.
 
    Tuyến **hộp đen (mức chuỗi)** chỉ dựa vào văn bản hay hành động do teacher sinh, với quy trình "sinh trajectory → kiểm chứng → SFT". Nó không đòi hỏi teacher cho truy cập trọng số hay xác suất, dùng được xuyên nhà cung cấp, xuyên tokenizer, và là lựa chọn chủ đạo khi doanh nghiệp triển khai. Giai đoạn distillation của DeepSeek-R1 nêu rõ "chỉ làm SFT, không gồm giai đoạn RL", thuộc kiểu huấn luyện hard target ở mức chuỗi điển hình (tham khảo: DeepSeek-AI, [_DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning_](https://arxiv.org/abs/2501.12948), 2025); phần khởi động nguội chuỗi suy luận dài của Qwen3 cũng là "teacher sinh nhiều ứng viên cho mỗi câu, chỉ giữ các mẫu qua kiểm chứng rồi mới SFT" (tham khảo: Yang et al., [_Qwen3 Technical Report_](https://arxiv.org/abs/2505.09388), 2025). Điều này cho thấy việc di chuyển năng lực ở các model suy luận hàng đầu không tất yếu phụ thuộc vào việc căn chỉnh ở mức logits; tuyến hộp đen đã được kiểm chứng khả thi ở quy mô lớn.
 
@@ -668,23 +668,23 @@ _Vòng khép kín đầu cuối của model distillation: data pipeline cho ra m
    | Phương pháp tiêu biểu | SFT theo trajectory, KD mức chuỗi | GKD, MiniLLM, distillation top-K logits |
    | Kịch bản điển hình | Teacher model nguồn đóng, di chuyển xuyên nhà cung cấp | Model cùng họ tự phát triển, theo đuổi hiệu suất mẫu |
 
-   Trong thực tế, có thể dùng cây quyết định dưới đây để chọn nhanh: trước hết xem có lấy được logits/log-prob của teacher không, rồi xem teacher và student có chung vocab không, tiếp đó đánh giá có cần on-policy để phủ trạng thái thật của student không, và VRAM có gánh được cache logits không; cuối cùng rơi vào một trong bốn tuyến triển khai được — hộp đen mức chuỗi, hộp trắng xuyên vocab, hộp trắng on-policy, hay hộp trắng logits-KD offline.
+   Trong thực tế, có thể dùng cây quyết định dưới đây để chọn nhanh: trước hết xem có lấy được logits/log-prob của teacher không, rồi xem teacher và student có chung vocab không, tiếp đó đánh giá có cần on-policy để phủ trạng thái thật của student không, và VRAM có gánh được cache logits không; cuối cùng rơi vào một trong bốn tuyến triển khai được - hộp đen mức chuỗi, hộp trắng xuyên vocab, hộp trắng on-policy, hay hộp trắng logits-KD offline.
 
    ![Cây quyết định tuyến distillation hộp đen và hộp trắng.svg](../assets/imgs/chapter-17/image-009.svg)
 
-   _Cây quyết định tuyến distillation hộp đen/hộp trắng: bốn node đánh giá thu hẹp dần lựa chọn từ trên xuống — teacher chỉ cho văn bản thì đi hộp đen mức chuỗi; cho được xác suất nhưng khác vocab thì tuỳ việc có chấp nhận đưa vào phần căn chỉnh xuyên vocab hay không mà cân nhắc giữa "hộp trắng xuyên vocab" và "lùi về hộp đen"; cùng vocab và cần phủ trạng thái của student thì đi distillation on-policy, ngược lại thì theo điều kiện VRAM mà chọn cache logits offline hay JSD theo khối._
+   _Cây quyết định tuyến distillation hộp đen/hộp trắng: bốn node đánh giá thu hẹp dần lựa chọn từ trên xuống - teacher chỉ cho văn bản thì đi hộp đen mức chuỗi; cho được xác suất nhưng khác vocab thì tuỳ việc có chấp nhận đưa vào phần căn chỉnh xuyên vocab hay không mà cân nhắc giữa "hộp trắng xuyên vocab" và "lùi về hộp đen"; cùng vocab và cần phủ trạng thái của student thì đi distillation on-policy, ngược lại thì theo điều kiện VRAM mà chọn cache logits offline hay JSD theo khối._
 
 2. **Data pipeline: sản xuất, kiểm chứng, khử ô nhiễm và tỉ lệ pha**
 
    Với tuyến hộp đen, data pipeline vừa là trung tâm chi phí, vừa là nơi định trần chất lượng. Giai đoạn sinh thường lấy nhiều ứng viên cho mỗi task: DeepSeek-R1 dùng rejection sampling trên các checkpoint học tăng cường để dựng dữ liệu suy luận, còn Qwen3 dùng Pass@N để giữ các mẫu giải được.
 
-   Việc kiểm chứng nên thiết kế phân tầng, ưu tiên phần kiểm theo luật tự động hoá được: toán thì yêu cầu đáp án viết ở định dạng box phân giải được, code thì dùng trình biên dịch chạy test case; phần không quy về luật được thì mới giao cho bộ thẩm định sinh hay LLM-as-judge. DeepSeek-R1 nêu rõ không dùng neural reward model, với lý do nó dễ bị reward hacking — quyết định kiến trúc này có giá trị tham chiếu trực tiếp cho việc doanh nghiệp tự xây Verifier.
+   Việc kiểm chứng nên thiết kế phân tầng, ưu tiên phần kiểm theo luật tự động hoá được: toán thì yêu cầu đáp án viết ở định dạng box phân giải được, code thì dùng trình biên dịch chạy test case; phần không quy về luật được thì mới giao cho bộ thẩm định sinh hay LLM-as-judge. DeepSeek-R1 nêu rõ không dùng neural reward model, với lý do nó dễ bị reward hacking - quyết định kiến trúc này có giá trị tham chiếu trực tiếp cho việc doanh nghiệp tự xây Verifier.
 
    Khử ô nhiễm và loại bỏ trùng lặp là thao tác then chốt để ngăn điểm đánh giá bị thổi phồng. Tulu 3 dùng khớp 8-gram để khử ô nhiễm: một mẫu trùng với tập test quá 50% thì coi là mẫu ô nhiễm và loại bỏ, còn cả tập dữ liệu trùng quá 2% thì bỏ luôn; ở quy mô lớn, có thể dùng NVIDIA NeMo Curator với loại bỏ trùng lặp chính xác / mờ (MinHash+LSH) / theo ngữ nghĩa được tăng tốc bằng GPU. Tỉ lệ pha thì nên tham số hoá hết mức thay vì áng chừng: EasyDistill của Alibaba Cloud PAI chia bin theo độ khó nhận thức cho phần distillation CoT, rồi đặt mục tiêu độ dài suy luận và trần số mẫu mỗi bin cho từng mức khó, biến "tỉ lệ pha dữ liệu" thành một mục cấu hình được.
 
 3. **Framework huấn luyện và distillation hiệu quả tham số**
 
-   Các framework mã nguồn mở chủ đạo đã kết tinh những tuyến trên thành component cấu hình được. HuggingFace TRL cung cấp `GKDTrainer` (dùng `lmbda` để kiểm soát tỉ lệ dữ liệu do student tự sinh, `beta` để nội suy giữa KL xuôi và KL ngược), `DistillationTrainer` (dùng JSD theo khối để tránh vật chất hoá tensor logits cỡ vocab×seq nhằm tiết kiệm VRAM), `MiniLLMTrainer` (KL ngược, phía chính thức nói là bản hiện thực tổng quát hoá của on-policy distillation của Thinking Machines), cùng `AsyncDistillationTrainer` (teacher cấp qua một vLLM server URL độc lập, triển khai được trên phần cứng riêng, nhưng bắt buộc teacher và student chung tokenizer). NVIDIA NeMo/ModelOpt hiện thực distillation bằng cách thay loss thành KL giữa các logits output; NeMo-Aligner thì để student khớp top-K logits của teacher và khuyến nghị cache logits teacher offline — một cái bẫy dễ dính là cache bắt buộc phải lưu theo thứ tự giảm dần, nếu không sẽ ảnh hưởng hội tụ, và trong thực tế `top_k` thường lấy khoảng 100 chứ không phải giá trị nhỏ như trong ví dụ. Các đội trong nước dùng trực tiếp được CLI thống nhất của PAI EasyDistill để nối trọn các giai đoạn từ mở rộng chỉ thị, sinh, đánh giá, lọc chất lượng tới dựng dữ liệu SFT; backend của nó tương thích mọi endpoint kiểu OpenAI, và output đưa thẳng được vào framework huấn luyện LLaMA-Factory hay ms-swift.
+   Các framework mã nguồn mở chủ đạo đã kết tinh những tuyến trên thành component cấu hình được. HuggingFace TRL cung cấp `GKDTrainer` (dùng `lmbda` để kiểm soát tỉ lệ dữ liệu do student tự sinh, `beta` để nội suy giữa KL xuôi và KL ngược), `DistillationTrainer` (dùng JSD theo khối để tránh vật chất hoá tensor logits cỡ vocab×seq nhằm tiết kiệm VRAM), `MiniLLMTrainer` (KL ngược, phía chính thức nói là bản hiện thực tổng quát hoá của on-policy distillation của Thinking Machines), cùng `AsyncDistillationTrainer` (teacher cấp qua một vLLM server URL độc lập, triển khai được trên phần cứng riêng, nhưng bắt buộc teacher và student chung tokenizer). NVIDIA NeMo/ModelOpt hiện thực distillation bằng cách thay loss thành KL giữa các logits output; NeMo-Aligner thì để student khớp top-K logits của teacher và khuyến nghị cache logits teacher offline - một cái bẫy dễ dính là cache bắt buộc phải lưu theo thứ tự giảm dần, nếu không sẽ ảnh hưởng hội tụ, và trong thực tế `top_k` thường lấy khoảng 100 chứ không phải giá trị nhỏ như trong ví dụ. Các đội trong nước dùng trực tiếp được CLI thống nhất của PAI EasyDistill để nối trọn các giai đoạn từ mở rộng chỉ thị, sinh, đánh giá, lọc chất lượng tới dựng dữ liệu SFT; backend của nó tương thích mọi endpoint kiểu OpenAI, và output đưa thẳng được vào framework huấn luyện LLaMA-Factory hay ms-swift.
 
    Distillation hiệu quả tham số nay đã là lựa chọn ưu tiên. Tài liệu chính thức của TRL nói mọi trainer đều bật được LoRA/QLoRA qua `peft_config`; learning rate của LoRA thường lấy khoảng 10 lần so với full fine-tuning, còn QLoRA thì cần thêm `bitsandbytes`. Với các đội bị hạn chế VRAM, dùng LoRA để distill giúp hoàn tất việc di chuyển năng lực trên một hay vài card, rồi mới quyết định có gộp trọng số để tinh chỉnh toàn tham số hay không.
 
@@ -696,7 +696,7 @@ _Vòng khép kín đầu cuối của model distillation: data pipeline cho ra m
 
 5. **Dịch vụ chấm điểm của teacher và căn chỉnh xuyên tokenizer**
 
-   Cả tuyến hộp trắng lẫn tuyến on-policy đều đòi hỏi teacher chấm được từng token cho chuỗi mà student đã sinh. Về kỹ thuật, hãy triển khai teacher thành một "dịch vụ chấm điểm" không trạng thái — chỉ chạy forward, không lấy mẫu, tách rời khỏi việc sinh của student, và chia bin theo độ dài chuỗi để nâng mức tận dụng GPU. Tham số `prompt_logprobs` của vLLM hợp tự nhiên với kiểu chấm điểm teacher-forcing này: nó trả về log-prob của từng token trong chuỗi input dưới tiền tố của nó, đúng là đại lượng cần cho phép tính "log-prob của student trừ log-prob của teacher" theo từng token. Cần lưu ý rằng engine suy luận không phải lúc nào cũng bảo đảm log-prob ổn định hoàn toàn giữa các version, nên trước khi dùng làm giám sát huấn luyện thì phải kiểm tra tính nhất quán và khoá version engine. Cách làm của Thinking Machines là để student sinh trajectory, gửi teacher chạy một lần forward để lấy log-prob, lấy giá trị âm của nó làm advantage rồi cập nhật student bằng policy gradient có importance sampling, với chiết khấu bằng không và chỉ tối ưu token liền kề.
+   Cả tuyến hộp trắng lẫn tuyến on-policy đều đòi hỏi teacher chấm được từng token cho chuỗi mà student đã sinh. Về kỹ thuật, hãy triển khai teacher thành một "dịch vụ chấm điểm" không trạng thái - chỉ chạy forward, không lấy mẫu, tách rời khỏi việc sinh của student, và chia bin theo độ dài chuỗi để nâng mức tận dụng GPU. Tham số `prompt_logprobs` của vLLM hợp tự nhiên với kiểu chấm điểm teacher-forcing này: nó trả về log-prob của từng token trong chuỗi input dưới tiền tố của nó, đúng là đại lượng cần cho phép tính "log-prob của student trừ log-prob của teacher" theo từng token. Cần lưu ý rằng engine suy luận không phải lúc nào cũng bảo đảm log-prob ổn định hoàn toàn giữa các version, nên trước khi dùng làm giám sát huấn luyện thì phải kiểm tra tính nhất quán và khoá version engine. Cách làm của Thinking Machines là để student sinh trajectory, gửi teacher chạy một lần forward để lấy log-prob, lấy giá trị âm của nó làm advantage rồi cập nhật student bằng policy gradient có importance sampling, với chiết khấu bằng không và chỉ tối ưu token liền kề.
 
    ```python
    from vllm import LLM, SamplingParams
@@ -718,11 +718,11 @@ _Vòng khép kín đầu cuối của model distillation: data pipeline cho ra m
 
 6. **Triển khai: định tuyến xếp tầng, speculative decoding và giám sát canary**
 
-Sản phẩm distillation lên production không nhất thiết phải là "thay toàn bộ một lần". Kiểu xếp tầng LLM mà FrugalGPT đề xuất — học xem "request nào đi qua tổ hợp model nào" — báo cáo giảm chi phí tối đa khoảng 98% trong khi giữ nguyên độ chính xác, hoặc tăng độ chính xác khoảng 4% ở cùng mức chi phí. Áp vào Agent, đó chính là định tuyến / xếp tầng: student chạy trước, còn khi độ tự tin, phần kiểm theo luật hay mức nhất quán giữa nhiều mẫu chưa đủ thì nâng lên cho teacher gánh, và đường gánh lại luôn trỏ về model mạnh.
+Sản phẩm distillation lên production không nhất thiết phải là "thay toàn bộ một lần". Kiểu xếp tầng LLM mà FrugalGPT đề xuất - học xem "request nào đi qua tổ hợp model nào" - báo cáo giảm chi phí tối đa khoảng 98% trong khi giữ nguyên độ chính xác, hoặc tăng độ chính xác khoảng 4% ở cùng mức chi phí. Áp vào Agent, đó chính là định tuyến / xếp tầng: student chạy trước, còn khi độ tự tin, phần kiểm theo luật hay mức nhất quán giữa nhiều mẫu chưa đủ thì nâng lên cho teacher gánh, và đường gánh lại luôn trỏ về model mạnh.
 
-Model nhỏ sinh ra từ distillation còn có một công dụng giá trị cao thứ hai — làm **draft model (model nháp)** cho speculative decoding. Yêu cầu cốt lõi của draft model là "phân bố khớp cao với model đích và đủ nhanh", mà distillation căn chỉnh theo KL chính là biện pháp chủ đạo để huấn luyện ra model nhỏ có tỉ lệ chấp nhận cao đó; tỉ lệ chấp nhận càng cao thì tỉ lệ tăng tốc càng lớn. vLLM hỗ trợ các chế độ draft-model, EAGLE, n-gram, dùng rejection sampling để bảo đảm phân bố output không tổn hao; chế độ draft xuyên vocab của nó hiện chỉ thích ứng với cách draft-model và chỉ hỗ trợ lấy mẫu nháp tham lam, nên trước khi chọn phải đối chiếu năng lực theo version.
+Model nhỏ sinh ra từ distillation còn có một công dụng giá trị cao thứ hai - làm **draft model (model nháp)** cho speculative decoding. Yêu cầu cốt lõi của draft model là "phân bố khớp cao với model đích và đủ nhanh", mà distillation căn chỉnh theo KL chính là biện pháp chủ đạo để huấn luyện ra model nhỏ có tỉ lệ chấp nhận cao đó; tỉ lệ chấp nhận càng cao thì tỉ lệ tăng tốc càng lớn. vLLM hỗ trợ các chế độ draft-model, EAGLE, n-gram, dùng rejection sampling để bảo đảm phân bố output không tổn hao; chế độ draft xuyên vocab của nó hiện chỉ thích ứng với cách draft-model và chỉ hỗ trợ lấy mẫu nháp tham lam, nên trước khi chọn phải đối chiếu năng lực theo version.
 
-Việc mở traffic khi lên production nên theo kỷ luật canary: trước hết dùng shadow traffic (không nhận request thật) để kiểm chứng, rồi mở dần theo từng nấc, chẳng hạn 1%→10%→25%→50%→90%→100%, mỗi nấc đặt cửa sổ quan sát tối thiểu và ngưỡng rollback tự động (đây là khuyến nghị thực hành kỹ thuật, các nấc cụ thể thì điều chỉnh theo rủi ro nghiệp vụ). Trên production cần giám sát liên tục độ trễ P50/P95/P99, độ trễ token đầu (TTFT), tỉ lệ thành công task, tỉ lệ teacher gánh lại / nâng cấp, tỉ lệ chấp nhận của speculative decoding, mức nhất quán hay KL giữa teacher và student, cùng phần lấy mẫu kiểm chất lượng ở phía nghiệp vụ. Đồng thời, hãy duy trì một golden dataset cố định cộng với tập đánh giá hồi quy lấy mẫu chảy ngược từ production, chạy hồi quy offline ở mỗi nấc canary và đối chiếu chéo với chỉ số trên production, để ngăn student model âm thầm thoái hoá ở các kịch bản đuôi dài — và đây cũng chính là điểm khởi đầu của vòng lặp khép kín: dữ liệu giám sát chảy ngược về data pipeline, dẫn dắt vòng distillation kế tiếp.
+Việc mở traffic khi lên production nên theo kỷ luật canary: trước hết dùng shadow traffic (không nhận request thật) để kiểm chứng, rồi mở dần theo từng nấc, chẳng hạn 1%→10%→25%→50%→90%→100%, mỗi nấc đặt cửa sổ quan sát tối thiểu và ngưỡng rollback tự động (đây là khuyến nghị thực hành kỹ thuật, các nấc cụ thể thì điều chỉnh theo rủi ro nghiệp vụ). Trên production cần giám sát liên tục độ trễ P50/P95/P99, độ trễ token đầu (TTFT), tỉ lệ thành công task, tỉ lệ teacher gánh lại / nâng cấp, tỉ lệ chấp nhận của speculative decoding, mức nhất quán hay KL giữa teacher và student, cùng phần lấy mẫu kiểm chất lượng ở phía nghiệp vụ. Đồng thời, hãy duy trì một golden dataset cố định cộng với tập đánh giá hồi quy lấy mẫu chảy ngược từ production, chạy hồi quy offline ở mỗi nấc canary và đối chiếu chéo với chỉ số trên production, để ngăn student model âm thầm thoái hoá ở các kịch bản đuôi dài - và đây cũng chính là điểm khởi đầu của vòng lặp khép kín: dữ liệu giám sát chảy ngược về data pipeline, dẫn dắt vòng distillation kế tiếp.
 
 ## 17.5 Nghiệm thu model và lên production: kiểm chứng lợi ích tối ưu trong toàn hệ Agent
 
@@ -766,7 +766,7 @@ Việc kiểm tra thích ứng nên phủ các nội dung sau:
 
 * **Tương thích ngân sách:** so sánh token, số lần gọi tool, mức song song, timeout, retry và độ trễ đầu cuối trước và sau khi thay, xác nhận model ứng viên hoàn thành được task mục tiêu trong trần tài nguyên hiện có;
 
-* **Tương thích ranh giới bảo mật:** kiểm chứng rằng khi model sinh ra hành động vượt quyền hay rủi ro cao, Harness và môi trường thực thi vẫn kiểm độc lập và chặn cưỡng chế được — không được vì model biểu hiện tốt lên mà bỏ lan can hệ thống.
+* **Tương thích ranh giới bảo mật:** kiểm chứng rằng khi model sinh ra hành động vượt quyền hay rủi ro cao, Harness và môi trường thực thi vẫn kiểm độc lập và chặn cưỡng chế được - không được vì model biểu hiện tốt lên mà bỏ lan can hệ thống.
 
 Quá trình thích ứng nên theo thứ tự test từ cục bộ tới khép kín. Trước hết dùng input cố định để kiểm message và Schema tool, rồi dùng tiền tố lịch sử chuẩn để kiểm chứng hành động một bước, tiếp đó tự chạy task trọn vẹn trong Sandbox, và kiểm chứng hành vi khôi phục bằng cách tiêm sự cố như tool timeout, trả về không hợp lệ, thiếu tài nguyên và bị từ chối quyền hạn. Chỉ khi việc thực thi khép kín đã ổn định, thì tỉ lệ đúng định dạng ở mức cục bộ mới có ý nghĩa với việc lên production.
 
@@ -774,7 +774,7 @@ Việc thích ứng ứng dụng nên tạo thành bản ghi thay đổi độc 
 
 ### 17.5.3 Đặt cổng điều kiện vào: lợi ích task, ràng buộc hành vi và hồi quy năng lực
 
-Mục 17.1 đã đưa ra bộ chỉ số thống nhất về chất lượng, độ tin cậy, chi phí và bảo mật; các mục 17.2—17.4 lần lượt nói rõ trọng tâm đánh giá độc lập của từng phương pháp huấn luyện. Mục này không lặp lại việc thiết kế hệ đánh giá, mà chuyển kết quả đánh giá đã có thành đánh giá phát hành. Điều kiện vào không thể dựa vào một tổng điểm có trọng số, mà nên dùng **"ngưỡng cứng + lợi ích mục tiêu"**: bất kỳ hạng mục tương thích then chốt, bảo mật hay hồi quy năng lực nào không đạt đều phải chặn phát hành; sau khi qua ngưỡng cứng, mới đánh giá lợi ích trên task mục tiêu có đủ bù chi phí thích ứng, triển khai và bảo trì không.
+Mục 17.1 đã đưa ra bộ chỉ số thống nhất về chất lượng, độ tin cậy, chi phí và bảo mật; các mục 17.2-17.4 lần lượt nói rõ trọng tâm đánh giá độc lập của từng phương pháp huấn luyện. Mục này không lặp lại việc thiết kế hệ đánh giá, mà chuyển kết quả đánh giá đã có thành đánh giá phát hành. Điều kiện vào không thể dựa vào một tổng điểm có trọng số, mà nên dùng **"ngưỡng cứng + lợi ích mục tiêu"**: bất kỳ hạng mục tương thích then chốt, bảo mật hay hồi quy năng lực nào không đạt đều phải chặn phát hành; sau khi qua ngưỡng cứng, mới đánh giá lợi ích trên task mục tiêu có đủ bù chi phí thích ứng, triển khai và bảo trì không.
 
 Đơn vị phát hành ứng viên ít nhất phải qua các cổng sau:
 
@@ -798,7 +798,7 @@ Ngưỡng, biên không kém hơn, cỡ mẫu tối thiểu, thước đo khoả
 
 Việc thay thế model nên mở rộng phạm vi ảnh hưởng dần theo thứ tự sau:
 
-1. **Kiểm chứng bóng.** Với các task hỏi đáp hay chỉ đọc không có tác dụng phụ, có thể nhân bản request thật đã ẩn danh sang version ứng viên và chạy song song với version cũ. Với các task nhiều bước phụ thuộc vào thay đổi trạng thái, nên phát lại trong Sandbox cô lập hay trên bản sao trạng thái, hoặc chỉ so sánh hành động ứng viên mà không thực thi — không được coi "chưa sinh ra tác dụng phụ" là đã kiểm chứng đầu cuối xong.
+1. **Kiểm chứng bóng.** Với các task hỏi đáp hay chỉ đọc không có tác dụng phụ, có thể nhân bản request thật đã ẩn danh sang version ứng viên và chạy song song với version cũ. Với các task nhiều bước phụ thuộc vào thay đổi trạng thái, nên phát lại trong Sandbox cô lập hay trên bản sao trạng thái, hoặc chỉ so sánh hành động ứng viên mà không thực thi - không được coi "chưa sinh ra tác dụng phụ" là đã kiểm chứng đầu cuối xong.
 
 2. **Canary rủi ro thấp.** Trước hết chọn các tool chỉ đọc, task rủi ro thấp, người dùng nội bộ hay phạm vi nghiệp vụ rõ ràng để gánh một ít traffic thật, kiểm chứng trọn chuỗi lời gọi, việc thu thập chỉ số và chuỗi cảnh báo.
 
@@ -810,7 +810,7 @@ Mỗi giai đoạn đều nên định nghĩa trước ba loại điều kiện 
 
 * **Điều kiện mở rộng:** lợi ích trên task mục tiêu đạt ngưỡng, phần hồi quy cốt lõi thoả yêu cầu không kém hơn, chi phí và độ trễ trong ngân sách, và chưa xuất hiện sự cố bảo mật then chốt;
 
-* **Điều kiện tạm dừng:** cỡ mẫu chưa đủ, chỉ số dao động quá lớn, dữ liệu trễ hay việc quy kết chưa rõ — hãy giữ nguyên tỉ lệ traffic hiện tại và quan sát thêm;
+* **Điều kiện tạm dừng:** cỡ mẫu chưa đủ, chỉ số dao động quá lớn, dữ liệu trễ hay việc quy kết chưa rõ - hãy giữ nguyên tỉ lệ traffic hiện tại và quan sát thêm;
 
 * **Điều kiện rollback:** xuất hiện việc xuyên thủng ràng buộc then chốt, task thoái hoá kéo dài, chi phí tăng bất thường, độ ổn định dịch vụ giảm, hay chỉ số nghiệp vụ cốt lõi vượt ngưỡng xấu đi đặt trước.
 
@@ -832,6 +832,6 @@ Việc model lên production không phải điểm kết của vòng huấn luy�
 
 * **Sửa Harness:** vấn đề đến từ việc cấp thông tin, tổ chức context, mô tả tool, quản trạng thái, retry, dừng hay kiểm soát quyền hạn, chứ không phải năng lực ra quyết định của model trong điều kiện đầy đủ;
 
-* **Sửa môi trường thực thi:** hành động đúng thất bại vì độ khả dụng dịch vụ, trạng thái dữ liệu, giới hạn tài nguyên hay phụ thuộc ngoài — lúc này tiếp tục huấn luyện model sẽ không xoá được căn nguyên.
+* **Sửa môi trường thực thi:** hành động đúng thất bại vì độ khả dụng dịch vụ, trạng thái dữ liệu, giới hạn tài nguyên hay phụ thuộc ngoài - lúc này tiếp tục huấn luyện model sẽ không xoá được căn nguyên.
 
 Với tiền đề đã có trajectory connector, ánh xạ metadata version và cấu hình workflow tối ưu, có thể đưa trajectory đã gắn version, phần quy kết thất bại, báo cáo đánh giá, chỉ số canary và sự kiện phát hành vào Trace2Optimizers, giúp các đề xuất tối ưu truy nguyên được về task, version model và điều kiện hệ thống cụ thể. Mục tiêu ở đây không phải tự động đổ mọi dữ liệu production ngược vào huấn luyện, mà là thiết lập một cơ chế kích hoạt rõ ràng: khi một loại vấn đề tái hiện ổn định trên mẫu độc lập, ảnh hưởng nghiệp vụ vượt ngưỡng, tầng chịu trách nhiệm đã được xác nhận và tồn tại một đường sửa kiểm chứng được, thì mới tạo nhiệm vụ SFT, Agentic RL, distillation hay tối ưu ứng dụng cho vòng sau.

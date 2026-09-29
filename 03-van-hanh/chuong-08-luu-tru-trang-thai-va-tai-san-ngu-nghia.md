@@ -1,12 +1,12 @@
-# Chương 8 — Lưu trữ trạng thái và tài sản ngữ nghĩa của Agent
+# Chương 8 - Lưu trữ trạng thái và tài sản ngữ nghĩa của Agent
 
 Chương 7 đã bàn về môi trường thực thi, việc liên kết state và tiếp tục task. Chương này trả lời tiếp: những sự thật về task, workspace và tài sản ngữ nghĩa cần bền vững hoá thì **do hệ thống nào gánh, và mỗi thứ phải thoả yêu cầu nhất quán, truy cập và quản trị nào.**
 
 Event Log và Checkpoint cung cấp căn cứ cho việc khôi phục sự cố; snapshot workspace và Artifact lưu version môi trường cùng thành quả task; bộ nhớ dài hạn tích luỹ kinh nghiệm đã chọn lọc; kho tri thức RAG (Retrieval-Augmented Generation) cung cấp tri thức bên ngoài truy hồi được; còn ontology thì tổ chức tường minh các đối tượng nghiệp vụ, quan hệ và luật. Những đối tượng này có thể dùng chung hạ tầng, nhưng **không vì thế mà được bỏ qua yêu cầu về tính đúng đắn riêng của từng thứ.**
 
-Chương này triển khai theo trình tự: "bản đồ phân tầng — trạng thái vận hành và workspace — memory, knowledge và ontology — quản trị nền tảng". Phần Xây dựng đã nói những đối tượng logic này được Harness dùng ra sao; ở đây trọng tâm là việc bền vững hoá, gắn version, tính nhất quán và vòng đời của chúng, và lấy kiến trúc tham chiếu của Lakebase để minh hoạ cách các năng lực được tổ hợp.
+Chương này triển khai theo trình tự: "bản đồ phân tầng - trạng thái vận hành và workspace - memory, knowledge và ontology - quản trị nền tảng". Phần Xây dựng đã nói những đối tượng logic này được Harness dùng ra sao; ở đây trọng tâm là việc bền vững hoá, gắn version, tính nhất quán và vòng đời của chúng, và lấy kiến trúc tham chiếu của Lakebase để minh hoạ cách các năng lực được tổ hợp.
 
-**Phần một — Tổng quan: sau khi state được đưa ra ngoài thì ai gánh nó**
+**Phần một - Tổng quan: sau khi state được đưa ra ngoài thì ai gánh nó**
 
 ## 8.1 Bản đồ phân tầng của kho lưu trạng thái Agent
 
@@ -38,7 +38,7 @@ Xét về hình thái dữ liệu, state của Agent không phải một đối 
 
 ![image](../assets/imgs/chapter-08/image-001.png)
 
-*Hình 8-1 — Các đối tượng state của Agent và kiến trúc lưu trữ phân tầng*
+*Hình 8-1 - Các đối tượng state của Agent và kiến trúc lưu trữ phân tầng*
 
 Hình 8-1 trình bày cấu trúc tổng thể của kho lưu trạng thái Agent theo bốn tầng: trên cùng là các đối tượng dữ liệu hướng Agent như trạng thái runtime, workspace và sản phẩm, memory và knowledge, ngữ nghĩa nghiệp vụ và quản trị; dưới đó là hợp đồng state thống nhất và metadata; tiếp nữa là các năng lực nền như giao dịch, object, truy hồi, quan hệ và graph; dưới cùng là phần quản trị và vận hành thống nhất trải ngang mọi tầng. Thứ hình vẽ biểu đạt **không phải cấu trúc bên trong của một loại database nào đó**, mà là sự phân công năng lực mà một nền tảng dữ liệu Agent nên cung cấp.
 
@@ -46,7 +46,7 @@ Hình 8-1 trình bày cấu trúc tổng thể của kho lưu trạng thái Agen
 
 ### 8.1.3 Yêu cầu nhất quán của các loại đối tượng state
 
-Khác biệt giữa các loại đối tượng state cuối cùng thể hiện thành những yêu cầu nhất quán và truy cập khác nhau. **Trạng thái runtime** lưu các sự thật về task: một bước đã xong chưa, một lời gọi tool đã commit chưa, người thực thi kế tiếp là ai. Loại state này cần thứ tự ghi rõ ràng, cập nhật nguyên tử, kiểm soát idempotent và một lịch sử khôi phục được — nếu không, việc retry task có thể thực thi trùng, và nhiều bản sao có thể đưa ra những kết luận xung đột cho cùng một task.
+Khác biệt giữa các loại đối tượng state cuối cùng thể hiện thành những yêu cầu nhất quán và truy cập khác nhau. **Trạng thái runtime** lưu các sự thật về task: một bước đã xong chưa, một lời gọi tool đã commit chưa, người thực thi kế tiếp là ai. Loại state này cần thứ tự ghi rõ ràng, cập nhật nguyên tử, kiểm soát idempotent và một lịch sử khôi phục được - nếu không, việc retry task có thể thực thi trùng, và nhiều bản sao có thể đưa ra những kết luận xung đột cho cùng một task.
 
 **Workspace và sản phẩm** thì quan tâm hơn tới version, snapshot, quan hệ tham chiếu và khả năng rollback. Một bảng phân tích, một nhánh code hay một báo cáo đã sinh ra cần định vị chính xác được về một lần chạy task, vừa để bên cộng tác tái dùng, vừa để quay về một version đáng tin khi sửa đổi sau này gặp vấn đề. **Memory và knowledge** thì nhấn mạnh hơn tính truy hồi được, tính cập nhật, độ tin cậy của nguồn và việc lọc quyền: chúng cho phép xử lý và index rồi mới được recall, nhưng **bắt buộc phải nói được đến từ đâu, áp dụng cho phạm vi nào, khi nào cần cập nhật hoặc quên đi.** Ontology và trạng thái quản trị còn cần duy trì định danh đối tượng, tính toàn vẹn quan hệ, ranh giới luật và bằng chứng audit.
 
@@ -56,7 +56,7 @@ Vì vậy, một vector store hay một bảng phiên có thể lưu được m�
 
 Lấy Lakebase làm tham chiếu, có thể chia năng lực nền tảng thành hai tầng: tầng dưới cung cấp các năng lực lưu trữ giao dịch, file, object, vector và graph theo đặc tính đối tượng; tầng trên thống nhất định danh đối tượng, metadata, version, quyền hạn và vòng đời. Một hợp đồng truy cập thống nhất giúp giảm việc ứng dụng tích hợp lặp lại, nhưng **tính nhất quán và bảo đảm khôi phục của từng đối tượng thì vẫn phải kiểm chứng riêng.** Các mục sau triển khai theo cấu trúc này.
 
-**Phần hai — Nền lưu trữ: trạng thái runtime, workspace và snapshot**
+**Phần hai - Nền lưu trữ: trạng thái runtime, workspace và snapshot**
 
 Cả năng lực ngữ nghĩa lẫn quản trị nền tảng đều dựng trên nền vật lý, và cái nền ấy phải trả lời hai câu hỏi cứng rắn nhất: **task gián đoạn rồi có tiếp tục được không, và thành quả công việc có giữ lại được không.** Sự cố, co giãn, di trú instance có thể xảy ra bất cứ lúc nào; sự thật về task của Agent bắt buộc không được mất, việc thực thi bắt buộc phải nối tiếp được; còn code, file và sản phẩm trong sandbox thì phải tạo được nhanh, cô lập an toàn và bàn giao đáng tin.
 
@@ -72,7 +72,7 @@ Vì vậy, mục tiêu hàng đầu của kho lưu trạng thái runtime không 
 
 ### 8.2.2 Event Log: tính thứ tự và nhất quán mạnh của một log chỉ-append
 
-Event Log là cơ chế cốt lõi ghi lại sự thay đổi của các sự thật về task. Mỗi khi Agent hoàn thành một hành động có ý nghĩa nghiệp vụ — ví dụ sinh kế hoạch, xin execution lease, phát lời gọi tool, nhận giá trị trả về của tool, chờ con người xác nhận hay commit kết quả cuối — hệ thống đều append một event không được tuỳ ý viết lại. Các event này ghép theo thứ tự sẽ tái dựng được toàn bộ quá trình tiến hoá của task từ lúc bắt đầu tới thời điểm hiện tại.
+Event Log là cơ chế cốt lõi ghi lại sự thay đổi của các sự thật về task. Mỗi khi Agent hoàn thành một hành động có ý nghĩa nghiệp vụ - ví dụ sinh kế hoạch, xin execution lease, phát lời gọi tool, nhận giá trị trả về của tool, chờ con người xác nhận hay commit kết quả cuối - hệ thống đều append một event không được tuỳ ý viết lại. Các event này ghép theo thứ tự sẽ tái dựng được toàn bộ quá trình tiến hoá của task từ lúc bắt đầu tới thời điểm hiện tại.
 
 Với trạng thái runtime, **thứ tự đặc biệt quan trọng.** Giả sử "gửi yêu cầu phê duyệt" đã thành công nhưng event kết quả lại không được ghi tin cậy nên bị chạy lại, thì hệ thống có thể gửi nhiều lần yêu cầu tới cùng một người duyệt; giả sử một subtask đã hoàn tất nhưng task cha không thấy event hoàn tất của nó, thì việc điều phối task có thể tiếp tục chờ một cách sai lầm. Giá trị của Event Log chính là cung cấp một thứ tự sự thật rõ ràng, truy nguyên được ở chính những ranh giới đó.
 
@@ -108,7 +108,7 @@ Cần lưu ý, **Durable Execution không đồng nghĩa với việc "mọi hà
 
 ### 8.2.5 Hiệu năng, độ ổn định và co giãn: ứng phó với workload dạng xung
 
-Workload của Agent mang đặc tính xung một cách tự nhiên. Một nhóm người dùng cùng phát yêu cầu phân tích, một workflow phức tạp chẻ ra nhiều subtask, hay các tool bên ngoài timeout ngắn rồi phục hồi đồng loạt — tất cả đều tạo ra đỉnh ghi state và đọc khôi phục trong thời gian ngắn. Nếu trạng thái runtime bị buộc chặt vào instance tính toán, nền tảng thường chỉ còn cách mở rộng quy mô instance để giảm áp lực — vừa tốn kém vừa hạn chế năng lực khôi phục.
+Workload của Agent mang đặc tính xung một cách tự nhiên. Một nhóm người dùng cùng phát yêu cầu phân tích, một workflow phức tạp chẻ ra nhiều subtask, hay các tool bên ngoài timeout ngắn rồi phục hồi đồng loạt - tất cả đều tạo ra đỉnh ghi state và đọc khôi phục trong thời gian ngắn. Nếu trạng thái runtime bị buộc chặt vào instance tính toán, nền tảng thường chỉ còn cách mở rộng quy mô instance để giảm áp lực - vừa tốn kém vừa hạn chế năng lực khôi phục.
 
 Sau khi state được đưa ra ngoài, tính toán và state có thể co giãn riêng rẽ. Tầng thực thi co giãn nhanh theo số lượng task; còn tầng state thì cần cung cấp thông lượng ổn định theo phân vùng task, điểm nóng truy cập và mức bền vững. Với nền tảng, điều then chốt không phải là mọi event đều đạt độ trễ thấp nhất, mà là **trong điều kiện tải cao, chuyển đổi instance và sự cố cục bộ, trạng thái task vẫn không mất, không sai thứ tự, không bị bản sao cũ ghi đè.**
 
@@ -124,9 +124,9 @@ Vì vậy, **workspace không nên bị coi là một thư mục tạm trên ins
 
 ![image](../assets/imgs/chapter-08/image-002.png)
 
-*Hình 8-2 — Kiến trúc tổng thể của Agent Workspace*
+*Hình 8-2 - Kiến trúc tổng thể của Agent Workspace*
 
-Hình 8-2 trình bày cách phân tầng workspace trong kiến trúc tham chiếu Lakebase: tầng cơ sở, tầng dùng chung và tầng ghi được dùng Copy-on-Write để giảm sao chép lặp; trạng thái runtime và kho sản phẩm liên kết với nhau qua namespace và tham chiếu đối tượng; còn database metadata, object storage và cache thì cung cấp phần gánh ở tầng dưới. **Thời lượng snapshot và mount phụ thuộc vào quy mô dữ liệu, backend và cách khôi phục — cần đo dưới workload thực tế.**
+Hình 8-2 trình bày cách phân tầng workspace trong kiến trúc tham chiếu Lakebase: tầng cơ sở, tầng dùng chung và tầng ghi được dùng Copy-on-Write để giảm sao chép lặp; trạng thái runtime và kho sản phẩm liên kết với nhau qua namespace và tham chiếu đối tượng; còn database metadata, object storage và cache thì cung cấp phần gánh ở tầng dưới. **Thời lượng snapshot và mount phụ thuộc vào quy mô dữ liệu, backend và cách khôi phục - cần đo dưới workload thực tế.**
 
 ### 8.3.1 Hình thái lưu trữ của workspace: file storage dùng chung, object storage và tầng tăng tốc
 
@@ -194,9 +194,9 @@ Khi Agent mở rộng từ vài task thí nghiệm sang một lượng lớn wor
 
 Tổng hợp lại: kho lưu trạng thái runtime (8.2) bảo đảm task tiếp tục thực thi được sau sự cố và di trú; kho workspace và sản phẩm (8.3) bảo đảm thành quả của task được lưu, bàn giao và tái dùng một cách đáng tin. Hai thứ cùng tạo thành nền dữ liệu của nền tảng Agent, giúp Agent đi từ "hoàn thành được một task đơn lẻ" tới "gánh ổn định các quy trình nghiệp vụ hằng ngày".
 
-**Phần ba — Tầng ngữ nghĩa: bộ nhớ dài hạn, kho tri thức và ontology**
+**Phần ba - Tầng ngữ nghĩa: bộ nhớ dài hạn, kho tri thức và ontology**
 
-Trạng thái runtime và workspace của Agent giải quyết câu hỏi "hiện đang làm gì"; còn việc tái dùng thông tin xuyên task thì liên quan tới bản ghi kinh nghiệm, tri thức bên ngoài và quan hệ giữa các đối tượng nghiệp vụ — lần lượt ứng với **memory, kho tri thức và ontology.**
+Trạng thái runtime và workspace của Agent giải quyết câu hỏi "hiện đang làm gì"; còn việc tái dùng thông tin xuyên task thì liên quan tới bản ghi kinh nghiệm, tri thức bên ngoài và quan hệ giữa các đối tượng nghiệp vụ - lần lượt ứng với **memory, kho tri thức và ontology.**
 
 Khác biệt giữa ba thứ trước hết nằm ở nguồn, công dụng và trách nhiệm duy trì. Memory đến từ kinh nghiệm tương tác và thực thi đã được chọn lọc; knowledge đến từ tài liệu bên ngoài truy nguyên được; ontology duy trì khái niệm nghiệp vụ, quan hệ và luật. **Không phải mọi ứng dụng đều cần đủ cả ba;** hãy chọn theo nhu cầu của task về tái dùng xuyên phiên, truy hồi tri thức và suy luận quan hệ.
 
@@ -214,13 +214,13 @@ Bộ nhớ dài hạn có thể lưu các sở thích người dùng đã nói r
 
 ![c991893210c74d4ba4ce6995b47d02e1.png](../assets/imgs/chapter-08/image-003.png)
 
-*Hình 8-3 — Tổ chức phân tầng của bộ nhớ dài hạn và recall lai*
+*Hình 8-3 - Tổ chức phân tầng của bộ nhớ dài hạn và recall lai*
 
 Kiến trúc tham chiếu tổ chức bộ nhớ dài hạn theo **hai chiều độc lập, trực giao**, để tránh trộn "nguồn" và "độ ổn định" vào cùng một trục phân loại.
 
 **Chiều thứ nhất, theo nguồn, chia ba loại:** biểu đạt tường minh của người dùng (sở thích, yêu cầu và phản hồi trong hội thoại), khái quát từ hành vi Agent (mẫu gọi tool, đường đi thực thi và kinh nghiệm xử lý lỗi), và sự thật nghiệp vụ bên ngoài (trạng thái đơn hàng, kết luận phê duyệt… do hệ thống nghiệp vụ ghi vào và dịch vụ memory tiếp nhận). Hai loại đầu trả lời "người dùng đã nói gì" và "Agent đã học được gì"; loại thứ ba trả lời "về mặt nghiệp vụ, đã xảy ra chuyện gì đáng nhớ".
 
-**Chiều thứ hai, theo độ ổn định, chia ba tầng:** tầng persona và định danh (vai trò Agent, quy chuẩn hành vi, tính cách và ranh giới ổn định dài hạn), tầng chân dung (vai trò người dùng, sở thích, thói quen; tần suất cập nhật tính theo tuần, tháng), và tầng sự kiện–sở thích (sự kiện tương tác và sở thích trong bối cảnh cụ thể; hạt mịn nhất và cũng dễ biến đổi nhất). Hai chiều này **trực giao** — cùng một biểu đạt tường minh của người dùng có thể rơi vào tầng chân dung, mà cũng có thể rơi vào tầng sự kiện–sở thích; cùng một loại khái quát hành vi Agent cũng có thể được tầng persona (luật ổn định) hoặc tầng sự kiện–sở thích (chiến lược tạm) hấp thu.
+**Chiều thứ hai, theo độ ổn định, chia ba tầng:** tầng persona và định danh (vai trò Agent, quy chuẩn hành vi, tính cách và ranh giới ổn định dài hạn), tầng chân dung (vai trò người dùng, sở thích, thói quen; tần suất cập nhật tính theo tuần, tháng), và tầng sự kiện–sở thích (sự kiện tương tác và sở thích trong bối cảnh cụ thể; hạt mịn nhất và cũng dễ biến đổi nhất). Hai chiều này **trực giao** - cùng một biểu đạt tường minh của người dùng có thể rơi vào tầng chân dung, mà cũng có thể rơi vào tầng sự kiện–sở thích; cùng một loại khái quát hành vi Agent cũng có thể được tầng persona (luật ổn định) hoặc tầng sự kiện–sở thích (chiến lược tạm) hấp thu.
 
 **Persona** (cấu hình nhân cách và định danh của Agent) **không** được coi là memory mang tính kinh nghiệm, mà do bên xây dựng hoặc bên quản trị duy trì tường minh, chịu kiểm soát version và quyền hạn; nó tạo thành nền của memory, nhưng **không** đến từ trải nghiệm của Agent.
 
@@ -230,7 +230,7 @@ Memory hướng tới recall tần suất cao có thể đi vào index vector v�
 
 Memory không phải bản lưu trữ đơn giản của hội thoại gốc, mà là phần **nhận thức được tích tụ sau khi gia công có cấu trúc.** Việc ghi trước hết cần trích ra từ văn bản hội thoại và log hành vi những thông tin có giá trị lâu dài, như lời tuyên bố sở thích, phát biểu sự thật và các mẫu hành vi lặp lại. Cốt lõi nằm ở việc phân biệt **"cái gì đáng nhớ, cái gì nên quên"**: lời xã giao, lệnh debug tạm và các truy vấn dùng một lần thì không nên vào bộ nhớ dài hạn; chỉ những thông tin có giá trị dự đoán cho các tương tác sau mới nên tích tụ.
 
-Memory mới không được append một cách đơn giản, mà phải được khớp ngữ nghĩa, gộp và loại bỏ trùng lặp với memory sẵn có. Khi nhiều lần tương tác độc lập cùng chỉ tới một kết luận thì độ tin cậy của memory tăng lên; còn khi memory mới và cũ xung đột thì hệ thống kết hợp tính cập nhật, độ tin cậy của nguồn và context để hoàn tất việc ghi đè hoặc giữ ở trạng thái chờ xác nhận — bảo đảm memory vừa phản ánh được ý định mới nhất, vừa không mất sự thật quan trọng vì ghi đè quá tay.
+Memory mới không được append một cách đơn giản, mà phải được khớp ngữ nghĩa, gộp và loại bỏ trùng lặp với memory sẵn có. Khi nhiều lần tương tác độc lập cùng chỉ tới một kết luận thì độ tin cậy của memory tăng lên; còn khi memory mới và cũ xung đột thì hệ thống kết hợp tính cập nhật, độ tin cậy của nguồn và context để hoàn tất việc ghi đè hoặc giữ ở trạng thái chờ xác nhận - bảo đảm memory vừa phản ánh được ý định mới nhất, vừa không mất sự thật quan trọng vì ghi đè quá tay.
 
 ### 8.4.4 Truy hồi memory: vector, cấu trúc và recall lai; mức liên quan và tính gần thời điểm
 
@@ -238,7 +238,7 @@ Ghi memory mới chỉ là điểm xuất phát; quan trọng hơn là **recall 
 
 Lakebase dùng **recall lai nhiều đường**: truy hồi vector ngữ nghĩa dùng Embedding để bắt những ý nghĩa tương tự phía sau cách diễn đạt; truy hồi từ khoá dùng các cơ chế như BM25 (Best Match 25) để bổ sung phần khớp từ và xếp hạng; truy hồi theo quan hệ thực thể thì xoay quanh các thực thể nghiệp vụ như con người, dự án và tổ chức, để phát hiện những thông tin lịch sử không giống nhau trên bề mặt văn bản nhưng lại liên quan chặt chẽ. Các ứng viên được Rerank tinh xếp, rồi kết hợp suy giảm theo thời gian và lọc theo loại để xuất ra context cuối cùng.
 
-Suy giảm theo thời gian có thể nâng trọng số xếp hạng cho memory gần đây, nhưng **không áp dụng được cho mọi loại thông tin.** Những ràng buộc còn hiệu lực dài hạn không nên phai mờ chỉ vì ít được gọi tới; tần suất tham chiếu cũng **không** đồng nghĩa với tính đúng đắn — nó phải được dùng cùng với nguồn và kết quả kiểm chứng thực tế.
+Suy giảm theo thời gian có thể nâng trọng số xếp hạng cho memory gần đây, nhưng **không áp dụng được cho mọi loại thông tin.** Những ràng buộc còn hiệu lực dài hạn không nên phai mờ chỉ vì ít được gọi tới; tần suất tham chiếu cũng **không** đồng nghĩa với tính đúng đắn - nó phải được dùng cùng với nguồn và kết quả kiểm chứng thực tế.
 
 ### 8.4.5 Cập nhật và quên memory: suy giảm, đào thải và quản lý vòng đời
 
@@ -258,11 +258,11 @@ Không gian memory đa phương thức của Lakebase hỗ trợ bền vững ho
 
 Bộ nhớ dài hạn vốn chứa thông tin cá nhân và dấu vết hành vi của người dùng, nên việc quản trị bắt buộc phải cân bằng giữa tính dùng được của dữ liệu và bảo vệ quyền riêng tư. Memory càng chính xác, càng cá nhân hoá thì mức nhạy cảm tiềm tàng càng cao; vì vậy quản trị không thể chỉ phủ phần lưu trữ tĩnh, mà phải xuyên suốt toàn chuỗi ghi, truy hồi, sử dụng và xoá.
 
-Lakebase cung cấp các năng lực phân loại – phân cấp, cô lập quyền hạn, audit truy cập và ẩn danh theo tuân thủ, bảo đảm mỗi memory chỉ được dùng trong phạm vi đã uỷ quyền. Nền tảng tích hợp các Agent khác nhau bằng interface chuẩn hoá và hệ credential, khiến chúng chỉ truy cập được không gian memory đã được cấp quyền; còn trực quan hoá toàn chuỗi thì cho người vận hành theo dõi được toàn bộ quá trình của một memory từ lúc ghi, recall, được tham chiếu tới lúc archive hay đào thải — làm căn cứ cho audit tuân thủ, tối ưu trải nghiệm và điều tra sự cố.
+Lakebase cung cấp các năng lực phân loại – phân cấp, cô lập quyền hạn, audit truy cập và ẩn danh theo tuân thủ, bảo đảm mỗi memory chỉ được dùng trong phạm vi đã uỷ quyền. Nền tảng tích hợp các Agent khác nhau bằng interface chuẩn hoá và hệ credential, khiến chúng chỉ truy cập được không gian memory đã được cấp quyền; còn trực quan hoá toàn chuỗi thì cho người vận hành theo dõi được toàn bộ quá trình của một memory từ lúc ghi, recall, được tham chiếu tới lúc archive hay đào thải - làm căn cứ cho audit tuân thủ, tối ưu trải nghiệm và điều tra sự cố.
 
 ### 8.4.8 Kiểm chứng dịch vụ memory ở quy mô
 
-Bối cảnh giáo dục có thể kiểm chứng dịch vụ memory qua sở thích học tập và bản ghi mức độ nắm kiến thức; bối cảnh CRM (Customer Relationship Management — quản lý quan hệ khách hàng) có thể kiểm tra xem bản ghi trao đổi với khách hàng có được gọi ra chính xác trong các task sau hay không. Kiểm chứng ở quy mô cần báo cáo đồng thời số người dùng hoạt động, số mục memory, mức truy vấn đồng thời, quy mô dữ liệu, chất lượng recall và độ trễ P95/P99 (phân vị 95 và 99); **một con số DAU hay độ trễ đơn lẻ không đủ nói lên năng lực dịch vụ.**
+Bối cảnh giáo dục có thể kiểm chứng dịch vụ memory qua sở thích học tập và bản ghi mức độ nắm kiến thức; bối cảnh CRM (Customer Relationship Management - quản lý quan hệ khách hàng) có thể kiểm tra xem bản ghi trao đổi với khách hàng có được gọi ra chính xác trong các task sau hay không. Kiểm chứng ở quy mô cần báo cáo đồng thời số người dùng hoạt động, số mục memory, mức truy vấn đồng thời, quy mô dữ liệu, chất lượng recall và độ trễ P95/P99 (phân vị 95 và 99); **một con số DAU hay độ trễ đơn lẻ không đủ nói lên năng lực dịch vụ.**
 
 Ngoài thông lượng và độ trễ, còn phải kiểm chứng xem việc đính chính memory, thu hồi quyền, độ trễ index và khôi phục sự cố có ảnh hưởng tới các câu trả lời sau đó hay không. Việc cải thiện trải nghiệm phải được đánh giá qua các chỉ số task rõ ràng và mẫu đối chứng, **tránh chỉ dựa vào "nhớ được nhiều hơn" mà suy ra chất lượng đã tăng.**
 
@@ -276,13 +276,13 @@ Cả memory lẫn knowledge đều cần kiểm chứng nguồn. Nội dung kho 
 
 ![image](../assets/imgs/chapter-08/image-004.png)
 
-*Hình 8-4 — Kiến trúc truy hồi tri thức hai làn: RAG và GraphRAG*
+*Hình 8-4 - Kiến trúc truy hồi tri thức hai làn: RAG và GraphRAG*
 
 Điểm cốt yếu của hình 8-4 không nằm ở số lượng đường truy hồi, mà ở chỗ **mỗi đường đều có ranh giới được kiểm soát**: RAG đảm nhiệm truy hồi tương tự ngữ nghĩa; GraphRAG hướng tới các câu hỏi cần suy luận quan hệ xuyên thực thể và được bật theo quy tắc routing đã kiểm chứng; DataProbe dùng tài khoản chỉ-đọc để thăm dò có cấu trúc trong phạm vi Schema đã uỷ quyền. Các ứng viên từ nhiều đường được Rerank xếp hạng thống nhất, và kết quả giữ lại phần truy nguyên đáp án rồi mới đưa cho Agent tiêu thụ. Các mục sau sẽ lần lượt triển khai cơ chế cụ thể của việc parse tài liệu, index và cập nhật tăng dần, recall lai, GraphRAG và quản trị tri thức.
 
 ### 8.5.2 Hiểu và parse tài liệu chuyên sâu: đa định dạng, bảng và văn bản – hình ảnh trộn lẫn
 
-Tri thức doanh nghiệp có nhiều loại vật mang: sổ tay kỹ thuật, văn bản hợp đồng, báo cáo nghiên cứu, biên bản họp và văn bản chính sách — định dạng và cấu trúc đều khác nhau. Tầng hiểu tài liệu chuyên sâu của engine tri thức chịu trách nhiệm chuyển những nội dung đó thành các **đơn vị ngữ nghĩa Agent tiêu thụ được.**
+Tri thức doanh nghiệp có nhiều loại vật mang: sổ tay kỹ thuật, văn bản hợp đồng, báo cáo nghiên cứu, biên bản họp và văn bản chính sách - định dạng và cấu trúc đều khác nhau. Tầng hiểu tài liệu chuyên sâu của engine tri thức chịu trách nhiệm chuyển những nội dung đó thành các **đơn vị ngữ nghĩa Agent tiêu thụ được.**
 
 **Độ sâu của việc parse quyết định trần chất lượng truy hồi về sau.** Hệ thống không chỉ trích chữ, mà còn giữ lại phân cấp tiêu đề, quan hệ đoạn, dữ liệu bảng, thực thể, thời gian và giá trị số cùng các yếu tố cấu trúc – ngữ nghĩa khác, giúp mỗi mảnh tri thức có đủ neo context. Nhờ vậy tránh được kiểu cắt xén nghĩa như lấy chính sách trả hàng thuộc "nghiệp vụ nước ngoài" áp cho nghiệp vụ trong nước; còn với nội dung trộn văn bản và hình ảnh, chữ trong ảnh cùng ngữ nghĩa hình ảnh cũng có thể được trích ra để giảm sót thông tin.
 
@@ -290,7 +290,7 @@ Tri thức doanh nghiệp có nhiều loại vật mang: sổ tay kỹ thuật, 
 
 Sau khi parse xong, các mảnh tri thức phải qua cắt mảnh, vector hoá và dựng index rồi mới vào được dịch vụ truy hồi. **Chiến lược cắt mảnh ảnh hưởng trực tiếp tới hiệu quả truy hồi:** mảnh quá lớn thì đưa vào nhiễu, mảnh quá nhỏ thì mất context cần thiết. Lakebase hỗ trợ cắt mảnh thông minh theo ranh giới tiêu đề, đoạn và chỗ chuyển ý ngữ nghĩa, đồng thời giữ lại thông tin context như tiêu đề cha.
 
-Kho tri thức doanh nghiệp sẽ liên tục thêm, sửa và xoá nội dung. Nền tảng có thể dùng phát hiện thay đổi để chỉ xử lý phần đã đổi, và ghi lại version nguồn, version parse cùng mực nước index. Version mới sau khi dựng xong và kiểm chứng mới chuyển lối vào truy vấn sang; còn **thời gian có hiệu lực của việc cập nhật phải được đặt theo quy mô dữ liệu thực tế và năng lực pipeline — không thể từ chữ "tăng dần" mà suy ra một thời gian cố định.**
+Kho tri thức doanh nghiệp sẽ liên tục thêm, sửa và xoá nội dung. Nền tảng có thể dùng phát hiện thay đổi để chỉ xử lý phần đã đổi, và ghi lại version nguồn, version parse cùng mực nước index. Version mới sau khi dựng xong và kiểm chứng mới chuyển lối vào truy vấn sang; còn **thời gian có hiệu lực của việc cập nhật phải được đặt theo quy mô dữ liệu thực tế và năng lực pipeline - không thể từ chữ "tăng dần" mà suy ra một thời gian cố định.**
 
 ### 8.5.4 Truy hồi lai và recall nhiều đường: vector, toàn văn, lọc có cấu trúc và xếp hạng thống nhất
 
@@ -308,13 +308,13 @@ RAG truyền thống về bản chất là **"truy hồi theo mảnh"**: mỗi l
 
 Quản trị tri thức phủ ba chiều: lọc quyền, truy nguyên đáp án và tiếp nhận tri thức. **Lọc quyền** dựa trên vai trò người dùng và mức mật của tài liệu, và được thực hiện **ngay ở khâu truy hồi**, ngăn Agent dùng trực tiếp hay gián tiếp những nội dung mà người dùng hiện tại không có quyền lấy; việc kiểm soát này phải phủ toàn chuỗi từ truy hồi tới tạo sinh, tránh để quá trình suy luận trở thành đường vòng cho thông tin bị hạn chế.
 
-**Truy nguyên đáp án** giúp mọi câu trả lời sinh ra dựa trên kho tri thức đều lần ngược được tới tài liệu, đoạn và version cụ thể — đây là nền tảng cho việc người dùng kiểm chứng và cho việc audit. **Pipeline tiếp nhận tri thức chuẩn hoá** thì hỗ trợ đồng bộ nội dung liên tục từ nhiều nguồn như network drive doanh nghiệp, CMS (Content Management System — hệ quản trị nội dung), Wiki; kết hợp với snapshot version, rollback, phát hiện hết hạn và phân tích tham chiếu, nó giúp người vận hành duy trì độ tin cậy và độ tươi của tri thức.
+**Truy nguyên đáp án** giúp mọi câu trả lời sinh ra dựa trên kho tri thức đều lần ngược được tới tài liệu, đoạn và version cụ thể - đây là nền tảng cho việc người dùng kiểm chứng và cho việc audit. **Pipeline tiếp nhận tri thức chuẩn hoá** thì hỗ trợ đồng bộ nội dung liên tục từ nhiều nguồn như network drive doanh nghiệp, CMS (Content Management System - hệ quản trị nội dung), Wiki; kết hợp với snapshot version, rollback, phát hiện hết hạn và phân tích tham chiếu, nó giúp người vận hành duy trì độ tin cậy và độ tươi của tri thức.
 
 ### 8.5.7 Quy mô và chi phí: độ trễ truy hồi, phân tầng nóng–lạnh và lakehouse
 
 Kho tri thức quy mô lớn đối mặt đồng thời với thách thức về hiệu năng và chi phí. Nếu giữ toàn bộ index của hàng triệu tài liệu thường trú trên phương tiện hiệu năng cao thì chi phí khó kiểm soát; còn nếu đẩy hết xuống kho chi phí thấp thì lại không đáp ứng được yêu cầu phản hồi thời gian thực của Agent online.
 
-Lakebase cân bằng hai nhu cầu đó bằng **phân tầng nóng–lạnh**: tri thức nóng truy cập tần suất cao thường trú trong index bộ nhớ và cache SSD (Solid State Drive — ổ cứng thể rắn) để bảo đảm truy hồi độ trễ thấp; nội dung tần suất thấp tự động di trú xuống tầng lưu trữ chi phí thấp hơn, và có thể hâm nóng trở lại một cách trong suốt theo mẫu truy cập. Cách gánh theo kiểu **lakehouse** giúp dịch vụ tri thức vừa có lợi thế chi phí của data lake quy mô lớn, vừa đáp ứng yêu cầu hiệu năng của truy vấn online — tạo nền vận hành bền vững cho RAG và GraphRAG ở quy mô.
+Lakebase cân bằng hai nhu cầu đó bằng **phân tầng nóng–lạnh**: tri thức nóng truy cập tần suất cao thường trú trong index bộ nhớ và cache SSD (Solid State Drive - ổ cứng thể rắn) để bảo đảm truy hồi độ trễ thấp; nội dung tần suất thấp tự động di trú xuống tầng lưu trữ chi phí thấp hơn, và có thể hâm nóng trở lại một cách trong suốt theo mẫu truy cập. Cách gánh theo kiểu **lakehouse** giúp dịch vụ tri thức vừa có lợi thế chi phí của data lake quy mô lớn, vừa đáp ứng yêu cầu hiệu năng của truy vấn online - tạo nền vận hành bền vững cho RAG và GraphRAG ở quy mô.
 
 ## 8.6 Ontology: để Agent hiểu thế giới nghiệp vụ
 
@@ -326,15 +326,15 @@ Kho tri thức RAG giải quyết vấn đề "Agent tìm được thông tin li
 
 ![image](../assets/imgs/chapter-08/image-005.png)
 
-*Hình 8-5 — Mô hình hoá ngữ nghĩa ba tầng của ontology và suy luận giải thích được*
+*Hình 8-5 - Mô hình hoá ngữ nghĩa ba tầng của ontology và suy luận giải thích được*
 
 ### 8.6.2 Mô hình hoá ontology: biểu đạt tường minh đối tượng nghiệp vụ, hành động, quan hệ và luật
 
-Việc mô hình hoá ontology của Lakebase xoay quanh bốn yếu tố: **đối tượng, quan hệ, hành động và luật.** Đối tượng định nghĩa các thực thể nghiệp vụ như khách hàng, đơn hàng, sản phẩm cùng thuộc tính và ràng buộc của chúng; quan hệ định nghĩa hướng liên kết, bản số và ngữ nghĩa nghiệp vụ giữa các đối tượng, giúp Agent thăm dò theo các chuỗi như "khách hàng — đơn hàng — sản phẩm"; hành động định nghĩa điều kiện kích hoạt, logic thực thi và ràng buộc quyền hạn, biến "biết" thành "làm được"; còn luật thì tường minh hoá các nhận định kinh nghiệm của chuyên gia nghiệp vụ, ràng buộc ranh giới hành vi của Agent khi nó tự quyết định.
+Việc mô hình hoá ontology của Lakebase xoay quanh bốn yếu tố: **đối tượng, quan hệ, hành động và luật.** Đối tượng định nghĩa các thực thể nghiệp vụ như khách hàng, đơn hàng, sản phẩm cùng thuộc tính và ràng buộc của chúng; quan hệ định nghĩa hướng liên kết, bản số và ngữ nghĩa nghiệp vụ giữa các đối tượng, giúp Agent thăm dò theo các chuỗi như "khách hàng - đơn hàng - sản phẩm"; hành động định nghĩa điều kiện kích hoạt, logic thực thi và ràng buộc quyền hạn, biến "biết" thành "làm được"; còn luật thì tường minh hoá các nhận định kinh nghiệm của chuyên gia nghiệp vụ, ràng buộc ranh giới hành vi của Agent khi nó tự quyết định.
 
 Bốn yếu tố tạo thành một biểu đạt ngữ nghĩa trọn vẹn: từ "là gì" tới "có quan hệ gì", từ "làm được gì" tới "phải tuân theo gì". Bên trong ontology được tổ chức theo ba tầng tiệm tiến: tầng ngữ nghĩa định nghĩa đối tượng, thuộc tính và quan hệ; tầng luân chuyển dữ liệu định nghĩa thao tác và dòng dữ liệu; tầng quyết định thông minh định nghĩa luật, chính sách quyền hạn và việc gắn với Agent. Nhờ đó, ontology không chỉ là một từ điển nghiệp vụ, mà là một **bộ khung ngữ nghĩa hỗ trợ việc hiểu nghiệp vụ.**
 
-Cách phân công này cũng vạch ra ranh giới trách nhiệm của ontology: ontology gánh trách nhiệm **mô hình hoá ngữ nghĩa**, giữ lại ngữ nghĩa của đối tượng, quan hệ, hành động, và tích tụ các luật cùng metadata cho phép tham chiếu có uỷ quyền; **vòng đời thực thi** của hành động thì do Runtime hoàn tất theo ngữ nghĩa; còn **quyết định uỷ quyền** liên quan tới quyền hạn và việc gắn Agent thì do bên chịu trách nhiệm quản trị đưa ra. Ba trách nhiệm — định nghĩa ngữ nghĩa, thực thi và uỷ quyền — tách rời nhau, tránh để logic thực thi và quyết định quản trị lẫn vào mô hình ngữ nghĩa, và giúp bản thân ontology tiến hoá độc lập qua quản lý version.
+Cách phân công này cũng vạch ra ranh giới trách nhiệm của ontology: ontology gánh trách nhiệm **mô hình hoá ngữ nghĩa**, giữ lại ngữ nghĩa của đối tượng, quan hệ, hành động, và tích tụ các luật cùng metadata cho phép tham chiếu có uỷ quyền; **vòng đời thực thi** của hành động thì do Runtime hoàn tất theo ngữ nghĩa; còn **quyết định uỷ quyền** liên quan tới quyền hạn và việc gắn Agent thì do bên chịu trách nhiệm quản trị đưa ra. Ba trách nhiệm - định nghĩa ngữ nghĩa, thực thi và uỷ quyền - tách rời nhau, tránh để logic thực thi và quyết định quản trị lẫn vào mô hình ngữ nghĩa, và giúp bản thân ontology tiến hoá độc lập qua quản lý version.
 
 ### 8.6.3 Quản lý động ontology: đồng bộ dữ liệu và liên kết đối tượng
 
@@ -344,7 +344,7 @@ Lakebase hỗ trợ mô tả mô hình nghiệp vụ qua giao diện trực quan
 
 ### 8.6.4 Lưu trữ và suy luận đồ thị: suy luận giải thích được với sự phối hợp giữa luật và LLM
 
-Đồ thị có thể hỗ trợ việc thực thi luật và duyệt quan hệ; còn LLM (Large Language Model — mô hình ngôn ngữ lớn) thì có thể dùng context có cấu trúc đã truy hồi được để hỗ trợ nhận định. Kết quả của các luật có tính xác định phụ thuộc vào tính đúng đắn của luật và của dữ liệu đầu vào; còn những suy đoán LLM đưa ra cũng phải được kiểm chứng — **không được vì đã dùng ontology mà mặc định là giải thích được hay chính xác.**
+Đồ thị có thể hỗ trợ việc thực thi luật và duyệt quan hệ; còn LLM (Large Language Model - mô hình ngôn ngữ lớn) thì có thể dùng context có cấu trúc đã truy hồi được để hỗ trợ nhận định. Kết quả của các luật có tính xác định phụ thuộc vào tính đúng đắn của luật và của dữ liệu đầu vào; còn những suy đoán LLM đưa ra cũng phải được kiểm chứng - **không được vì đã dùng ontology mà mặc định là giải thích được hay chính xác.**
 
 Sự phối hợp này tránh được hai hạn chế: suy luận thuần luật thì cứng nhắc, khó xử lý ngoại lệ; còn suy luận thuần LLM thì thiếu ràng buộc cấu trúc, dễ sinh kết luận không đáng tin. Mỗi kết luận then chốt đều có thể kèm theo đường suy luận gồm việc duyệt quan hệ, áp dụng luật và tham chiếu context, để người dùng rà soát được "vì sao lại có kết luận này". Tính giải thích được này là nền tảng quan trọng để Agent giành được sự tin cậy trong nghiệp vụ, và cũng giúp nó dùng được trong các bối cảnh nghiêm túc như phân tích quan hệ khách hàng, truy nguyên gốc rễ chuỗi cung ứng và kiểm tra tuân thủ.
 
@@ -356,7 +356,7 @@ Kiểm soát quyền hạn bảo đảm các Agent với vai trò khác nhau ch�
 
 ### 8.6.6 Sự phối hợp giữa ontology, knowledge và memory: view thống nhất của tầng ngữ nghĩa
 
-Ontology, knowledge và memory không hoạt động độc lập, mà tạo thành một **view tầng ngữ nghĩa thống nhất.** Ontology cung cấp bộ khung cho knowledge, giúp mỗi mảnh tài liệu có được vị trí khái niệm; ví dụ, một tài liệu xử lý sự cố thiết bị có thể được tổ chức thành chuỗi có cấu trúc "loại thiết bị — kiểu hỏng — giải pháp", thay vì chỉ là văn bản rời rạc.
+Ontology, knowledge và memory không hoạt động độc lập, mà tạo thành một **view tầng ngữ nghĩa thống nhất.** Ontology cung cấp bộ khung cho knowledge, giúp mỗi mảnh tài liệu có được vị trí khái niệm; ví dụ, một tài liệu xử lý sự cố thiết bị có thể được tổ chức thành chuỗi có cấu trúc "loại thiết bị - kiểu hỏng - giải pháp", thay vì chỉ là văn bản rời rạc.
 
 Knowledge thì trao cho memory ngữ nghĩa nghiệp vụ. Một phản hồi của người dùng kiểu "lần trước giao hàng trễ" chỉ có thể được hiểu thành vấn đề của một đơn hàng nào đó, trong một khoảng thời gian nào đó, dưới một luật giao hàng nào đó, khi nó được đặt vào khung knowledge và ontology. Đến lượt mình, memory lại dẫn dắt sự tiến hoá của knowledge và ontology: khi rất nhiều tương tác liên tục phơi ra một đặc tính sản phẩm mới hay một mối liên hệ nghiệp vụ mới, nền tảng có thể gợi ý bổ sung tri thức và đánh giá xem có nên thêm khái niệm, quan hệ hay luật mới không.
 
@@ -364,11 +364,11 @@ Phản hồi giữa memory, knowledge và ontology phải được hiện thực
 
 ### 8.6.7 Thực tiễn ngành: các case triển khai ontology
 
-Trong ngành tài chính, Agent có thể dựng bộ khung ontology quanh khách hàng, tài khoản, sản phẩm và giao dịch; kết hợp với kho tri thức gồm báo cáo nghiên cứu, công bố thông tin và memory tương tác với khách hàng, nó hoàn thành được chuỗi từ chân dung khách hàng tới đánh giá rủi ro. Ontology định nghĩa các đường suy luận như "khách hàng — danh mục nắm giữ — mức rủi ro"; kho tri thức cung cấp diễn biến thị trường và quy định giám sát; memory ghi lại sự thay đổi trong khẩu vị rủi ro của khách hàng — ba thứ cùng hỗ trợ việc nhận định liên kết xuyên nhiều nguồn dữ liệu.
+Trong ngành tài chính, Agent có thể dựng bộ khung ontology quanh khách hàng, tài khoản, sản phẩm và giao dịch; kết hợp với kho tri thức gồm báo cáo nghiên cứu, công bố thông tin và memory tương tác với khách hàng, nó hoàn thành được chuỗi từ chân dung khách hàng tới đánh giá rủi ro. Ontology định nghĩa các đường suy luận như "khách hàng - danh mục nắm giữ - mức rủi ro"; kho tri thức cung cấp diễn biến thị trường và quy định giám sát; memory ghi lại sự thay đổi trong khẩu vị rủi ro của khách hàng - ba thứ cùng hỗ trợ việc nhận định liên kết xuyên nhiều nguồn dữ liệu.
 
-Trong ngành sản xuất, ontology về sản phẩm, thiết bị, quy trình công nghệ và chuỗi cung ứng có thể liên động với kho tri thức công nghệ và memory vận hành, phủ các bối cảnh như truy nguyên chất lượng và tối ưu chuỗi cung ứng. Ontology cung cấp topology liên kết "linh kiện — nhà cung cấp — dây chuyền — thành phẩm"; kho tri thức cung cấp chuẩn tham số công nghệ; memory tích tụ kinh nghiệm vận hành lịch sử. Sự phối hợp của bộ ba khiến Agent không còn chỉ là một công cụ truy hồi trả lời câu hỏi đơn giản, mà **hiểu được nghiệp vụ, tích luỹ được kinh nghiệm và tiến hoá liên tục.**
+Trong ngành sản xuất, ontology về sản phẩm, thiết bị, quy trình công nghệ và chuỗi cung ứng có thể liên động với kho tri thức công nghệ và memory vận hành, phủ các bối cảnh như truy nguyên chất lượng và tối ưu chuỗi cung ứng. Ontology cung cấp topology liên kết "linh kiện - nhà cung cấp - dây chuyền - thành phẩm"; kho tri thức cung cấp chuẩn tham số công nghệ; memory tích tụ kinh nghiệm vận hành lịch sử. Sự phối hợp của bộ ba khiến Agent không còn chỉ là một công cụ truy hồi trả lời câu hỏi đơn giản, mà **hiểu được nghiệp vụ, tích luỹ được kinh nghiệm và tiến hoá liên tục.**
 
-**Phần bốn — Nền tảng hoá: multi-tenant, tính nhất quán và lựa chọn công nghệ**
+**Phần bốn - Nền tảng hoá: multi-tenant, tính nhất quán và lựa chọn công nghệ**
 
 Ba phần trước lần lượt bàn về trạng thái runtime, workspace và sản phẩm, cùng các đối tượng ngữ nghĩa như memory, knowledge và ontology. Chúng cùng tạo thành nền dữ liệu để Agent chạy bền bỉ, học liên tục và hiểu thế giới nghiệp vụ. Nhưng khi Agent đi từ thí nghiệm đơn lẻ sang quy mô doanh nghiệp, thách thức không còn là lưu được dữ liệu, mà là **làm sao để những đối tượng dữ liệu phân tán ấy giữ được cô lập trong môi trường multi-tenant, giữ được độ tin cậy khi luân chuyển xuyên component, quản trị được trong vòng đời, và cuối cùng hình thành một năng lực nền tảng tiến hoá được.**
 
@@ -398,13 +398,13 @@ Nhìn xa hơn, cô lập multi-tenant không chỉ bảo vệ dữ liệu, mà c
 
 Một lần chạy của Agent thường sinh ra nhiều thay đổi dữ liệu cùng lúc: event log ghi quá trình, checkpoint lưu state khôi phục được, workspace sinh file, dịch vụ memory trích kinh nghiệm, kho tri thức cập nhật index, tầng ontology bổ sung quan hệ đối tượng. Cơ chế lưu trữ và nhịp cập nhật của chúng không giống nhau, nên **không thể định nghĩa tính nhất quán một cách đơn giản là "mọi component cùng thành công".**
 
-Mục tiêu hợp lý hơn là **định nghĩa mức nhất quán tương ứng cho từng loại đối tượng dữ liệu.** Với trạng thái runtime ảnh hưởng tới tính đúng đắn của task — ví dụ execution lease, kết quả xác nhận của hệ thống thanh toán, kết quả gọi tool và các checkpoint then chốt — hãy đặt mục tiêu nhất quán mạnh hoặc commit kiểm chứng được. Còn với các dữ liệu phái sinh như index vector, truy hồi toàn văn, tổng hợp thống kê thì có thể chấp nhận nhất quán cuối cùng trong thời gian ngắn, nhưng **bắt buộc phải cho hệ thống biết rõ độ tươi của chúng và version dữ liệu nguồn tương ứng.**
+Mục tiêu hợp lý hơn là **định nghĩa mức nhất quán tương ứng cho từng loại đối tượng dữ liệu.** Với trạng thái runtime ảnh hưởng tới tính đúng đắn của task - ví dụ execution lease, kết quả xác nhận của hệ thống thanh toán, kết quả gọi tool và các checkpoint then chốt - hãy đặt mục tiêu nhất quán mạnh hoặc commit kiểm chứng được. Còn với các dữ liệu phái sinh như index vector, truy hồi toàn văn, tổng hợp thống kê thì có thể chấp nhận nhất quán cuối cùng trong thời gian ngắn, nhưng **bắt buộc phải cho hệ thống biết rõ độ tươi của chúng và version dữ liệu nguồn tương ứng.**
 
-Nền tảng nên phân biệt **sự thật có thẩm quyền** với **view phái sinh.** Event log, metadata đối tượng, bản ghi state then chốt thường có thể xem là vật mang vật chất hoá của sự thật có thẩm quyền — thẩm quyền ngữ nghĩa của chúng do ứng dụng nghiệp vụ, mô hình task và component sinh ra sự thật định nghĩa, còn tầng lưu trữ lo việc commit và vật chất hoá đáng tin. Index vector, phép chiếu đồ thị, cache và read replica thì là những năng lực phái sinh dựng trên sự thật có thẩm quyền. Khi ghi: trước hết bảo đảm sự thật có thẩm quyền được commit đáng tin, rồi mới dùng cơ chế bất đồng bộ hay tăng dần để đẩy việc cập nhật index và bản sao. Khi đọc: Agent chọn đọc state có thẩm quyền mới nhất, hoặc chọn view phái sinh hiệu năng cao hơn nhưng có thể trễ nhẹ, tuỳ mức quan trọng của task.
+Nền tảng nên phân biệt **sự thật có thẩm quyền** với **view phái sinh.** Event log, metadata đối tượng, bản ghi state then chốt thường có thể xem là vật mang vật chất hoá của sự thật có thẩm quyền - thẩm quyền ngữ nghĩa của chúng do ứng dụng nghiệp vụ, mô hình task và component sinh ra sự thật định nghĩa, còn tầng lưu trữ lo việc commit và vật chất hoá đáng tin. Index vector, phép chiếu đồ thị, cache và read replica thì là những năng lực phái sinh dựng trên sự thật có thẩm quyền. Khi ghi: trước hết bảo đảm sự thật có thẩm quyền được commit đáng tin, rồi mới dùng cơ chế bất đồng bộ hay tăng dần để đẩy việc cập nhật index và bản sao. Khi đọc: Agent chọn đọc state có thẩm quyền mới nhất, hoặc chọn view phái sinh hiệu năng cao hơn nhưng có thể trễ nhẹ, tuỳ mức quan trọng của task.
 
 Mô hình này tránh được việc mở rộng transaction phân tán xuyên component ra mọi thao tác. Với những quy trình phức tạp cần phối hợp xuyên component, nền tảng có thể quản lý việc đẩy state bằng định danh idempotent, số version, mực nước commit và cơ chế bù trừ. Ví dụ, một lần cập nhật tài liệu tri thức có thể sinh version tài liệu mới trước, rồi kích hoạt việc parse, cắt mảnh, vector hoá và dựng index; chỉ khi index mới đạt mực nước dùng được thì traffic truy vấn mới chuyển sang version mới. Nếu bước giữa thất bại, hệ thống có thể phát lại task hoặc lùi về version cũ đã kiểm chứng, **chứ không để Agent nhận định trên dữ liệu không đầy đủ.**
 
-Với Agent, tính nhất quán còn có nghĩa là **khả năng giải thích của câu trả lời.** Khi Agent dùng memory, knowledge hay ontology để suy luận, nền tảng nên gán nhãn được version đối tượng, thời điểm index và nguồn dữ liệu mà kết quả tham chiếu. Nhờ vậy, khi nhân sự nghiệp vụ phát hiện đáp án lỗi thời hay kết luận bất thường, họ đánh giá được vấn đề đến từ suy luận model, từ việc dữ liệu nguồn đã cập nhật, hay từ việc index chưa đồng bộ — **thay vì quy mọi bất định về "ảo giác model".**
+Với Agent, tính nhất quán còn có nghĩa là **khả năng giải thích của câu trả lời.** Khi Agent dùng memory, knowledge hay ontology để suy luận, nền tảng nên gán nhãn được version đối tượng, thời điểm index và nguồn dữ liệu mà kết quả tham chiếu. Nhờ vậy, khi nhân sự nghiệp vụ phát hiện đáp án lỗi thời hay kết luận bất thường, họ đánh giá được vấn đề đến từ suy luận model, từ việc dữ liệu nguồn đã cập nhật, hay từ việc index chưa đồng bộ - **thay vì quy mọi bất định về "ảo giác model".**
 
 ### 8.7.3 Quản lý metadata thống nhất: danh mục đối tượng, lineage, version và gắn policy
 
@@ -412,11 +412,11 @@ Các đối tượng dữ liệu của Agent nhiều về số lượng, khác n
 
 Với mỗi đối tượng, metadata ít nhất phải mô tả: loại đối tượng và định danh duy nhất, tenant và workspace sở hữu, chủ thể tạo, hệ thống nguồn, tóm tắt nội dung, mức nhạy cảm, version, vị trí lưu trữ, policy truy cập, trạng thái vòng đời, và quan hệ liên kết với các đối tượng khác. Ví dụ, một memory dài hạn phải lần ngược được tới cuộc hội thoại hay sự kiện hành vi nguồn; một mảnh tri thức phải liên kết được tới tài liệu gốc cùng version của nó; một quan hệ ontology phải nói được dữ liệu nguồn, luật mô hình hoá và phạm vi hiệu lực của nó.
 
-Trên nền đó, **lineage** biến một danh mục tĩnh thành năng lực quản trị động. Nó ghi lại một kết luận đến từ đâu, đã qua những xử lý nào, được Agent nào dùng. Khi tài liệu nguồn cập nhật, policy quyền thay đổi hay luật nghiệp vụ điều chỉnh, nền tảng nhận diện được index vector, quan hệ đồ thị, bản tóm tắt memory và task hạ nguồn bị ảnh hưởng, rồi kích hoạt việc tính lại, xử lý hết hiệu lực hoặc đưa cho con người rà soát. Kiểu lan truyền này nên được thiết kế như một **cơ chế tham chiếu**: việc xoá dữ liệu xuyên hệ thống chưa chắc lan truyền đồng bộ được, còn các bản ghi giữ theo luật và bản ghi audit bất biến thì **không** nên bị dọn tự động — cần chừa policy ngoại lệ tường minh cho chúng.
+Trên nền đó, **lineage** biến một danh mục tĩnh thành năng lực quản trị động. Nó ghi lại một kết luận đến từ đâu, đã qua những xử lý nào, được Agent nào dùng. Khi tài liệu nguồn cập nhật, policy quyền thay đổi hay luật nghiệp vụ điều chỉnh, nền tảng nhận diện được index vector, quan hệ đồ thị, bản tóm tắt memory và task hạ nguồn bị ảnh hưởng, rồi kích hoạt việc tính lại, xử lý hết hiệu lực hoặc đưa cho con người rà soát. Kiểu lan truyền này nên được thiết kế như một **cơ chế tham chiếu**: việc xoá dữ liệu xuyên hệ thống chưa chắc lan truyền đồng bộ được, còn các bản ghi giữ theo luật và bản ghi audit bất biến thì **không** nên bị dọn tự động - cần chừa policy ngoại lệ tường minh cho chúng.
 
 Policy cũng nên được **gắn với metadata**, thay vì nằm rải rác trong code nghiệp vụ của từng ứng dụng. Kiểm soát truy cập, thời hạn lưu giữ, yêu cầu về vùng địa lý, luật ẩn danh, yêu cầu phê duyệt và chính sách xoá đều nên được khai báo như thuộc tính quản trị của đối tượng hay lớp đối tượng. Khi một Agent xin đọc dữ liệu, nền tảng kết hợp định danh bên gọi, metadata đối tượng và luật policy để đánh giá; còn khi đối tượng vào giai đoạn archive hay xoá, thì index, cache và view phái sinh liên quan cũng dọn được đồng bộ.
 
-Metadata thống nhất còn mang lại cho Agent một năng lực hiểu mới. Nó không chỉ giúp nhân sự vận hành quản lý dữ liệu, mà còn giúp Agent — trong phạm vi được uỷ quyền — hiểu được có những nguồn dữ liệu đáng tin nào, thông tin nào mới hơn, kết luận nào cần dùng thận trọng. Theo nghĩa đó, **metadata vừa là ngôn ngữ quản trị của nền tảng, vừa là context quan trọng khi Agent tiêu thụ dữ liệu doanh nghiệp.**
+Metadata thống nhất còn mang lại cho Agent một năng lực hiểu mới. Nó không chỉ giúp nhân sự vận hành quản lý dữ liệu, mà còn giúp Agent - trong phạm vi được uỷ quyền - hiểu được có những nguồn dữ liệu đáng tin nào, thông tin nào mới hơn, kết luận nào cần dùng thận trọng. Theo nghĩa đó, **metadata vừa là ngôn ngữ quản trị của nền tảng, vừa là context quan trọng khi Agent tiêu thụ dữ liệu doanh nghiệp.**
 
 ### 8.7.4 Quản trị chi phí: phân tầng nóng–lạnh, thời hạn lưu giữ và chính sách vòng đời
 
@@ -438,7 +438,7 @@ Kiến trúc tham chiếu của Lakebase tổ chức trạng thái vận hành, 
 
 Doanh nghiệp có thể xuất phát từ hạ tầng sẵn có và workload chính của mình để so sánh chi phí tích hợp, bảo đảm về tính đúng đắn, chi phí vận hành và chi phí di trú. Dù chọn tổ hợp component hay dịch vụ nhất thể, **việc nghiệm thu đều phải rơi vào các task thật và các kịch bản sự cố, chứ không phải vào tên sản phẩm.**
 
-Lakebase chọn hướng nhất thể: dùng một mô hình đối tượng, interface dịch vụ và mặt phẳng điều khiển quản trị thống nhất để tổ chức trạng thái vận hành, workspace, memory, knowledge và ontology thành các đối tượng dữ liệu quản trị thống nhất được, cung cấp hợp đồng nhất quán về định danh, version, quyền hạn, vòng đời và tính khả dụng. Chữ "thống nhất" ở đây chỉ **mô hình dữ liệu và giao diện quản trị**, chứ không phải một engine nền duy nhất — các đối tượng dữ liệu khác nhau vẫn dùng vật mang phù hợp riêng. Với những đội có workload cốt lõi là tiếp tục task, lưu giữ thành quả và quản trị tài sản ngữ nghĩa, cách này giảm được chi phí tích hợp và vận hành; còn với các bối cảnh chủ yếu là tương tác phiên ngắn thì tổ hợp component vẫn là lựa chọn hợp lý.
+Lakebase chọn hướng nhất thể: dùng một mô hình đối tượng, interface dịch vụ và mặt phẳng điều khiển quản trị thống nhất để tổ chức trạng thái vận hành, workspace, memory, knowledge và ontology thành các đối tượng dữ liệu quản trị thống nhất được, cung cấp hợp đồng nhất quán về định danh, version, quyền hạn, vòng đời và tính khả dụng. Chữ "thống nhất" ở đây chỉ **mô hình dữ liệu và giao diện quản trị**, chứ không phải một engine nền duy nhất - các đối tượng dữ liệu khác nhau vẫn dùng vật mang phù hợp riêng. Với những đội có workload cốt lõi là tiếp tục task, lưu giữ thành quả và quản trị tài sản ngữ nghĩa, cách này giảm được chi phí tích hợp và vận hành; còn với các bối cảnh chủ yếu là tương tác phiên ngắn thì tổ hợp component vẫn là lựa chọn hợp lý.
 
 ### 8.7.6 Tính sẵn sàng cao và chịu thảm hoạ: backup, xuyên vùng và mục tiêu khôi phục
 

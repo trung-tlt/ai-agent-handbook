@@ -1,4 +1,4 @@
-# Chương 22 — Tối ưu Agent: Badcase
+# Chương 22 - Tối ưu Agent: Badcase
 
 Chương trước đã chuẩn bị xong vấn đề nghiệp vụ và căn cứ đánh giá. Việc tiếp theo mà đội nghiệp vụ cần làm là: để việc đánh giá liên tục phát hiện ra các vấn đề trong câu trả lời và quá trình thực thi, rồi dùng chính bộ đề đó để kiểm chứng phần sửa có hữu hiệu không.
 
@@ -30,7 +30,7 @@ Một task có thể chọn nhiều evaluator. Ví dụ, tách riêng "chất l�
 
 Sau khi lưu evaluator, hãy vào "Đánh giá → Task đánh giá" và bấm "Tạo task đánh giá". Bước này là nối tiêu chí chấm điểm vào dữ liệu thật, và phần kiểm tra giá trị nhất là xác nhận evaluator đã nhìn thấy trọn vẹn câu hỏi, câu trả lời và quá trình thực thi.
 
-**Trước hết chọn đúng dữ liệu và phạm vi.** Muốn đánh giá biểu hiện của một Agent mới kết nối thì chọn "Trajectory Agent"; còn khi dữ liệu đã qua Pipeline làm sạch, tổng hợp và bù đủ trường nghiệp vụ thì chọn dataset tương ứng. Khi dùng nguồn trajectory hay Trace thì chọn "hội thoại một lượt" hay "hội thoại nhiều lượt" theo lối vào tương ứng; hội thoại nhiều lượt còn phải cấu hình "đánh giá kết thúc hội thoại" để đánh giá sau khi task hoàn thành. Khi dùng Dataset thì chọn thẳng tập rồi ánh xạ trường — một dòng đại diện cho cái gì đã được khâu xử lý dữ liệu phía trước quyết định, nên không cần đi tìm công tắc một lượt hay nhiều lượt nữa.
+**Trước hết chọn đúng dữ liệu và phạm vi.** Muốn đánh giá biểu hiện của một Agent mới kết nối thì chọn "Trajectory Agent"; còn khi dữ liệu đã qua Pipeline làm sạch, tổng hợp và bù đủ trường nghiệp vụ thì chọn dataset tương ứng. Khi dùng nguồn trajectory hay Trace thì chọn "hội thoại một lượt" hay "hội thoại nhiều lượt" theo lối vào tương ứng; hội thoại nhiều lượt còn phải cấu hình "đánh giá kết thúc hội thoại" để đánh giá sau khi task hoàn thành. Khi dùng Dataset thì chọn thẳng tập rồi ánh xạ trường - một dòng đại diện cho cái gì đã được khâu xử lý dữ liệu phía trước quyết định, nên không cần đi tìm công tắc một lượt hay nhiều lượt nữa.
 
 Lần chạy đầu có thể bật "Đánh giá dựa trên dữ liệu lịch sử", chọn một khoảng thời gian mà ta biết có chứa nghiệp vụ mục tiêu, ví dụ bốn giờ gần nhất, rồi bấm "Xem trước dữ liệu". Hãy xác nhận trong đó thực sự có vấn đề cần điều tra, chứ không phải là Agent khác hay những lời gọi không liên quan. Nếu phần xem trước của hội thoại nhiều lượt rỗng thì kiểm tra xem các phiên trong khoảng thời gian đó đã đạt điều kiện kết thúc đã đặt chưa.
 
@@ -44,7 +44,7 @@ _Demo thao tác: đấu `input`, `output`, `agent_trajectory` của evaluator l�
 
 Bấm "Chạy test", đọc điểm và phần diễn giải, rồi dùng "Đổi bản ghi khác" để kiểm chứng tiếp. Ít nhất hãy phủ một câu trả lời tốt đã biết, một câu trả lời xấu đã biết, và một mẫu có thông tin không đầy đủ. Khi kiểm tra, có thể hỏi thẳng: căn cứ trừ điểm có thực sự xuất hiện trong câu trả lời này không? Evaluator có trích đúng kết quả tool không? Khi thiếu bằng chứng, nó có nói rõ là không đánh giá được không?
 
-Nếu câu trả lời xấu bị chấm điểm cao, trước hết hãy xem input nó nhận được, rồi mới xem các điều khoản chấm điểm. Chẳng hạn, evaluator chỉ kiểm xem có nhắc tới chữ "evaluator" không, thì có thể coi một đoạn giới thiệu chung chung là hướng dẫn thao tác — lúc đó cần bổ sung chuẩn "có giúp người dùng làm được bước tiếp theo không". Chỉnh xong thì chấm lại đúng lô mẫu đó, xác nhận các câu trả lời tốt ban đầu không bị phán nhầm theo.
+Nếu câu trả lời xấu bị chấm điểm cao, trước hết hãy xem input nó nhận được, rồi mới xem các điều khoản chấm điểm. Chẳng hạn, evaluator chỉ kiểm xem có nhắc tới chữ "evaluator" không, thì có thể coi một đoạn giới thiệu chung chung là hướng dẫn thao tác - lúc đó cần bổ sung chuẩn "có giúp người dùng làm được bước tiếp theo không". Chỉnh xong thì chấm lại đúng lô mẫu đó, xác nhận các câu trả lời tốt ban đầu không bị phán nhầm theo.
 
 Các task ảnh, âm thanh hay tài liệu cũng chấm thử theo thứ tự này. Trước hết xác nhận evaluator đọc được tài liệu tương ứng, rồi đối chiếu số trang, đoạn hay trường mà nó trích dẫn. Chẳng hạn, đánh giá số tiền hoàn ứng có đúng không thì phải thấy được chứng từ và kết quả kê khai; chỉ nhận một link file hay một câu "đã xong" thì không đủ để đánh giá.
 

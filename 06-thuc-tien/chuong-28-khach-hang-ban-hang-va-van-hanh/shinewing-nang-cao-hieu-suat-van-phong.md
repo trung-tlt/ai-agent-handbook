@@ -1,8 +1,8 @@
 # Khám phá nâng hiệu suất văn phòng của hãng kiểm toán ShineWing
 
-## Một — Bối cảnh
+## Một - Bối cảnh
 
-ShineWing là một trong những hãng kiểm toán thành lập sớm nhất ở Trung Quốc, khởi nguồn từ năm 1981. Qua hơn 40 năm phát triển, ShineWing đã vận hành theo mô hình tập đoàn với bốn mảng nghiệp vụ song song là kiểm toán — chứng thực, tư vấn quản trị, dịch vụ thuế và quản lý công trình; đây là đơn vị khai phá và dẫn dắt trong lĩnh vực dịch vụ chuyên nghiệp ở Trung Quốc. ShineWing International hiện có 110 văn phòng tại 23 quốc gia và vùng lãnh thổ, với hơn 12.000 nhân viên, là thương hiệu dịch vụ chuyên nghiệp Trung Quốc vươn ra thế giới.
+ShineWing là một trong những hãng kiểm toán thành lập sớm nhất ở Trung Quốc, khởi nguồn từ năm 1981. Qua hơn 40 năm phát triển, ShineWing đã vận hành theo mô hình tập đoàn với bốn mảng nghiệp vụ song song là kiểm toán - chứng thực, tư vấn quản trị, dịch vụ thuế và quản lý công trình; đây là đơn vị khai phá và dẫn dắt trong lĩnh vực dịch vụ chuyên nghiệp ở Trung Quốc. ShineWing International hiện có 110 văn phòng tại 23 quốc gia và vùng lãnh thổ, với hơn 12.000 nhân viên, là thương hiệu dịch vụ chuyên nghiệp Trung Quốc vươn ra thế giới.
 
 Những năm gần đây, cùng với sự phát triển nhanh của công nghệ trí tuệ nhân tạo, ShineWing liên tục đẩy việc xây dựng số hoá, thông minh hoá, tích cực khám phá việc hoà sâu công nghệ AI với các kịch bản dịch vụ chuyên nghiệp, quản lý nội bộ và cộng tác nhân viên, nhằm nâng liên tục hiệu suất tiếp cận tri thức, xử lý nghiệp vụ và ra quyết định quản trị.
 
@@ -26,7 +26,7 @@ Dựa trên AgentCore, ShineWing xây các Agent AI hướng tới những kịc
 
 Trong mô hình cộng tác đa Agent, nền tảng nhận diện được loại task từ câu hỏi nhân viên nêu ra, rồi phân các task khác nhau cho Agent chuyên trách tương ứng xử lý. Với các task phức tạp gồm nhiều bước, còn có một Agent quản lý thống nhất lo việc tách task và tổng hợp kết quả, triển khai nhiều Agent phối hợp làm việc.
 
-Qua mô hình này, ShineWing dần đưa được các ứng dụng AI ở những lĩnh vực, những năng lực khác nhau vào quản lý trên một nền tảng thống nhất — vừa giữ được năng lực của các Agent chuyên trách trong kịch bản riêng, vừa cung cấp cho nhân viên một lối vào thống nhất, tiện lợi.
+Qua mô hình này, ShineWing dần đưa được các ứng dụng AI ở những lĩnh vực, những năng lực khác nhau vào quản lý trên một nền tảng thống nhất - vừa giữ được năng lực của các Agent chuyên trách trong kịch bản riêng, vừa cung cấp cho nhân viên một lối vào thống nhất, tiện lợi.
 
 ### Quản lý thống nhất các tài sản AI như model, MCP và Skill
 
@@ -106,9 +106,9 @@ Quan trọng hơn, qua năng lực quản lý Agent thống nhất và AI Gatewa
 
 Hiện tại, các ứng dụng AI của ShineWing đang dần phát triển từ hỏi đáp tri thức và tra cứu thông tin sang hướng cộng tác nghiệp vụ và thực thi task.
 
-Tương lai, ShineWing sẽ tiếp tục kết hợp nhu cầu dịch vụ chuyên nghiệp và quản lý nội bộ để khám phá thêm nhiều kịch bản ứng dụng AI, gồm dịch vụ quy chế — quy trình, phân tích dữ liệu kinh doanh, cộng tác task xuyên hệ thống, hỗ trợ quản lý dự án và hỗ trợ nghiệp vụ chuyên môn.
+Tương lai, ShineWing sẽ tiếp tục kết hợp nhu cầu dịch vụ chuyên nghiệp và quản lý nội bộ để khám phá thêm nhiều kịch bản ứng dụng AI, gồm dịch vụ quy chế - quy trình, phân tích dữ liệu kinh doanh, cộng tác task xuyên hệ thống, hỗ trợ quản lý dự án và hỗ trợ nghiệp vụ chuyên môn.
 
-Khi các hệ thống nội bộ dần mở năng lực chuẩn hoá cho Agent qua MCP và các cách tương tự, tương lai nhân viên chỉ cần mô tả nhu cầu bằng ngôn ngữ tự nhiên, rồi AI tự hoàn tất việc tra cứu thông tin, tách task, gọi hệ thống và phản hồi kết quả — đẩy AI doanh nghiệp từ "trả lời câu hỏi" tiến thêm tới "hoàn thành công việc".
+Khi các hệ thống nội bộ dần mở năng lực chuẩn hoá cho Agent qua MCP và các cách tương tự, tương lai nhân viên chỉ cần mô tả nhu cầu bằng ngôn ngữ tự nhiên, rồi AI tự hoàn tất việc tra cứu thông tin, tách task, gọi hệ thống và phản hồi kết quả - đẩy AI doanh nghiệp từ "trả lời câu hỏi" tiến thêm tới "hoàn thành công việc".
 
 ## Lời cuối
 

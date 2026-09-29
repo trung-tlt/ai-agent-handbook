@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
-  <title id="title">三类蒸馏训练路线的成本—效果关系示意图</title>
+  <title id="title">三类蒸馏训练路线的成本-效果关系示意图</title>
   <desc id="desc">横轴为累计训练计算成本，纵轴为Agent任务成功率。离线SFT较快起效但较早进入平台期，在线强化学习起效较慢，在线策略蒸馏以学生状态和教师稠密监督取得更陡的示意曲线。本图为机制示意，不代表通用实测数值。</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">

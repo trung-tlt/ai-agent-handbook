@@ -1,10 +1,10 @@
 # Thực tiễn xây nền dữ liệu memory chu kỳ dài quy mô lớn của MiniMax
 
-## Một — Bối cảnh khách hàng
+## Một - Bối cảnh khách hàng
 
 MiniMax (Xiyu Technology) là công ty công nghệ trí tuệ nhân tạo đa dụng hàng đầu thế giới, thành lập năm 2022, với tầm nhìn "Intelligence with Everyone", cam kết thúc đẩy biên giới công nghệ trí tuệ nhân tạo. MiniMax kiên trì tự nghiên cứu trọn các modal văn bản, video và giọng nói. Dựa trên các model toàn modal tự nghiên cứu, MiniMax đưa ra một loạt sản phẩm AI native cho toàn cầu, gồm Hailuo AI, Xingye, Talkie…, cùng nền tảng mở dành cho doanh nghiệp và người phát triển. Tới nay đã có hơn 236 triệu người dùng ở hơn 200 quốc gia và vùng lãnh thổ, cùng các khách hàng doanh nghiệp và người phát triển từ hơn 100 quốc gia và vùng lãnh thổ.
 
-## Hai — Thách thức nghiệp vụ dưới khối dữ liệu khổng lồ
+## Hai - Thách thức nghiệp vụ dưới khối dữ liệu khổng lồ
 
 Xingye là nền tảng sáng tác Agent AI mà MiniMax xây dựa trên công nghệ AIGC đa modal; qua các tương tác đa modal như văn bản, giọng nói, video, nó cho phép người dùng tuỳ biến các nhân vật AI có hình tượng, chất giọng, tính cách và kỹ năng cá nhân hoá. Giá trị cốt lõi của nó tập trung vào kịch bản hội thoại: dựa vào năng lực cảm nhận context và biểu đạt của model ngôn ngữ lớn tự nghiên cứu để dẫn dắt hội thoại có mức giống người cao, dựng nên quan hệ tương tác liên tục giữa người dùng và nhân vật AI.
 
@@ -26,7 +26,7 @@ Quy mô người dùng và mức hoạt động của Xingye luôn ở vị trí
 
   * Khi quy mô nghiệp vụ tăng theo cấp số nhân, chi phí tính toán, lưu trữ và vận hành tăng liên tục, khiến chi phí biên của kiến trúc hiện có tăng dần và trở thành nút thắt chính của khả năng mở rộng.
 
-## Ba — Thực tiễn nền dữ liệu thông minh dựa trên PolarDB của Alibaba Cloud
+## Ba - Thực tiễn nền dữ liệu thông minh dựa trên PolarDB của Alibaba Cloud
 
 ![image.png](../../assets/imgs/chapter-28/image-001.png "Nền dữ liệu model lớn của MiniMax dựa trên PolarDB Limitless")
 
@@ -52,9 +52,9 @@ Với các bảng hội thoại cỡ trăm tỉ chứa trường JSON/Blob lớn
 
 **4. Nền dữ liệu thông minh: động cơ dẫn dắt tăng trưởng nghiệp vụ ở quy mô lớn**
 
-MiniMax sẽ dựa vào hai bánh dẫn động là việc tách thông minh dữ liệu nóng — lạnh của PolarDB và engine đa modal thống nhất để xây một nền dữ liệu thông minh hiệu năng cao. Ở tầng lưu trữ, chiến lược phân tầng tự động dựa trên độ nóng truy cập triển khai tối ưu chi phí tới hạn mà không cần sửa một dòng code, với phản hồi dữ liệu nóng ở mức mili giây và tra cứu dữ liệu lạnh ở mức giây, cân bằng giữa nhu cầu tương tác AI thời gian thực và phân tích chiều sâu; còn ở tầng tính toán, nhờ engine đa modal native của PolarDB cùng mạng tốc độ cao RDMA mà hiện thực được việc gợi lại xuyên modal (văn bản, giọng nói, hình ảnh) với độ trễ thấp, độ chính xác cao, tăng mạnh năng lực memory dài hạn và hiểu context của Agent. Kiến trúc vừa cực kỳ hiệu quả về chi phí vừa mở rộng vô hạn này cung cấp phần hỗ trợ vững chắc cho việc MiniMax lặp nhanh nghiệp vụ và mở rộng quy mô trong các kịch bản đồng thời khổng lồ.
+MiniMax sẽ dựa vào hai bánh dẫn động là việc tách thông minh dữ liệu nóng - lạnh của PolarDB và engine đa modal thống nhất để xây một nền dữ liệu thông minh hiệu năng cao. Ở tầng lưu trữ, chiến lược phân tầng tự động dựa trên độ nóng truy cập triển khai tối ưu chi phí tới hạn mà không cần sửa một dòng code, với phản hồi dữ liệu nóng ở mức mili giây và tra cứu dữ liệu lạnh ở mức giây, cân bằng giữa nhu cầu tương tác AI thời gian thực và phân tích chiều sâu; còn ở tầng tính toán, nhờ engine đa modal native của PolarDB cùng mạng tốc độ cao RDMA mà hiện thực được việc gợi lại xuyên modal (văn bản, giọng nói, hình ảnh) với độ trễ thấp, độ chính xác cao, tăng mạnh năng lực memory dài hạn và hiểu context của Agent. Kiến trúc vừa cực kỳ hiệu quả về chi phí vừa mở rộng vô hạn này cung cấp phần hỗ trợ vững chắc cho việc MiniMax lặp nhanh nghiệp vụ và mở rộng quy mô trong các kịch bản đồng thời khổng lồ.
 
-## Bốn — Lợi ích nghiệp vụ
+## Bốn - Lợi ích nghiệp vụ
 
 Hiện tại, hơn 100 database của toàn bộ dòng sản phẩm MiniMax (gồm Hailuo, Xingye, Agent, nền tảng mở…) đã triển khai trên PolarDB, triển khai nâng đồng thời cả trải nghiệm người dùng lẫn hiệu suất phát triển:
 
@@ -62,12 +62,12 @@ Hiện tại, hơn 100 database của toàn bộ dòng sản phẩm MiniMax (g�
 
 * **Đàn hồi cao**: co giãn vô cảm trong vài giây để ứng phó biến động lưu lượng gấp 10 lần, chi phí tài nguyên tính toán giảm 50%;
 
-* **Chi phí thấp**: tự động phân tầng lưu trữ dữ liệu nóng — lạnh, chi phí lưu trữ giảm 75%, nhân lực vận hành giảm 80%;
+* **Chi phí thấp**: tự động phân tầng lưu trữ dữ liệu nóng - lạnh, chi phí lưu trữ giảm 75%, nhân lực vận hành giảm 80%;
 
 * **Lặp nhanh**: DDL phân tán hỗ trợ thay đổi schema online 7×24, rút ngắn rõ rệt chu kỳ đưa các chức năng AI lên production.
 
-## Năm — Triển vọng tương lai
+## Năm - Triển vọng tương lai
 
-Bằng việc ứng dụng sâu các năng lực cốt lõi của PolarDB như phân tán đa master (Limitless), lưu trữ đa modal, đàn hồi trong vài giây và phân tầng nóng — lạnh thông minh, hệ thống đã hỗ trợ hiệu quả các thách thức kỹ thuật về đồng thời cao, độ trễ thấp và quản lý khối dữ liệu dị cấu khổng lồ trong kịch bản suy luận model lớn của MiniMax. Điều này không chỉ tối ưu và nâng rõ rệt trải nghiệm người dùng, tính linh hoạt nghiệp vụ và hiệu suất vận hành, mà còn kiểm chứng sâu sắc giá trị của việc hoà sâu database cloud native với hệ thống AI. Khi nền dữ liệu thông minh "hồ — kho nhất thể" của PolarDB phối hợp cùng engine thuật toán của MiniMax, một hệ sinh thái Agent AI có memory dài, tương tác đa modal và năng lực phản hồi thời gian thực đã triển khai được ở quy mô lớn.
+Bằng việc ứng dụng sâu các năng lực cốt lõi của PolarDB như phân tán đa master (Limitless), lưu trữ đa modal, đàn hồi trong vài giây và phân tầng nóng - lạnh thông minh, hệ thống đã hỗ trợ hiệu quả các thách thức kỹ thuật về đồng thời cao, độ trễ thấp và quản lý khối dữ liệu dị cấu khổng lồ trong kịch bản suy luận model lớn của MiniMax. Điều này không chỉ tối ưu và nâng rõ rệt trải nghiệm người dùng, tính linh hoạt nghiệp vụ và hiệu suất vận hành, mà còn kiểm chứng sâu sắc giá trị của việc hoà sâu database cloud native với hệ thống AI. Khi nền dữ liệu thông minh "hồ - kho nhất thể" của PolarDB phối hợp cùng engine thuật toán của MiniMax, một hệ sinh thái Agent AI có memory dài, tương tác đa modal và năng lực phản hồi thời gian thực đã triển khai được ở quy mô lớn.
 
 Nhìn về tương lai, mảng database của Alibaba Cloud sẽ tiếp tục hợp tác sâu với MiniMax, cùng khám phá biên giới đổi mới của database AI native, xây nền dữ liệu đa modal cho AI, và thúc đẩy các ứng dụng model lớn tiến hoá theo hướng thông minh hơn, đáng tin hơn.

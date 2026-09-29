@@ -1,4 +1,4 @@
-# Chương 23 — Tự tiến hoá có kiểm soát
+# Chương 23 - Tự tiến hoá có kiểm soát
 
 Một Agent gỡ sự cố đã từng giải quyết thành công một loại vấn đề, nhưng lần sau gặp sự cố tương tự vẫn có thể tra lại tài liệu từ đầu, thử những tham số sai, thậm chí bỏ sót bước then chốt đã xác nhận lần trước. Một Agent code hoàn thành được phần lớn phần sửa, nhưng cứ sót phần test ở một loại task nào đó. Thứ đội nghiệp vụ quan tâm là: làm sao để những phương pháp đã đi thông được áp dụng ổn định, để các vấn đề lặp lại giảm dần, đồng thời kiểm soát được thời gian và chi phí của mỗi task?
 
@@ -94,7 +94,7 @@ Lấy việc thống kê định kỳ tỉ lệ thất bại của Agent làm v�
 
 * **Skill** nói rõ khi nào dùng bộ phương pháp thống kê này, trước hết phải xác nhận thước đo nào, chọn template ra sao, gặp thay đổi trường thì xử lý thế nào, và xong rồi thì đối chiếu báo cáo ra sao.
 
-* **Workflow** nối "xác nhận phạm vi — chạy thống kê — đối chiếu chi tiết — sinh báo cáo" thành các bước cố định, và sắp sẵn cách xử lý rõ ràng cho dữ liệu rỗng, truy vấn thất bại và thước đo không khớp.
+* **Workflow** nối "xác nhận phạm vi - chạy thống kê - đối chiếu chi tiết - sinh báo cáo" thành các bước cố định, và sắp sẵn cách xử lý rõ ràng cho dữ liệu rỗng, truy vấn thất bại và thước đo không khớp.
 
 Lúc đầu không cần giao đủ cả bốn loại tài sản cùng lúc. Nếu chi phí lớn nhất đến từ việc sinh lặp truy vấn thì bàn giao template SQL trước; nếu vấn đề là hay bỏ sót nghiệm thu thì sửa Skill trước; còn chỉ khi các bước và nhánh ngoại lệ đã ổn định thì mới đưa vào Workflow. Đội có thể để Agent dựa trên trajectory mà soạn nháp những nội dung này, rồi người quen nghiệp vụ và tool kiểm tra xong mới đưa vào repo của project hay hệ quản lý tài sản sẵn có.
 
@@ -112,7 +112,7 @@ Trong một ca demo chuẩn, Agent bảng tính ghi vào một sheet không tồ
 
 _Hình: giao trajectory thất bại và thành công cho trợ lý tối ưu để có các đề xuất sửa Skill so sánh được; người duy trì chọn ứng viên và tổ chức task kiểm chứng._
 
-Đội code cũng dùng được cùng phương pháp. Nếu Agent hay sửa xong code là kết thúc, trước hết hãy xem nó có nạp Skill tương ứng không, lệnh test có tồn tại không, môi trường test có dùng được không. Thiếu phương pháp thì bổ sung "chạy test liên quan và kiểm kết quả"; thiếu môi trường thì sắp xếp việc sửa môi trường. Skill mới thì kiểm nghiệm chung bằng Badcase mục tiêu, các task vốn thành công, và những task lẽ ra không nên kích hoạt Skill đó — để xác nhận phần sửa không biến thành gánh nặng thêm cho mọi task.
+Đội code cũng dùng được cùng phương pháp. Nếu Agent hay sửa xong code là kết thúc, trước hết hãy xem nó có nạp Skill tương ứng không, lệnh test có tồn tại không, môi trường test có dùng được không. Thiếu phương pháp thì bổ sung "chạy test liên quan và kiểm kết quả"; thiếu môi trường thì sắp xếp việc sửa môi trường. Skill mới thì kiểm nghiệm chung bằng Badcase mục tiêu, các task vốn thành công, và những task lẽ ra không nên kích hoạt Skill đó - để xác nhận phần sửa không biến thành gánh nặng thêm cho mọi task.
 
 Một số vấn đề thì phải do người duy trì môi trường vận hành xử lý. Lấy chuyện "việc gửi đã xảy ra rồi, nhưng sau khi khôi phục phiên lại gửi lần nữa" làm ví dụ: người phụ trách nghiệp vụ cung cấp bản ghi thao tác lặp, người phát triển Agent đối chiếu Trace để tìm vị trí gián đoạn, còn người duy trì môi trường vận hành thì sửa hành vi khôi phục: phân biệt giữa chưa bắt đầu, đã bắt đầu nhưng chưa biết kết quả, và đã hoàn thành; khi chưa biết kết quả thì đối chiếu trạng thái nghiệp vụ trước rồi mới quyết định hành động tiếp theo. Đây thuộc về cải tiến Harness, và thứ bàn giao là code thực thi hay cấu hình.
 
@@ -140,4 +140,4 @@ Mỗi lần quyết định áp dụng, người phụ trách xác nhận bốn 
 
 _Hình: vấn đề, phần sửa, thí nghiệm và việc áp dụng thực tế liên kết với nhau, giúp đội đánh giá hiệu quả và định vị, khôi phục khi có thụt lùi._
 
-Sau khi áp dụng thì tiếp tục kiểm tra các task mới, để lại phương pháp hữu hiệu cho lần thực thi sau, và trả các phản ví dụ về cho phần Dataset ở chương 21 cùng phần đánh giá — thí nghiệm ở chương 22. Giá trị của data flywheel, rốt cuộc thể hiện ở chỗ task hoàn thành ổn định hơn, và ở chỗ đội nói được vì sao từng cải tiến đáng được giữ lại.
+Sau khi áp dụng thì tiếp tục kiểm tra các task mới, để lại phương pháp hữu hiệu cho lần thực thi sau, và trả các phản ví dụ về cho phần Dataset ở chương 21 cùng phần đánh giá - thí nghiệm ở chương 22. Giá trị của data flywheel, rốt cuộc thể hiện ở chỗ task hoàn thành ổn định hơn, và ở chỗ đội nói được vì sao từng cải tiến đáng được giữ lại.

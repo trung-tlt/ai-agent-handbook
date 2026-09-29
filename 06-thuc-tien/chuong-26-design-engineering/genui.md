@@ -1,6 +1,6 @@
 # GenUI: đưa Agent từ chỗ đưa ra câu trả lời tới chỗ bàn giao kết quả
 
-# Một — Bối cảnh và động lực vấn đề
+# Một - Bối cảnh và động lực vấn đề
 
 > Thứ thực sự chặn trải nghiệm không phải model trả lời hay hay dở, mà là "một dặm cuối" của việc bàn giao kết quả: thứ người dùng nhận được là một đoạn chữ, trong khi việc họ cần làm là so sánh bằng chứng, đánh giá rủi ro, rồi bắt tay thao tác.
 
@@ -22,9 +22,9 @@ GenUI
 
 ![van-hanh-instance.png](../../assets/imgs/chapter-26/image-003.png)
 
-# Hai — Tư tưởng thiết kế của GenUI
+# Hai - Tư tưởng thiết kế của GenUI
 
-**GenUI (Generative UI — UI sinh thành) là một cơ chế**: để Agent lúc chạy dựa vào context task và kết quả nghiệp vụ mà tổ chức động nội dung, component và thao tác trong một phạm vi bị ràng buộc, rồi giao cho client render thành giao diện. Sản phẩm của nó là giao diện, nhưng bản thân nó là một chuỗi "sinh + ràng buộc + render", chứ không phải một trang cụ thể nào đó.
+**GenUI (Generative UI - UI sinh thành) là một cơ chế**: để Agent lúc chạy dựa vào context task và kết quả nghiệp vụ mà tổ chức động nội dung, component và thao tác trong một phạm vi bị ràng buộc, rồi giao cho client render thành giao diện. Sản phẩm của nó là giao diện, nhưng bản thân nó là một chuỗi "sinh + ràng buộc + render", chứ không phải một trang cụ thể nào đó.
 
 Nó không thay thế ngôn ngữ tự nhiên, cũng không thay thế trang cố định. Phân công của ba thứ rất rõ ràng: **ngôn ngữ tự nhiên** lo phần biểu đạt mở và giải thích, **trang cố định** lo các quy trình đã định, ổn định và tần suất cao, còn **GenUI** thì kéo phần biểu đạt giàu và thao tác giàu ra tới các task đuôi dài không liệt kê hết trước được.
 
@@ -40,7 +40,7 @@ Tài sản thiết kế CloudAI
 
 | **Tài sản** | **Ràng buộc cái gì** | **Diễn giải** |
 | --- | --- | --- |
-| **Catalog** | "Được dùng cái gì" | Danh sách component dùng được cho task lần này cùng hợp đồng dữ liệu và thao tác của chúng — đây là ranh giới cứng của việc sinh. Gồm component nền đa dụng, component nghiệp vụ và component tổ hợp ngữ nghĩa (Block) |
+| **Catalog** | "Được dùng cái gì" | Danh sách component dùng được cho task lần này cùng hợp đồng dữ liệu và thao tác của chúng - đây là ranh giới cứng của việc sinh. Gồm component nền đa dụng, component nghiệp vụ và component tổ hợp ngữ nghĩa (Block) |
 | **Template** | "Thông thường tổ chức ra sao" | Đưa ra cấu trúc thông tin và cấu trúc ví dụ được khuyến nghị theo các ý định task thường gặp, giúp Agent hội tụ về cách tổ chức |
 | **Luật sử dụng** | "Phải dùng ra sao" | Các luật về phân tầng thông tin, chọn component, cảnh báo rủi ro và xác nhận thao tác, để tránh ghép ghiếc tuỳ tiện |
 
@@ -52,7 +52,7 @@ Giao diện cuối cùng vẫn do Agent sinh động dựa trên context và k�
 
 Cốt lõi của GenUI không phải để model cho ra thẳng HTML, JavaScript hay JSX, mà là để Agent dùng dữ liệu có cấu trúc mà khai báo **"cần trình bày cái gì"**, rồi client quyết định **"trình bày cụ thể ra sao"**.
 
-Sinh thẳng code giao diện có hai vấn đề không né được: một là không gian output mở, nên tính nhất quán thương hiệu và ranh giới tương tác đều khó ràng buộc; hai là nó đưa thẳng nội dung model sinh ra vào ranh giới thực thi được. Với hệ thống production, output của Agent cần mang tính **khai báo**, bị giới hạn trong các phần tử đã biết, và kiểm chứng được trước khi render — đó chính là lý do chọn mô tả UI có cấu trúc.
+Sinh thẳng code giao diện có hai vấn đề không né được: một là không gian output mở, nên tính nhất quán thương hiệu và ranh giới tương tác đều khó ràng buộc; hai là nó đưa thẳng nội dung model sinh ra vào ranh giới thực thi được. Với hệ thống production, output của Agent cần mang tính **khai báo**, bị giới hạn trong các phần tử đã biết, và kiểm chứng được trước khi render - đó chính là lý do chọn mô tả UI có cấu trúc.
 
 ![co-che-sinh-genui.png](../../assets/imgs/chapter-26/image-006.png)
 
@@ -64,7 +64,7 @@ Cách này tuân theo ba nguyên tắc:
 
 3. **Tách tri thức thiết kế khỏi framework kỹ thuật**: ngữ nghĩa Component, Block, ý định Template và các luật là tri thức thiết kế dùng chung, rồi tầng adapter mới chuyển chúng thành hợp đồng dữ liệu của từng giao thức.
 
-# Ba — Đặc tính then chốt và ưu thế
+# Ba - Đặc tính then chốt và ưu thế
 
 ### Tài sản thiết kế nâng chất lượng sinh của GenUI
 
@@ -259,7 +259,7 @@ Hiệu quả render
 
 ![image.png](../../assets/imgs/chapter-26/image-009.png)
 
-# Bốn — Cơ chế vận hành và luồng dữ liệu
+# Bốn - Cơ chế vận hành và luồng dữ liệu
 
 Với các task cần người dùng thao tác tiếp, lúc chạy có hai kênh dữ liệu ngược chiều nhau cùng tạo thành vòng lặp khép kín: **Server → Client** lo bàn giao dữ liệu giao diện, còn **Client → Server** lo gửi ngược các sự kiện tương tác. Cái trước làm cho kết quả hiểu được, cái sau làm cho thao tác của người dùng tiếp tục dẫn dắt việc thực thi nghiệp vụ và cập nhật giao diện.
 
@@ -273,7 +273,7 @@ Agent Server dựa trên kết quả nghiệp vụ, tài sản thiết kế dùn
 
 ### Client → Server: sự kiện tương tác
 
-Thao tác của người dùng được ráp thành Action Event, gửi ngược về kèm các trạng thái cần thiết. **Việc xác thực, thực thi và kiểm toán nhất loạt diễn ra ở phía server** — thao tác xác nhận trên giao diện chỉ là biểu đạt ý định, không tạo thành sự uỷ quyền. Nếu kết quả thực thi làm đổi giao diện thì lại chảy ngược qua kênh A.
+Thao tác của người dùng được ráp thành Action Event, gửi ngược về kèm các trạng thái cần thiết. **Việc xác thực, thực thi và kiểm toán nhất loạt diễn ra ở phía server** - thao tác xác nhận trên giao diện chỉ là biểu đạt ý định, không tạo thành sự uỷ quyền. Nếu kết quả thực thi làm đổi giao diện thì lại chảy ngược qua kênh A.
 
 ```mermaid
 sequenceDiagram
@@ -310,7 +310,7 @@ sequenceDiagram
 
 Cách truyền cụ thể do giao thức và vật chủ nghiệp vụ quyết định. A2UI cập nhật Surface liên tục được bằng message dạng stream; còn json-render thì không giới hạn cách truyền qua mạng, mà để vật chủ lo việc truyền Spec và sự kiện tương tác. Thứ hai bên dùng chung là ngữ nghĩa thiết kế và luật sử dụng, **chứ không phải cùng một bản JSON hoán đổi thẳng cho nhau được**.
 
-# Năm — Kịch bản ứng dụng
+# Năm - Kịch bản ứng dụng
 
 GenUI là nền trải nghiệm cho việc dùng cloud và quản cloud theo kiểu Agentic, giúp Agent chuyển các kết quả nghiệp vụ động thành giao diện hiểu được và thao tác được. Dưới đây là ba kịch bản triển khai trong sản phẩm database AIDBS:
 
@@ -332,7 +332,7 @@ Hoàn tất trọn quy trình làm rõ nhu cầu, chọn phương án, chỉnh t
 
 ![ban-hang.png](../../assets/imgs/chapter-26/image-012.png)
 
-# Sáu — Ranh giới và hạn chế
+# Sáu - Ranh giới và hạn chế
 
 > Miền giá trị của GenUI là các task đuôi dài. Dùng nó vào chỗ không nên dùng thì cái giá là độ ổn định và chi phí; còn giả định quá mạnh về năng lực của nó thì cái giá là niềm tin.
 
@@ -356,7 +356,7 @@ Hoàn tất trọn quy trình làm rõ nhu cầu, chọn phương án, chỉnh t
 
 * **Bản thân các giao thức phụ thuộc vẫn đang tiến hoá:** A2UI hiện vẫn ở giai đoạn tiến hoá tích cực (dòng ổn định là loạt v0.9, còn v1.0 là bản ứng viên), và hệ sinh thái OpenUI cũng đang lặp. Vì vậy GenUI dùng chiến lược "tài sản giữ ổn định, tầng adapter đảm nhiệm thay đổi", để cô lập phần biến động của giao thức ra ngoài ngữ nghĩa nghiệp vụ.
 
-# Bảy — Lộ trình kỹ thuật và tiến hoá về sau
+# Bảy - Lộ trình kỹ thuật và tiến hoá về sau
 
 Chiến lược lộ trình của chúng tôi là **dùng chung tài sản, tương thích nhiều hướng kỹ thuật**: Component, Block, Catalog, Template và luật sử dụng giữ ổn định, còn tầng adapter thì đấu nối với các hợp đồng dữ liệu và Renderer khác nhau.
 
@@ -378,7 +378,7 @@ Về sau sẽ tập trung đánh giá bốn chiều:
 
 * **Tương thích và tích hợp**: độ phủ tài sản, chi phí bảo trì adapter, tái dùng xuyên nền tảng và chi phí tích hợp nghiệp vụ.
 
-# Tám — Giải thích thuật ngữ
+# Tám - Giải thích thuật ngữ
 
 | **Thuật ngữ** | **Ý nghĩa** |
 | --- | --- |

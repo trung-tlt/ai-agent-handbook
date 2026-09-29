@@ -1,4 +1,4 @@
-# Chương 7 — Agent Runtime và Sandbox
+# Chương 7 - Agent Runtime và Sandbox
 
 Một Agent hướng tới việc thực thi task cần kết hợp suy luận của model với thao tác lên môi trường. Model lo việc sinh kế hoạch và lệnh thao tác; còn đọc ghi file, chạy chương trình, tương tác trang web và kiểm chứng kết quả thì do môi trường thực thi cụ thể hoàn tất. Khi tool nhiều lên và task dài ra, môi trường thực thi còn phải hỗ trợ chia sẻ dữ liệu xuyên bước, duy trì state xuyên nhiều lượt tương tác, và chạy độc lập nhiều task.
 
@@ -18,7 +18,7 @@ Kiểm soát thực thi quyết định những thao tác này có vào được
 
 ![image](../assets/imgs/chapter-07/image-001.png)
 
-*Hình 7-1 — Sandbox hỗ trợ vòng lặp khép kín thực thi thật và phản hồi*
+*Hình 7-1 - Sandbox hỗ trợ vòng lặp khép kín thực thi thật và phản hồi*
 
 Trong hình 7-1, model và tầng orchestration Harness quyết định hành động kế tiếp; Sandbox thực thi lệnh rồi trả về exit status, lỗi, thay đổi file hay kết quả trang. Tầng orchestration dựa vào đó để đánh giá là sửa tiếp, đổi cách khác, hay kết thúc task. Sandbox giúp những nhận định này có **căn cứ vận hành kiểm tra được**; còn kết quả nghiệp vụ có đúng hay không thì vẫn phải do test, luật, bộ đánh giá hoặc nghiệm thu của người dùng xác nhận.
 
@@ -30,7 +30,7 @@ Huấn luyện và đánh giá là một chiều quan sát khác. **Agent RL/Eva
 
 ![image](../assets/imgs/chapter-07/image-002.png)
 
-*Hình 7-2 — Quan hệ triển khai giữa Agent và Sandbox cùng các loại workload*
+*Hình 7-2 - Quan hệ triển khai giữa Agent và Sandbox cùng các loại workload*
 
 | Workload điển hình | Task dùng môi trường ra sao | Giá trị hàng đầu | Mối quan tâm chính |
 | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ Huấn luyện và đánh giá là một chiều quan sát khác. **Agent RL/Eva
 | Task chạy dài: Agent in sandbox | Process Agent và chuỗi tool cùng dùng một workspace liên tục | Kéo dài state của dự án, hỗ trợ sửa nhiều lượt và task dài | Tính liên tục của phiên, hiệu quả khôi phục, chi phí chờ |
 | Huấn luyện và đánh giá: Agent RL/Eval | Chạy theo lô các tương tác độc lập, thu thập quỹ đạo và kết quả | Thăm dò song song, tái dùng phần chuẩn bị môi trường, so sánh kết quả ổn định | Thông lượng môi trường, reset và fork, khả năng tái lập thí nghiệm |
 
-*Bảng 7-1 — Đặc điểm task và giá trị của ba loại workload điển hình*
+*Bảng 7-1 - Đặc điểm task và giá trị của ba loại workload điển hình*
 
 Bảng đưa ra các tổ hợp điển hình; sandbox dùng cho tool cũng có thể duy trì phiên dài, và Agent chạy trong sandbox cũng có thể chỉ xử lý một task ngắn. **Việc lựa chọn nên xuất phát từ đặc điểm task, rồi mới xác định template, state và chính sách co giãn.**
 
@@ -54,13 +54,13 @@ Loại task này cần **nghiệm thu dựa trên sản phẩm**. Lệnh chạy 
 
 ### 7.2.2 Trình duyệt, desktop và workspace dùng chung
 
-Sandbox trình duyệt phù hợp với các task cần trạng thái trang thật — ví dụ kiểm tra trang web đã sinh ra, truy hồi tài liệu trên các site đã được phép, xử lý upload–download file, và kiểm chứng luồng thao tác của người dùng. Agent quan sát trang, click control và đọc kết quả qua interface điều khiển trình duyệt; ảnh chụp trang, file tải về và log chạy có thể cùng tạo thành phản hồi. Sandbox desktop thì cung cấp thêm năng lực thao tác giao diện đồ hoạ, dùng cho các quy trình phụ thuộc phần mềm desktop hoặc chưa có API phù hợp. Hệ điều hành, ứng dụng và interface tương tác cụ thể do template được chọn và năng lực nền tảng quyết định.
+Sandbox trình duyệt phù hợp với các task cần trạng thái trang thật - ví dụ kiểm tra trang web đã sinh ra, truy hồi tài liệu trên các site đã được phép, xử lý upload–download file, và kiểm chứng luồng thao tác của người dùng. Agent quan sát trang, click control và đọc kết quả qua interface điều khiển trình duyệt; ảnh chụp trang, file tải về và log chạy có thể cùng tạo thành phản hồi. Sandbox desktop thì cung cấp thêm năng lực thao tác giao diện đồ hoạ, dùng cho các quy trình phụ thuộc phần mềm desktop hoặc chưa có API phù hợp. Hệ điều hành, ứng dụng và interface tương tác cụ thể do template được chọn và năng lực nền tảng quyết định.
 
 Cung cấp riêng lẻ trình duyệt hay interpreter thì hoàn thành được các thao tác cục bộ, nhưng task xuyên nhiều tool còn cần **workspace dùng chung**. Lấy "tải dữ liệu nghiệp vụ về rồi sinh một báo cáo" làm ví dụ: trình duyệt lưu dữ liệu vào thư mục task, code interpreter đọc thẳng file đó để xử lý, trang sinh ra lại được trình duyệt mở lên kiểm tra, và báo cáo cuối được export từ cùng workspace ấy. Môi trường **All-in-One (AIO)** đặt trình duyệt, code và terminal vào một không gian làm việc chia sẻ file được, giảm bớt công sức upload–download qua lại, chuyển đổi đường dẫn và khớp version giữa các bước.
 
 ![image](../assets/imgs/chapter-07/image-003.png)
 
-*Hình 7-3 — Workspace dùng chung hỗ trợ task xuyên nhiều tool*
+*Hình 7-3 - Workspace dùng chung hỗ trợ task xuyên nhiều tool*
 
 Phạm vi chia sẻ phải tương xứng với task. Các tool của cùng một task có thể truy cập những file cần phối hợp, còn tenant và dự án khác nhau thì vẫn phải tách riêng; nếu các nhánh song song cùng sửa một file thì phải có quy tắc hợp nhất rõ ràng. Với các task đơn giản chỉ dùng code, một template nhẹ thường phù hợp hơn; môi trường tổ hợp chỉ hợp lý khi lợi ích từ việc liên thông nhiều tool đủ bù cho chi phí dung lượng image, khởi động và bảo trì.
 
@@ -78,7 +78,7 @@ Ví dụ, một MCP Server tương tác qua stdin/stdout có thể khởi độn
 | AIO | Task liên tục gồm tải về, tính toán, sinh ra và preview | Sản phẩm bàn giao tổng hợp, kiểm tra được | Nhiều tool dùng chung file, giảm chi phí nối các bước |
 | Môi trường MCP / Skill | Chạy tool và script task có dependency cục bộ | Kết quả tool, file nghiệp vụ cần thiết | Biến dependency của tool thành môi trường chạy cấp phát được, bảo trì được |
 
-*Bảng 7-2 — Các môi trường sandbox thường gặp và giá trị với task*
+*Bảng 7-2 - Các môi trường sandbox thường gặp và giá trị với task*
 
 Các loại môi trường này có thể kết hợp, và cũng có thể dùng lại cùng một bộ hạ tầng. Nền tảng quản lý thống nhất vòng đời, image, lưu trữ và năng lực quan sát, rồi cung cấp cho ứng dụng lối vào thao tác tương xứng với task. **Đội ứng dụng lo đánh giá thao tác có đáp ứng yêu cầu task hay không; đội nền tảng lo việc tạo, kết nối và thu hồi môi trường.**
 
@@ -112,7 +112,7 @@ Nhu cầu tính toán trong một phiên dài không liên tục. Agent có th�
 
 ![image](../assets/imgs/chapter-07/image-004.png)
 
-*Hình 7-4 — Chờ, ngủ đông và tiếp tục trong phiên dài*
+*Hình 7-4 - Chờ, ngủ đông và tiếp tục trong phiên dài*
 
 Trong hình 7-4, **lối vào đánh thức nằm bên ngoài sandbox đang ngủ.** Timer, lối vào message hoặc component routing request nhận sự kiện trước, rồi mới khôi phục môi trường và bàn giao task; bản thân Agent đang ngủ **không** tiếp tục chạy vòng lặp task. Những giai đoạn cần tính toán liên tục, cần phục vụ tức thời hoặc cần hoàn tất job nền thì phải giữ tài nguyên tương ứng ở trạng thái hoạt động. Việc đánh giá có ngủ được hay không cũng không thể chỉ nhìn "không có request mới", mà còn phải kiểm tra công việc đang chạy và các thao tác chưa hoàn tất. Trước khi task vào trạng thái chờ, tầng orchestration phải lưu điểm tiếp tục và điều kiện chờ; các phần tăng thêm quan trọng phải được lưu kịp thời theo tiến độ thực thi, **không được để dồn tới lúc nhận tín hiệu kết thúc mới ghi ra.**
 
@@ -120,7 +120,7 @@ Sau khi môi trường khôi phục, phải kiểm tra lại tính khả dụng 
 
 ### 7.3.4 Tiếp tục ra sao sau khi instance gặp sự cố
 
-Ngoài việc chủ động ngủ, task chạy dài còn phải xử lý việc process thoát và node mất liên lạc. Trước khi khôi phục, phải phân biệt **sự cố môi trường thực thi** với **sự cố dịch vụ phụ thuộc**. Sự cố instance thực thi thì xử lý được bằng cách đổi vật mang và khôi phục state; nhưng khi kho lưu trữ cần thiết không dùng được, thì phải tạm dừng việc đọc ghi liên quan và khôi phục dịch vụ lưu trữ — **dựng lại instance liên tục không xoá được sự cố lưu trữ.**
+Ngoài việc chủ động ngủ, task chạy dài còn phải xử lý việc process thoát và node mất liên lạc. Trước khi khôi phục, phải phân biệt **sự cố môi trường thực thi** với **sự cố dịch vụ phụ thuộc**. Sự cố instance thực thi thì xử lý được bằng cách đổi vật mang và khôi phục state; nhưng khi kho lưu trữ cần thiết không dùng được, thì phải tạm dừng việc đọc ghi liên quan và khôi phục dịch vụ lưu trữ - **dựng lại instance liên tục không xoá được sự cố lưu trữ.**
 
 Mất heartbeat chỉ nghĩa là nền tảng tạm thời không quan sát được instance; **process cũ vẫn có thể đang chạy.** Với những lần thực thi cần sửa tuần tự cùng một task hoặc cùng một workspace, phải xác nhận instance cũ đã dừng, hoặc làm cho quyền ghi của nó mất hiệu lực, rồi mới cho instance mới ghi tiếp. Nền tảng có thể dùng **thế hệ thực thi (generation)** để phân biệt hai lần chạy trước và sau khi tiếp quản, và để kho lưu trữ hoặc lối vào ghi được bảo vệ từ chối thế hệ cũ; cơ chế này thường gọi là **fencing**. **Chỉ cập nhật con số ở mặt phẳng điều khiển thì không ngăn được process cũ tiếp tục gây ảnh hưởng.**
 
@@ -134,7 +134,7 @@ Học tăng cường và đánh giá Agent thường cần thực thi thật. L�
 
 Khi chạy song song, việc chuẩn bị môi trường, đọc ghi file, chạy test và thu hồi tài nguyên đều ảnh hưởng tới sản lượng quỹ đạo hữu ích. Ngay cả khi suy luận model vẫn còn dư năng lực, task vẫn có thể phải chờ vì môi trường chưa sẵn sàng hoặc kết quả thao tác chưa trả về. Nền tảng sandbox chịu trách nhiệm cung cấp môi trường thực thi theo lô, cô lập các lần thử khác nhau và thu hồi tài nguyên, để giảm thời gian chờ môi trường trong quá trình huấn luyện.
 
-Huấn luyện và đánh giá có yêu cầu khác nhau với môi trường. Huấn luyện thường theo đuổi lượng thăm dò đủ nhiều và đủ hữu ích; đánh giá thì nhấn mạnh việc các model và version khác nhau đối mặt với những điều kiện task so sánh được. Cả hai đều cần ghi lại version template, dữ liệu và dependency, giới hạn ngân sách thực thi, và **phân biệt rõ "Agent không hoàn thành task" với "bản thân môi trường không phục vụ được bình thường"** — nếu không, sự cố môi trường có thể bị tính nhầm thành thay đổi năng lực model.
+Huấn luyện và đánh giá có yêu cầu khác nhau với môi trường. Huấn luyện thường theo đuổi lượng thăm dò đủ nhiều và đủ hữu ích; đánh giá thì nhấn mạnh việc các model và version khác nhau đối mặt với những điều kiện task so sánh được. Cả hai đều cần ghi lại version template, dữ liệu và dependency, giới hạn ngân sách thực thi, và **phân biệt rõ "Agent không hoàn thành task" với "bản thân môi trường không phục vụ được bình thường"** - nếu không, sự cố môi trường có thể bị tính nhầm thành thay đổi năng lực model.
 
 ### 7.4.2 Template, Snapshot, Fork và Reset
 
@@ -144,11 +144,11 @@ Bốn năng lực này giải quyết những vấn đề khác nhau. Template k
 
 ![image](../assets/imgs/chapter-07/image-005.png)
 
-*Hình 7-5 — Snapshot và fork hỗ trợ thăm dò song song*
+*Hình 7-5 - Snapshot và fork hỗ trợ thăm dò song song*
 
 Ví dụ, cùng một task code có thể hoàn tất việc checkout repository, cài dependency và chạy test cơ bản trước, rồi lưu snapshot môi trường. Nhiều sandbox fork từ snapshot đó, các chiến lược khác nhau lần lượt sửa code, chạy test, rồi tổng hợp patch, kết quả test và quỹ đạo. Cách này tái dùng được quá trình chuẩn bị môi trường; **lợi ích thực tế phụ thuộc vào chi phí chuẩn bị, kích thước snapshot, số lần fork và chi phí khôi phục.**
 
-Điều kiện khởi tạo so sánh được phải phủ toàn bộ state liên quan. **Snapshot sandbox không tự động rollback được database bên ngoài, những message đã gửi đi hay các thao tác nghiệp vụ đã hoàn tất.** Task đánh giá nên dùng bản sao dữ liệu độc lập, tenant test hoặc một cơ chế reset bên ngoài rõ ràng; việc ghi của từng nhánh nên đi vào không gian ghi riêng, tránh để một mount dùng chung lan truyền một thay đổi sang các nhánh khác. Snapshot sandbox cũng khác với checkpoint huấn luyện model — cái sau thường lưu trọng số, optimizer và các state huấn luyện khác.
+Điều kiện khởi tạo so sánh được phải phủ toàn bộ state liên quan. **Snapshot sandbox không tự động rollback được database bên ngoài, những message đã gửi đi hay các thao tác nghiệp vụ đã hoàn tất.** Task đánh giá nên dùng bản sao dữ liệu độc lập, tenant test hoặc một cơ chế reset bên ngoài rõ ràng; việc ghi của từng nhánh nên đi vào không gian ghi riêng, tránh để một mount dùng chung lan truyền một thay đổi sang các nhánh khác. Snapshot sandbox cũng khác với checkpoint huấn luyện model - cái sau thường lưu trọng số, optimizer và các state huấn luyện khác.
 
 ### 7.4.3 Từ kết quả môi trường tới tín hiệu huấn luyện
 
@@ -179,7 +179,7 @@ Ngủ nông và ngủ sâu thể hiện đúng sự đánh đổi này. **Cách 
 | Ngủ sâu | Bền vững hoá các state được hỗ trợ, giải phóng tài nguyên thực thi | Chờ khá dài, muốn kéo dài context vận hành | Chi phí lưu và khôi phục state; kết nối bên ngoài phải dựng lại |
 | Giữ file rồi dựng lại | Chỉ giữ workspace và các bản ghi task cần thiết | Process dễ khởi động lại, file là state chính | Phải khởi động lại dịch vụ, bổ sung phần context chưa bền vững hoá |
 
-*Bảng 7-3 — Chính sách state và sự đánh đổi tài nguyên*
+*Bảng 7-3 - Chính sách state và sự đánh đổi tài nguyên*
 
 Chính sách state nên được đánh giá theo **trọn chu kỳ task**. Với những dự án giữ lâu nhưng thời gian thực thi thật ngắn, việc giảm chiếm tài nguyên ở giai đoạn chờ có thể mang lại lợi ích lớn hơn; còn với các task khôi phục thường xuyên mà mỗi lần chờ đều ngắn, thì việc lưu và nạp state lặp đi lặp lại có thể làm tăng độ trễ và chi phí. Nền tảng nên kết hợp thời gian hoạt động, độ dài chờ, tần suất khôi phục và kích thước state để đặt ngưỡng ngủ cùng thời hạn giữ, đồng thời dọn các snapshot và workspace không còn mục đích nghiệp vụ.
 
@@ -201,9 +201,9 @@ Thu hồi tài nguyên và mở rộng cùng quyết định dung lượng khả
 | Giảm lãng phí do chờ | Ngủ phân tầng, khôi phục theo nhu cầu, dọn khi hết hạn | Giảm chiếm tài nguyên ở giai đoạn không hoạt động | Tỉ lệ thời gian hoạt động, chi phí trên một task hoàn thành |
 | Hỗ trợ thăm dò song song | Môi trường cô lập, fork snapshot, reset và co giãn | Tăng hiệu suất cung ứng các lần thử hữu ích | Thông lượng quỹ đạo hữu ích, thời lượng reset, tỉ lệ nhiễm giữa các nhánh |
 
-*Bảng 7-4 — Năng lực Sandbox, cơ chế hiện thực và cách kiểm chứng*
+*Bảng 7-4 - Năng lực Sandbox, cơ chế hiện thực và cách kiểm chứng*
 
-Bảng 7-4 tổng hợp năng lực sandbox, cơ chế hiện thực và cách kiểm chứng. Nền tảng nên cấu hình chính sách tài nguyên phù hợp cho từng giai đoạn chuẩn bị, thực thi, chờ và thử song song, rồi kiểm chứng độ trễ, chi phí và hiệu quả hoàn thành bằng task thật — **không thể chỉ dựa vào việc "có dùng sandbox hay không" mà đánh giá lợi ích.**
+Bảng 7-4 tổng hợp năng lực sandbox, cơ chế hiện thực và cách kiểm chứng. Nền tảng nên cấu hình chính sách tài nguyên phù hợp cho từng giai đoạn chuẩn bị, thực thi, chờ và thử song song, rồi kiểm chứng độ trễ, chi phí và hiệu quả hoàn thành bằng task thật - **không thể chỉ dựa vào việc "có dùng sandbox hay không" mà đánh giá lợi ích.**
 
 ## 7.6 Kiến trúc và tích hợp: đưa không gian làm việc vào nền tảng production
 
@@ -219,7 +219,7 @@ Mặt phẳng thực thi gánh vòng lặp task, chạy các component thực th
 
 ![image](../assets/imgs/chapter-07/image-006.png)
 
-*Hình 7-6 — Vị trí của Sandbox trong kiến trúc ba mặt phẳng*
+*Hình 7-6 - Vị trí của Sandbox trong kiến trúc ba mặt phẳng*
 
 Trong hình 7-6, component quản lý sandbox tạo, khôi phục và thu hồi instance theo policy của mặt phẳng điều khiển; còn component thực thi thì nối lệnh và phản hồi trở lại task. Workspace, trạng thái task và sản phẩm cuối cùng có trách nhiệm lưu giữ riêng: task kết thúc thì có thể giải phóng môi trường tính toán, nhưng **kết quả đã bàn giao và các bản ghi vận hành cần thiết thì vẫn phải giữ theo yêu cầu nghiệp vụ.**
 
@@ -241,7 +241,7 @@ Hai lối vào này có thể trỏ tới cùng một bộ năng lực nền dư
 
 ![image](../assets/imgs/chapter-07/image-007.png)
 
-*Hình 7-7 — Hai cách tích hợp và nền tảng năng lực chung*
+*Hình 7-7 - Hai cách tích hợp và nền tảng năng lực chung*
 
 | Mục so sánh | Tích hợp SDK / API | Tích hợp Kubernetes |
 | --- | --- | --- |
@@ -251,7 +251,7 @@ Hai lối vào này có thể trỏ tới cùng một bộ năng lực nền dư
 | Điều kiện phù hợp | Muốn bổ sung nhanh năng lực thực thi, giảm công tích hợp hạ tầng | Đã có hệ Kubernetes, cần quản trị tài nguyên và vận hành thống nhất |
 | Trọng tâm kiểm chứng | Ngữ nghĩa interface và state, quota, mạng và hành vi bền vững hoá | Hành vi controller, dung lượng lập lịch, năng lực backend và việc nâng cấp – bảo trì |
 
-*Bảng 7-5 — Căn cứ lựa chọn giữa SDK/API và Kubernetes*
+*Bảng 7-5 - Căn cứ lựa chọn giữa SDK/API và Kubernetes*
 
 Tương thích interface giúp giảm lượng sửa code khi di trú, nhưng template, timeout, tạm dừng – khôi phục, truy cập mạng, bền vững hoá file và xử lý lỗi thì vẫn phải kiểm chứng từng mục. Cùng một tên tham số nhưng phạm vi hỗ trợ ở các cách hiện thực khác nhau có thể khác nhau. Khi di trú lên production, hãy kiểm chứng trọn vòng đời bằng những task đại diện, rồi mới xác định phạm vi tái dùng logic ứng dụng cũ.
 
@@ -267,7 +267,7 @@ Case huấn luyện – đánh giá của Qwen và Bailian thì đưa việc chu
 
 Task baseline nên bao quát toàn bộ quá trình của từng loại workload. Thực thi tool gồm file input, chuẩn bị dependency, tính toán và kiểm tra sản phẩm; task chạy dài gồm thực thi, chờ, người dùng quay lại, khôi phục và bàn giao cuối; huấn luyện – đánh giá gồm tạo theo lô, tương tác song song, reset, chấm điểm và thu hồi. Qua những task này, có thể kiểm tra xem năng lực tool, tính liên tục của state và chính sách tài nguyên có đáp ứng yêu cầu hay không.
 
-Baseline nên ghi lại thời lượng của từng giai đoạn. Phía môi trường gồm xếp hàng request, cấp phát tài nguyên, chuẩn bị image, mount, khởi tạo và khôi phục; phía thực thi gồm chờ model, chạy tool, retry và nghiệm thu; phía kết thúc gồm lưu kết quả, giải phóng tài nguyên và dọn state còn sót. Các phân vị như P95, P99 phải nói rõ **đo từ sự kiện nào tới sự kiện nào**, và đưa ra mức đồng thời, kích thước môi trường cùng điều kiện cache — **tránh lấy số liệu khởi động của một môi trường rỗng làm đại diện cho thời gian phản hồi nghiệp vụ trọn vẹn.**
+Baseline nên ghi lại thời lượng của từng giai đoạn. Phía môi trường gồm xếp hàng request, cấp phát tài nguyên, chuẩn bị image, mount, khởi tạo và khôi phục; phía thực thi gồm chờ model, chạy tool, retry và nghiệm thu; phía kết thúc gồm lưu kết quả, giải phóng tài nguyên và dọn state còn sót. Các phân vị như P95, P99 phải nói rõ **đo từ sự kiện nào tới sự kiện nào**, và đưa ra mức đồng thời, kích thước môi trường cùng điều kiện cache - **tránh lấy số liệu khởi động của một môi trường rỗng làm đại diện cho thời gian phản hồi nghiệp vụ trọn vẹn.**
 
 Đánh giá chi phí cũng nên bao quát toàn bộ vòng đời. Chi phí trên một task thành công có thể tính bằng: tổng phí tính toán, lưu trữ state, mạng và tài nguyên pre-warm quy về workload đó trong cửa sổ đo, chia cho số task hoàn thành thành công; các lần thử thất bại và retry cũng tính vào tổng phí. Khi so sánh chi phí của cả ứng dụng, còn phải đưa phí gọi model và các dịch vụ khác vào theo một thước đo nhất quán. Thước đo này dùng để đánh giá xem lợi ích từ việc ngủ đông có bị chi phí khôi phục triệt tiêu hay không, và việc tăng mức đồng thời có kéo theo nhiều lần thất bại và thử vô ích hơn hay không.
 
@@ -285,7 +285,7 @@ Trước khi lên production, cần kiểm chứng hành vi khi task bị huỷ,
 | Huỷ trong lúc chờ hoặc chạm trần tài nguyên | Dừng việc thực thi mới, lưu kết quả và bản ghi cần thiết, thu hồi tài nguyên tương ứng |
 | Khôi phục task cũ sau khi lên version mới | Trạng thái task tương thích với version môi trường; file và quyền truy cập vẫn đúng |
 
-*Bảng 7-6 — Kiểm chứng khôi phục và vòng đời cho task chạy dài*
+*Bảng 7-6 - Kiểm chứng khôi phục và vòng đời cho task chạy dài*
 
 Nâng cấp version môi trường phải kiểm chứng đồng thời **cả đường tạo mới lẫn đường khôi phục.** Snapshot cũ có thể còn giữ dependency và trạng thái credential cũ; chỉ kiểm chứng template mới không chứng minh được rằng toàn bộ môi trường chạy đã nâng cấp. Các task sẵn có phải tiếp tục thực thi bằng một môi trường tương thích; khi liên quan tới thay đổi định dạng state hoặc cách mount, hãy kiểm chứng đường di trú trước, rồi chuyển dần, và chỉ gỡ cấu hình cũ sau khi xác nhận các tham chiếu tồn đọng đã di trú xong. Việc liên tục liên kết kết quả task, version môi trường, log và chi phí sẽ giúp biến các vấn đề vận hành thành những cải tiến cụ thể cho template, tool và policy.
 

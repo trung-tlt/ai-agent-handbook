@@ -1,12 +1,12 @@
-# Chương 5 — Thông tin: context, state và tài sản năng lực tái sử dụng
+# Chương 5 - Thông tin: context, state và tài sản năng lực tái sử dụng
 
-Mỗi lần một task tiến trình dài nhích thêm một lượt, Harness theo nghĩa rộng đều phải trả lời lại một câu hỏi tưởng chừng đơn giản nhưng thực ra quyết định chất lượng thực thi: **ngay lúc này model nên nhìn thấy gì.** Nhét toàn bộ hội thoại, tất cả file, mọi mô tả tool và kinh nghiệm dài hạn vào cùng một cửa sổ model không chỉ làm tăng chi phí và độ trễ, mà còn khiến những ràng buộc then chốt bị chìm lấp dưới thông tin trùng lặp và nội dung độ tin cậy thấp. Nhưng nếu chỉ giữ vài lượt tương tác gần nhất, ta lại đánh mất việc mục tiêu đã đổi, những sự thật đã xác nhận, tác dụng phụ bên ngoài, khoảng hụt nghiệm thu và vị trí khôi phục. Cửa sổ model thì hữu hạn, trong khi thế giới của task cứ phình ra — giữa hai thứ đó bắt buộc phải có một **cơ chế tổ chức thông tin độc lập**.
+Mỗi lần một task tiến trình dài nhích thêm một lượt, Harness theo nghĩa rộng đều phải trả lời lại một câu hỏi tưởng chừng đơn giản nhưng thực ra quyết định chất lượng thực thi: **ngay lúc này model nên nhìn thấy gì.** Nhét toàn bộ hội thoại, tất cả file, mọi mô tả tool và kinh nghiệm dài hạn vào cùng một cửa sổ model không chỉ làm tăng chi phí và độ trễ, mà còn khiến những ràng buộc then chốt bị chìm lấp dưới thông tin trùng lặp và nội dung độ tin cậy thấp. Nhưng nếu chỉ giữ vài lượt tương tác gần nhất, ta lại đánh mất việc mục tiêu đã đổi, những sự thật đã xác nhận, tác dụng phụ bên ngoài, khoảng hụt nghiệm thu và vị trí khôi phục. Cửa sổ model thì hữu hạn, trong khi thế giới của task cứ phình ra - giữa hai thứ đó bắt buộc phải có một **cơ chế tổ chức thông tin độc lập**.
 
 Vì vậy, Harness cần một hệ thống context và state riêng. Nó không phải việc nhồi thêm chữ cho model, mà là liên tục hoàn thành bốn việc: biên dịch thông tin đa nguồn thành Context của lượt này ra sao; nén và offload phần lịch sử không ngừng lớn lên thế nào; lưu sự thật về task ở ngoài cửa sổ model ra sao; và cung cấp Memory dài hạn, Knowledge doanh nghiệp cùng Skill tái sử dụng được cho model theo nhu cầu, dưới đúng quyền hạn, thế nào.
 
 Chương này có ranh giới rõ với chương trước: **chương 4 định nghĩa task luân chuyển ra sao, chương này định nghĩa thông tin và trạng thái trong quá trình task được biểu diễn, lưu trữ và đi vào model ra sao.** Database vật lý, index, object storage và khôi phục xuyên bản sao sẽ triển khai ở phần "Vận hành"; chương này tập trung vào mô hình logic, pipeline dựng context và hợp đồng tài sản mà Harness dựa vào.
 
-Chương này tiếp tục dùng case xuyên suốt "Agent vá lỗ hổng dịch vụ production và phát hành thay đổi". Khi vào chương này, thứ ta quan tâm không còn là task tiến triển ra sao, mà là **ở mỗi bước Agent nên nhìn thấy gì**: thông báo lỗ hổng ban đầu, quy tắc dự án, version dependency hiện tại và kế hoạch đi vào Context ra sao; log dài và báo cáo test rời khỏi cửa sổ model nhưng vẫn truy vấn được thế nào; kế hoạch, patch và bằng chứng lưu trong Workspace ra sao; và một lần vá thành công tích tụ thành Memory cùng Skill mà các task sau khám phá được nhưng không bị dùng sai — bằng cách nào.
+Chương này tiếp tục dùng case xuyên suốt "Agent vá lỗ hổng dịch vụ production và phát hành thay đổi". Khi vào chương này, thứ ta quan tâm không còn là task tiến triển ra sao, mà là **ở mỗi bước Agent nên nhìn thấy gì**: thông báo lỗ hổng ban đầu, quy tắc dự án, version dependency hiện tại và kế hoạch đi vào Context ra sao; log dài và báo cáo test rời khỏi cửa sổ model nhưng vẫn truy vấn được thế nào; kế hoạch, patch và bằng chứng lưu trong Workspace ra sao; và một lần vá thành công tích tụ thành Memory cùng Skill mà các task sau khám phá được nhưng không bị dùng sai - bằng cách nào.
 
 ---
 
@@ -55,7 +55,7 @@ flowchart LR
 
 ```
 
-Thông tin ứng viên ít nhất đến từ cấu hình Agent, Task State, Session, Workspace, Memory, Knowledge, Skill Registry và Tool Registry. Pipeline phải **lọc định danh và quyền hạn trước**, rồi mới xếp hạng theo mức liên quan — không được vì tiện cho việc xếp hạng mà đưa nội dung xuyên tenant cho bộ truy hồi hay cho model trước. Với nội dung bên ngoài, còn phải giữ lại nguồn và mức tin cậy, tránh việc tài liệu hay trang web truy hồi được nguỵ trang văn bản của chính nó thành chỉ dẫn ưu tiên cao.
+Thông tin ứng viên ít nhất đến từ cấu hình Agent, Task State, Session, Workspace, Memory, Knowledge, Skill Registry và Tool Registry. Pipeline phải **lọc định danh và quyền hạn trước**, rồi mới xếp hạng theo mức liên quan - không được vì tiện cho việc xếp hạng mà đưa nội dung xuyên tenant cho bộ truy hồi hay cho model trước. Với nội dung bên ngoài, còn phải giữ lại nguồn và mức tin cậy, tránh việc tài liệu hay trang web truy hồi được nguỵ trang văn bản của chính nó thành chỉ dẫn ưu tiên cao.
 
 ### Độ ưu tiên và ngân sách token
 
@@ -79,7 +79,7 @@ Harness có thể chia cửa sổ khả dụng thành nhiều vùng ngân sách:
 
 ### Quản lý input của model bằng Context Policy và Manifest
 
-Mỗi lần gọi model đều nên sinh ra một **Context Manifest**, ghi lại model rốt cuộc đã nhìn thấy gì — chứ không chỉ lưu đoạn text đã nối cuối cùng. Manifest ít nhất gồm:
+Mỗi lần gọi model đều nên sinh ra một **Context Manifest**, ghi lại model rốt cuộc đã nhìn thấy gì - chứ không chỉ lưu đoạn text đã nối cuối cùng. Manifest ít nhất gồm:
 
 | Trường | Diễn giải |
 | --- | --- |
@@ -134,7 +134,7 @@ Active Context
 
 ```
 
-Chữ "gần nhất" không chỉ định nghĩa theo thời gian. Việc người dùng sửa mục tiêu mới nhất, lỗi tool chưa giải quyết, hành động đang chờ phê duyệt và bằng chứng nghiệm thu thất bại — dù phát sinh sớm hơn — vẫn nên được coi là **trạng thái hoạt động**; còn những quá trình thăm dò đã hoàn tất và chứng minh được bằng Artifact thì có thể rời khỏi cửa sổ hoạt động.
+Chữ "gần nhất" không chỉ định nghĩa theo thời gian. Việc người dùng sửa mục tiêu mới nhất, lỗi tool chưa giải quyết, hành động đang chờ phê duyệt và bằng chứng nghiệm thu thất bại - dù phát sinh sớm hơn - vẫn nên được coi là **trạng thái hoạt động**; còn những quá trình thăm dò đã hoàn tất và chứng minh được bằng Artifact thì có thể rời khỏi cửa sổ hoạt động.
 
 ### Commit, Compact, Rebuild và Validate
 
@@ -354,7 +354,7 @@ Kiểu "cứ hết task là tự động tóm tắt rồi ghi vào Memory" rất
 
 4.  Nó có chứa dữ liệu nhạy cảm, bị hạn chế hoặc theo luật không được lưu lâu dài không?
 
-5.  Nó đã tồn tại chưa — nên thêm mới, gộp, cập nhật hay đánh dấu xung đột?
+5.  Nó đã tồn tại chưa - nên thêm mới, gộp, cập nhật hay đánh dấu xung đột?
 
 6.  Nếu tương lai nó sai thì ai được sửa hoặc xoá, và các index phái sinh dọn ra sao?
 
@@ -368,7 +368,7 @@ Quên không chỉ là xoá vector. Nó phải xử lý đồng thời bản g�
 
 ### Để Knowledge cung cấp sự thật, Memory cung cấp kinh nghiệm
 
-**Knowledge doanh nghiệp** là các sự thật nghiệp vụ do tổ chức duy trì, có nguồn và có tính cập nhật — ví dụ quy chế, mô tả sản phẩm, tài liệu kỹ thuật, từ điển dữ liệu và dữ liệu kinh doanh. **Memory** là kinh nghiệm hoặc thông tin cá thể mà Agent tích luỹ chọn lọc từ task và tương tác người dùng. Cả hai đều có thể đi vào Context qua truy hồi, nhưng **trách nhiệm quản trị thì khác nhau**:
+**Knowledge doanh nghiệp** là các sự thật nghiệp vụ do tổ chức duy trì, có nguồn và có tính cập nhật - ví dụ quy chế, mô tả sản phẩm, tài liệu kỹ thuật, từ điển dữ liệu và dữ liệu kinh doanh. **Memory** là kinh nghiệm hoặc thông tin cá thể mà Agent tích luỹ chọn lọc từ task và tương tác người dùng. Cả hai đều có thể đi vào Context qua truy hồi, nhưng **trách nhiệm quản trị thì khác nhau**:
 
 | Chiều | Knowledge | Memory |
 | --- | --- | --- |
@@ -419,9 +419,9 @@ Sự phân biệt này ngăn được kiểu dùng sai Memory phổ biến nhấ
 
 ### Mô hình tài sản năng lực của Skill
 
-**Tool** nói cho Agent biết *nó làm được hành động gì*; **Skill** nói cho Agent biết *trong một loại task nào đó thì dùng một số hành động ra sao cho đúng*. Một Skill có thể gồm chỉ dẫn, script, template, ví dụ, checklist và tài liệu tham chiếu, đóng gói một phương pháp task đã được kiểm chứng — ví dụ chẩn đoán sự cố dịch vụ, rà soát hợp đồng, phân tích chất lượng dữ liệu hay kiểm tra trước khi phát hành.
+**Tool** nói cho Agent biết *nó làm được hành động gì*; **Skill** nói cho Agent biết *trong một loại task nào đó thì dùng một số hành động ra sao cho đúng*. Một Skill có thể gồm chỉ dẫn, script, template, ví dụ, checklist và tài liệu tham chiếu, đóng gói một phương pháp task đã được kiểm chứng - ví dụ chẩn đoán sự cố dịch vụ, rà soát hợp đồng, phân tích chất lượng dữ liệu hay kiểm tra trước khi phát hành.
 
-Skill **không** đồng nghĩa với một đoạn Prompt, và cũng không phải bí danh của Tool. Nó thường gồm cả những bước model phải nhận định, đồng thời cũng có thể gọi script và tool có tính xác định; nó **không trực tiếp sở hữu thêm quyền** — chỉ khi người dùng, task và môi trường hiện tại cho phép, các năng lực liên quan mới được thực thi.
+Skill **không** đồng nghĩa với một đoạn Prompt, và cũng không phải bí danh của Tool. Nó thường gồm cả những bước model phải nhận định, đồng thời cũng có thể gọi script và tool có tính xác định; nó **không trực tiếp sở hữu thêm quyền** - chỉ khi người dùng, task và môi trường hiện tại cho phép, các năng lực liên quan mới được thực thi.
 
 ```text
 Skill Package
@@ -453,9 +453,9 @@ Việc chọn Skill **không nên chỉ dựa vào khớp ngữ nghĩa của mod
 
 **Ranh giới giữa bước có tính xác định và nhận định của model.**
 
-Những bước trong Skill vốn ổn định, lặp lại, mã hoá được và có cái giá thất bại cao thì phù hợp để tích tụ thành script, tool hoặc rule — ví dụ chuyển đổi định dạng, kiểm tra cố định, truy vấn quyền và chạy test; còn phần cần hiểu mục tiêu mơ hồ, so sánh phương án, giải thích bất thường hoặc chỉnh hướng theo bằng chứng mới thì giữ lại làm chỉ dẫn cho model.
+Những bước trong Skill vốn ổn định, lặp lại, mã hoá được và có cái giá thất bại cao thì phù hợp để tích tụ thành script, tool hoặc rule - ví dụ chuyển đổi định dạng, kiểm tra cố định, truy vấn quyền và chạy test; còn phần cần hiểu mục tiêu mơ hồ, so sánh phương án, giải thích bất thường hoặc chỉnh hướng theo bằng chứng mới thì giữ lại làm chỉ dẫn cho model.
 
-Ranh giới này giảm được cả chi phí lẫn phương sai: model lo nhận định ngữ nghĩa, còn các thành phần có tính xác định lo phần thực thi đã biểu đạt rõ ràng được. Nhưng **script không được giấu trong phần văn bản mô tả rồi chạy không kiểm soát** — chúng vẫn phải đi qua Action Plane, hợp đồng môi trường và quyền hạn ở chương 6.
+Ranh giới này giảm được cả chi phí lẫn phương sai: model lo nhận định ngữ nghĩa, còn các thành phần có tính xác định lo phần thực thi đã biểu đạt rõ ràng được. Nhưng **script không được giấu trong phần văn bản mô tả rồi chạy không kiểm soát** - chúng vẫn phải đi qua Action Plane, hợp đồng môi trường và quyền hạn ở chương 6.
 
 ### Case: tích tụ một lần vá thành công thành Skill
 
@@ -518,7 +518,7 @@ Context, Memory, Knowledge và Skill đều có thể được tái sử dụng 
 | Session | Sở thích tương tác hiện tại và input tạm | Session hiện tại |
 | Task | Plan, Todo, Scratch, Artifact và bằng chứng | Task hiện tại và các task cha–con được uỷ quyền |
 
-Việc truy hồi và dựng Context **bắt buộc phải xác định định danh bên gọi, tenant, dự án và task trước, rồi mới truy vấn trong các scope được phép.** Đừng recall xuyên scope trước rồi mới "nhắc model đừng làm rò rỉ" ở đầu ra — vì khi nội dung đã vào input của model thì sự cô lập đã thất bại rồi.
+Việc truy hồi và dựng Context **bắt buộc phải xác định định danh bên gọi, tenant, dự án và task trước, rồi mới truy vấn trong các scope được phép.** Đừng recall xuyên scope trước rồi mới "nhắc model đừng làm rò rỉ" ở đầu ra - vì khi nội dung đã vào input của model thì sự cô lập đã thất bại rồi.
 
 Mỗi tài sản đều nên mang theo metadata quản trị tối thiểu: nguồn, chủ sở hữu, scope, version, thời điểm tạo và cập nhật, quyền, mức nhạy cảm, chu kỳ lưu giữ, digest nội dung, quan hệ phái sinh và trạng thái. Memory còn cần độ tin cậy và điều kiện áp dụng; Knowledge cần thời điểm hiệu lực và nguồn có thẩm quyền; Skill cần phụ thuộc và baseline đánh giá; còn Context Summary cần phạm vi sự kiện đã phủ.
 

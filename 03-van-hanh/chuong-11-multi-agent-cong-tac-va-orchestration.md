@@ -1,10 +1,10 @@
-# Chương 11 — Multi-Agent: cộng tác và orchestration
+# Chương 11 - Multi-Agent: cộng tác và orchestration
 
 Khi Agent đi từ việc kiểm chứng năng lực đơn điểm sang nghiệp vụ thật, các vấn đề mà hệ thống đối mặt cũng thay đổi. Rất nhiều task đã không còn kết thúc chỉ bằng một lần gọi model, hay bằng việc một Agent hoàn tất một lượt lập kế hoạch và chạy tool. Chúng thường kéo dài hơn, liên quan tới nhiều lĩnh vực chuyên môn, cần truy cập nhiều hệ thống và dữ liệu khác nhau, và còn xen kẽ việc con người xác nhận, thẩm định kết quả và xử lý ngoại lệ. Lúc này, cái khó thật sự không còn chỉ là làm sao cho một Agent mạnh hơn, mà là **làm sao để nhiều Agent cùng với con người cộng tác có trật tự xoay quanh một mục tiêu chung.**
 
 **Đặt nhiều Agent cạnh nhau không tự nhiên tạo thành một đội.** Nếu thiếu phân công rõ ràng, cách cộng tác và quản lý state, thì càng nhiều bên tham gia lại càng dễ xảy ra thực thi trùng, thông tin không nhất quán, task bị bỏ sót và trách nhiệm không rõ. Thứ mà orchestration multi-agent phải giải quyết chính là **tổ chức những năng lực thực thi vốn độc lập lại với nhau**, để chúng vừa phát huy được thế mạnh chuyên môn riêng, vừa hình thành một quá trình thực thi trọn vẹn dưới một mục tiêu chung và các ràng buộc thống nhất.
 
-Chương này triển khai theo trình tự: "tiếp nhận dị chủng — tổ chức team — cộng tác task — thông tin dùng chung — giao tiếp — quản trị". Phần Xây dựng đã nói một Harness đơn lẻ lập kế hoạch, uỷ nhiệm và dùng context ra sao; ở đây trọng tâm là **việc bàn giao trách nhiệm, tính nhất quán của state và việc chấp nhận thành quả khi nhiều thành viên độc lập cùng chạy**; còn phần lập lịch và gửi message ở tầng dưới thì dùng theo cơ chế của chương task bất đồng bộ và chương giao tiếp phân tán.
+Chương này triển khai theo trình tự: "tiếp nhận dị chủng - tổ chức team - cộng tác task - thông tin dùng chung - giao tiếp - quản trị". Phần Xây dựng đã nói một Harness đơn lẻ lập kế hoạch, uỷ nhiệm và dùng context ra sao; ở đây trọng tâm là **việc bàn giao trách nhiệm, tính nhất quán của state và việc chấp nhận thành quả khi nhiều thành viên độc lập cùng chạy**; còn phần lập lịch và gửi message ở tầng dưới thì dùng theo cơ chế của chương task bất đồng bộ và chương giao tiếp phân tán.
 
 ## 11.1 Từ một Agent tới một Agent Team: giá trị và ranh giới của tầng orchestration
 
@@ -118,7 +118,7 @@ Quay lại bối cảnh vá dependency ở đầu mục, có thể kiểm tra xe
 
 **Việc kiểm chứng này kiểm tra chuỗi tiếp nhận cộng tác.** Còn patch có vá được lỗ hổng không, kết quả có đạt yêu cầu bàn giao không thì vẫn xử lý theo thoả thuận nghiệm thu của chính task đó; quá trình cụ thể sẽ triển khai ở phần orchestration task.
 
-Sau khi tiếp nhận, team đã biết được năng lực, điều kiện vận hành và cách bàn giao của từng thành viên. Trên nền đó, còn phải xác định thành viên nào phối hợp, thành viên nào thực thi, và chúng phân công với nhau ra sao — mục tiếp theo bàn về những quan hệ tổ chức này.
+Sau khi tiếp nhận, team đã biết được năng lực, điều kiện vận hành và cách bàn giao của từng thành viên. Trên nền đó, còn phải xác định thành viên nào phối hợp, thành viên nào thực thi, và chúng phân công với nhau ra sao - mục tiếp theo bàn về những quan hệ tổ chức này.
 
 ## 11.3 Topology tổ chức team: chủ quản – thực thi, cộng tác ngang hàng và orchestration phân tầng
 
@@ -132,7 +132,7 @@ Có thể hiểu quan hệ tổ chức của Agent ở hai tầng: **Team** và 
 
 Team thường có một phạm vi trách nhiệm chung, có thể liên tục nhận các task khác nhau, **chứ không giải tán sau khi một lần chạy Agent kết thúc.** Thành viên của team có thể thay đổi, nhưng quan hệ tổ chức của nó không cần thiết lập lại ở mỗi lần chạy.
 
-**Năng lực chuyên môn** nói Agent giỏi cái gì — ví dụ hiện thực code, kiểm thử hay phân tích dữ liệu; **vai trò tổ chức** nói nó chịu trách nhiệm gì — ví dụ điều phối tổng thể, thực thi cục bộ hay rà soát kết quả.
+**Năng lực chuyên môn** nói Agent giỏi cái gì - ví dụ hiện thực code, kiểm thử hay phân tích dữ liệu; **vai trò tổ chức** nói nó chịu trách nhiệm gì - ví dụ điều phối tổng thể, thực thi cục bộ hay rà soát kết quả.
 
 Một Agent mạnh về chuyên môn **không nhất thiết** gánh vai chủ quản; và chủ quản cũng không cần giỏi nghiệp vụ cụ thể hơn mọi thành viên. Vai trò tồn tại trong một quan hệ team cụ thể; cùng một Agent có thể giữ vai trò khác nhau ở các team khác nhau.
 
@@ -170,7 +170,7 @@ Phân tầng cũng đem tới chi phí thêm, gồm hao hụt thông tin khi yê
 
 Cấu trúc chủ quản – thực thi vẫn có thể cho phép các thành viên thực thi trao đổi trực tiếp; và các nhóm khác nhau trong tổ chức phân tầng cũng có thể trao đổi trực tiếp quanh những interface rõ ràng.
 
-**Giao tiếp trực tiếp không tự động thay đổi quyền sở hữu task, và cũng không có nghĩa các bên tham gia có quyền quyết định như nhau.** Khi chọn mô hình tổ chức, hãy quan tâm tới phân công chuyên môn, độ gắn kết công việc và yêu cầu ra quyết định — **chứ không đơn thuần thêm chủ quản hay thêm tầng theo số lượng Agent.**
+**Giao tiếp trực tiếp không tự động thay đổi quyền sở hữu task, và cũng không có nghĩa các bên tham gia có quyền quyết định như nhau.** Khi chọn mô hình tổ chức, hãy quan tâm tới phân công chuyên môn, độ gắn kết công việc và yêu cầu ra quyết định - **chứ không đơn thuần thêm chủ quản hay thêm tầng theo số lượng Agent.**
 
 ## 11.4 Cơ chế cộng tác: phân rã task, phân công, thực thi song song và tổng hợp kết quả
 
@@ -196,7 +196,7 @@ Trong bối cảnh vá dependency, Coding Agent có thể định vị phạm vi
 
 Việc chọn bên thực thi phải kết hợp năng lực chuyên môn, quyền hạn khả dụng và tải hiện tại. Leader làm rõ mục tiêu, điều kiện bàn giao và phụ thuộc, **nhưng không giải sẵn mọi chi tiết chuyên môn thay cho bên thực thi.** Mục tiêu chung và ràng buộc mà Task cha đã ghi thì subtask có thể tham chiếu; subtask chỉ bổ sung trách nhiệm, sản phẩm bàn giao và điều kiện đặc thù của mình, **tránh để nhiều bản mô tả sinh ra bất nhất khi sửa về sau.**
 
-Khi yêu cầu thay đổi, việc cập nhật kế hoạch phải **giữ lại những tiến triển hữu ích đã có.** Ví dụ, khi version mục tiêu đổi từ V1 sang V2, phải ghi rõ phần phân tích nào còn tái dùng được, patch cũ và kết quả test cũ ứng với version nào, phần việc nào bắt buộc làm lại — **chứ không ghi đè thẳng trạng thái cũ hay sinh lại trọn bộ task.**
+Khi yêu cầu thay đổi, việc cập nhật kế hoạch phải **giữ lại những tiến triển hữu ích đã có.** Ví dụ, khi version mục tiêu đổi từ V1 sang V2, phải ghi rõ phần phân tích nào còn tái dùng được, patch cũ và kết quả test cũ ứng với version nào, phần việc nào bắt buộc làm lại - **chứ không ghi đè thẳng trạng thái cũ hay sinh lại trọn bộ task.**
 
 ### 11.4.3 Lập lịch thực thi cho Task
 
@@ -216,9 +216,9 @@ Việc tổng hợp kết quả nối các phần bàn giao cục bộ trở l�
 
 Trong bối cảnh vá dependency, Leader phải xác nhận rằng patch code, mô tả sửa đổi và báo cáo test thuộc cùng một version hợp lệ, các kiểm tra cần thiết đã hoàn tất, và không tồn tại giới hạn thực chất nào cản trở việc bàn giao. Code, log và báo cáo của thành viên ban đầu **chỉ là tài liệu ứng viên**; chỉ sau khi được liên kết với điều kiện nghiệm thu cụ thể thì mới thành **Evidence** hỗ trợ đánh giá. Leader có thể chấp nhận các subtask thông thường trong phạm vi được uỷ quyền, nhưng **việc chấp nhận nội bộ đó không đồng nghĩa với nghiệm thu nghiệp vụ cuối cùng.**
 
-Sau khi Task gốc tổng hợp thành quả và đạt điều kiện hoàn thành đã thoả thuận, nó có thể vào trạng thái "đã hoàn thành". Chữ "đã hoàn thành" ở đây nghĩa là **giai đoạn thực thi của đội đã kết thúc, sản phẩm đủ điều kiện bàn giao — nhưng đây chưa phải trạng thái cuối thực sự của vòng đời task.** Người dùng hoặc bên nghiệm thu được chỉ định còn phải lấy và tải sản phẩm về, xác nhận chấp nhận theo luật nghiệm thu đã thoả thuận trước, hoặc nêu yêu cầu sửa đổi; sau khi xác nhận chấp nhận thì mới archive, và Task mới thực sự kết thúc. Nếu không qua được nghiệm thu, hãy tiếp tục sửa theo đúng Task và quan hệ kết quả sẵn có, **chứ không dựng một bộ task khác.**
+Sau khi Task gốc tổng hợp thành quả và đạt điều kiện hoàn thành đã thoả thuận, nó có thể vào trạng thái "đã hoàn thành". Chữ "đã hoàn thành" ở đây nghĩa là **giai đoạn thực thi của đội đã kết thúc, sản phẩm đủ điều kiện bàn giao - nhưng đây chưa phải trạng thái cuối thực sự của vòng đời task.** Người dùng hoặc bên nghiệm thu được chỉ định còn phải lấy và tải sản phẩm về, xác nhận chấp nhận theo luật nghiệm thu đã thoả thuận trước, hoặc nêu yêu cầu sửa đổi; sau khi xác nhận chấp nhận thì mới archive, và Task mới thực sự kết thúc. Nếu không qua được nghiệm thu, hãy tiếp tục sửa theo đúng Task và quan hệ kết quả sẵn có, **chứ không dựng một bộ task khác.**
 
-Phần bàn giao cuối cùng phải nói rõ các sản phẩm hợp lệ hiện tại phủ mục tiêu ra sao, các kết quả có nhất quán không, còn giới hạn nào, và điều kiện dừng có từng bị chạm hay không. Các kết quả subtask đã được chấp nhận thì tái dùng trực tiếp được; **chỉ khi nhiều kết quả thực sự cần thống nhất thước đo, giải quyết xung đột hay hình thành nhận định tổng hợp thì mới cần tích hợp thêm — không nhất thiết luôn thêm một "giai đoạn tổng hợp" mới.**
+Phần bàn giao cuối cùng phải nói rõ các sản phẩm hợp lệ hiện tại phủ mục tiêu ra sao, các kết quả có nhất quán không, còn giới hạn nào, và điều kiện dừng có từng bị chạm hay không. Các kết quả subtask đã được chấp nhận thì tái dùng trực tiếp được; **chỉ khi nhiều kết quả thực sự cần thống nhất thước đo, giải quyết xung đột hay hình thành nhận định tổng hợp thì mới cần tích hợp thêm - không nhất thiết luôn thêm một "giai đoạn tổng hợp" mới.**
 
 ## 11.5 Context, memory và trạng thái cộng tác dùng chung của team
 
@@ -230,7 +230,7 @@ Chia sẻ thiếu sẽ gây thăm dò trùng, xung đột task và phụ thuộc
 
 **Context dùng chung của team không có nghĩa mọi Agent nhìn thấy một cửa sổ context y hệt nhau.** Các thành viên nghiên cứu, viết code, kiểm thử và bảo mật quan tâm những thông tin khác nhau; dù đứng trước cùng một task, chúng vẫn nên hình thành view context khớp với trách nhiệm của mình.
 
-Nói chính xác hơn, thứ team chia sẻ là **nguồn context**, chứ không phải một Context hoàn toàn giống nhau. Mục tiêu, ràng buộc, trạng thái task, các sự thật đã xác nhận và sản phẩm cộng tác được duy trì thống nhất tạo thành nguồn context; rồi mỗi Agent kết hợp **vai trò, task, quyền hạn** và giai đoạn thực thi để chọn từ đó những thông tin cần cho quyết định hiện tại. **Context là view cục bộ của trạng thái team tại một thành viên, ở một thời điểm — không phải bản thân trạng thái team.**
+Nói chính xác hơn, thứ team chia sẻ là **nguồn context**, chứ không phải một Context hoàn toàn giống nhau. Mục tiêu, ràng buộc, trạng thái task, các sự thật đã xác nhận và sản phẩm cộng tác được duy trì thống nhất tạo thành nguồn context; rồi mỗi Agent kết hợp **vai trò, task, quyền hạn** và giai đoạn thực thi để chọn từ đó những thông tin cần cho quyết định hiện tại. **Context là view cục bộ của trạng thái team tại một thành viên, ở một thời điểm - không phải bản thân trạng thái team.**
 
 Việc chọn lọc đó nên theo nguyên tắc **"tối thiểu nhưng đủ"**: vừa gồm mục tiêu, ràng buộc, kết quả phụ thuộc và sản phẩm liên quan cần cho task, vừa tránh tiêm vào trọn lịch sử dự án, output tool không liên quan và toàn bộ quá trình suy luận của các thành viên khác. Như vậy vừa giảm chi phí token và giao tiếp, vừa giảm nhiễu ảnh hưởng tới nhận định.
 
@@ -249,7 +249,7 @@ Trọn quá trình tìm kiếm, bản ghi gọi tool và các suy luận trung g
 
 Memory dùng chung của team trả lời câu hỏi "quá khứ đã tích luỹ được gì, và nội dung nào đáng dùng tiếp trong các task sau". Nó **không đồng nghĩa với việc nhiều Agent dùng chung một vector database**, và cũng không phải việc lưu vĩnh viễn toàn bộ lịch sử hội thoại.
 
-Trong quá trình thăm dò, Agent sinh ra rất nhiều giả thuyết và nhận định tạm. Nếu nội dung chưa kiểm chứng đi thẳng vào bộ nhớ dài hạn thì rất dễ bị coi là sự thật và trích dẫn lặp đi lặp lại trong các task sau. Thứ phù hợp hơn để tích tụ thành memory của team là những thông tin **đã được kết quả task, dữ liệu bên ngoài, thành viên khác hay con người xác nhận** — ví dụ các sự thật lĩnh vực đã xác nhận, phương pháp hiệu quả hoặc thất bại, các quyết định quan trọng cùng bối cảnh, thoả thuận làm việc của team và các chiến lược thao tác tái dùng được.
+Trong quá trình thăm dò, Agent sinh ra rất nhiều giả thuyết và nhận định tạm. Nếu nội dung chưa kiểm chứng đi thẳng vào bộ nhớ dài hạn thì rất dễ bị coi là sự thật và trích dẫn lặp đi lặp lại trong các task sau. Thứ phù hợp hơn để tích tụ thành memory của team là những thông tin **đã được kết quả task, dữ liệu bên ngoài, thành viên khác hay con người xác nhận** - ví dụ các sự thật lĩnh vực đã xác nhận, phương pháp hiệu quả hoặc thất bại, các quyết định quan trọng cùng bối cảnh, thoả thuận làm việc của team và các chiến lược thao tác tái dùng được.
 
 Memory của team còn phải giữ lại nguồn và ranh giới cần thiết: **do ai tạo ra, đã qua kiểm chứng gì, áp dụng cho team và bối cảnh nào, ghi vào lúc nào, và hiện còn hiệu lực không.** Khi luật nghiệp vụ và môi trường bên ngoài thay đổi, memory cũng cần được cập nhật, hạ cấp hoặc đào thải. So với công nghệ lưu trữ, **việc quyết định cái gì được thành memory, ai duy trì và khi nào hết hiệu lực mới là thứ ảnh hưởng nhiều hơn tới độ tin cậy của cộng tác dài hạn.**
 
@@ -282,7 +282,7 @@ Context chọn thông tin cần thiết từ Task State, Artifact, Memory cùng 
 
 Việc chia sẻ trong team theo bốn yêu cầu: thành viên giữ không gian nhận định độc lập; các sự thật then chốt đi vào bản ghi task; thành quả đã bàn giao được chia sẻ qua tham chiếu ổn định; kinh nghiệm tái dùng được đi vào memory sau khi kiểm chứng. Phần lưu trữ ở tầng dưới, việc merge version và vòng đời memory thì theo cơ chế của chương lưu trữ trạng thái.
 
-Với cấu trúc thông tin này, team **không cần để mọi thành viên biết mọi chuyện mà vẫn duy trì được mục tiêu chung và tính liên tục của cộng tác.** Tiếp theo còn phải giải quyết việc thay đổi trạng thái, yêu cầu task và tham chiếu sản phẩm được truyền giữa các Agent ra sao — đó chính là câu hỏi mà phần giao tiếp và giao thức của team phải trả lời.
+Với cấu trúc thông tin này, team **không cần để mọi thành viên biết mọi chuyện mà vẫn duy trì được mục tiêu chung và tính liên tục của cộng tác.** Tiếp theo còn phải giải quyết việc thay đổi trạng thái, yêu cầu task và tham chiếu sản phẩm được truyền giữa các Agent ra sao - đó chính là câu hỏi mà phần giao tiếp và giao thức của team phải trả lời.
 
 ## 11.6 Giao tiếp và giao thức của team: A2A, MCP và routing message
 
@@ -290,9 +290,9 @@ Context, memory, trạng thái task và sản phẩm dùng chung giải quyết 
 
 ### 11.6.1 Từ trao đổi message tới cộng tác bền bỉ
 
-Lời gọi dịch vụ truyền thống thường xoay quanh một Endpoint đã biết và một lần request–response. Còn cộng tác Agent thì có thể trải qua khám phá năng lực, uỷ nhiệm task, bàn giao context, phản hồi quá trình, bổ sung input và bàn giao thành quả — kéo dài vài phút hoặc lâu hơn.
+Lời gọi dịch vụ truyền thống thường xoay quanh một Endpoint đã biết và một lần request–response. Còn cộng tác Agent thì có thể trải qua khám phá năng lực, uỷ nhiệm task, bàn giao context, phản hồi quá trình, bổ sung input và bàn giao thành quả - kéo dài vài phút hoặc lâu hơn.
 
-Vì vậy, tầng giao tiếp không chỉ cần truyền một đoạn ngôn ngữ tự nhiên, mà còn phải trả lời: **nhận diện bên cộng tác phù hợp ra sao, liên kết nhiều lượt tương tác của cùng một công việc ra sao, biểu đạt các trạng thái đang chạy – đang chờ input – thất bại – hoàn thành ra sao, và bàn giao một kết quả dùng tiếp được ra sao.** Một message có thể kích hoạt cộng tác, **nhưng tự nó không đại diện cho việc công việc đã được tiếp nhận hay hoàn thành;** team vẫn phải lấy Task State và Artifact làm sự thật cộng tác — mô hình cụ thể xem 11.4 và 11.5.
+Vì vậy, tầng giao tiếp không chỉ cần truyền một đoạn ngôn ngữ tự nhiên, mà còn phải trả lời: **nhận diện bên cộng tác phù hợp ra sao, liên kết nhiều lượt tương tác của cùng một công việc ra sao, biểu đạt các trạng thái đang chạy – đang chờ input – thất bại – hoàn thành ra sao, và bàn giao một kết quả dùng tiếp được ra sao.** Một message có thể kích hoạt cộng tác, **nhưng tự nó không đại diện cho việc công việc đã được tiếp nhận hay hoàn thành;** team vẫn phải lấy Task State và Artifact làm sự thật cộng tác - mô hình cụ thể xem 11.4 và 11.5.
 
 ### 11.6.2 A2A: cộng tác mở hướng tới các Agent dị chủng
 
@@ -306,7 +306,7 @@ Vì vậy, tầng giao tiếp không chỉ cần truyền một đoạn ngôn ng
 | Artifact | Biểu đạt output ở tầng giao thức do A2A Task sinh ra | Phải ánh xạ thành Artifact mà ứng dụng nghiệp vụ quản lý và nghiệm thu được |
 | `contextId` | Liên kết nhiều Message và Task trong cùng một context tương tác | Dùng để liên kết tương tác ở tầng giao thức, **không thay thế định nghĩa Task nghiệp vụ hay Session** |
 
-Agent Card có thể kèm chữ ký và cấu hình bảo mật, nhưng bên gọi **vẫn phải kết hợp việc xác minh chữ ký, nguồn tin cậy và policy uỷ quyền để đánh giá có đáng tin hay không.** Task, Message và Artifact trong giao thức giải quyết vấn đề liên thông; còn các đối tượng trùng tên trong chương này thì gánh trách nhiệm nghiệp vụ, trạng thái và ngữ nghĩa nghiệm thu — **hai bên phải được liên kết rõ ràng qua một tầng adapter.**
+Agent Card có thể kèm chữ ký và cấu hình bảo mật, nhưng bên gọi **vẫn phải kết hợp việc xác minh chữ ký, nguồn tin cậy và policy uỷ quyền để đánh giá có đáng tin hay không.** Task, Message và Artifact trong giao thức giải quyết vấn đề liên thông; còn các đối tượng trùng tên trong chương này thì gánh trách nhiệm nghiệp vụ, trạng thái và ngữ nghĩa nghiệm thu - **hai bên phải được liên kết rõ ràng qua một tầng adapter.**
 
 A2A cung cấp nhiều cách cập nhật cho các task chạy dài. **Streaming** dùng để nhận event liên tục trong lúc kết nối còn giữ; **polling** cho phép bên gọi truy vấn trạng thái Task sau đó; còn **Push Notification** thì cho phép nhận cập nhật khi bên gọi không giữ kết nối. Ba thứ có thể tổ hợp theo điều kiện vận hành, **nhưng không nên mô tả gộp là "không chiếm kết nối".**
 
@@ -338,7 +338,7 @@ Model có thể tham gia vào việc hiểu nội dung task, nhận định năn
 
 ### 11.6.6 Tách mặt phẳng message khỏi trạng thái cộng tác
 
-Message phù hợp để lan truyền ý định, event, thông tin bàn giao và tham chiếu đối tượng. **Thông báo thông thường không được coi là căn cứ duy nhất cho việc task đã hoàn thành**; bên nhận phải truy vấn task và sản phẩm tương ứng. Nếu hệ thống dùng event sourcing thì cũng có thể để một event log bền vững hình thành state có thẩm quyền, nhưng phải có hợp đồng đầy đủ về event, thứ tự, lưu giữ và dựng lại — **không được đánh đồng một message queue bất kỳ với sổ cái task.**
+Message phù hợp để lan truyền ý định, event, thông tin bàn giao và tham chiếu đối tượng. **Thông báo thông thường không được coi là căn cứ duy nhất cho việc task đã hoàn thành**; bên nhận phải truy vấn task và sản phẩm tương ứng. Nếu hệ thống dùng event sourcing thì cũng có thể để một event log bền vững hình thành state có thẩm quyền, nhưng phải có hợp đồng đầy đủ về event, thứ tự, lưu giữ và dựng lại - **không được đánh đồng một message queue bất kỳ với sổ cái task.**
 
 Giao thức giao tiếp phải để message liên kết ổn định với Team, Task, Task Run, Session và Artifact tương ứng, đồng thời xử lý gửi trùng, thay đổi thứ tự và khôi phục sau mất kết nối. Sự thật cộng tác vẫn do Task State và Artifact duy trì, **tránh coi lịch sử hội thoại là Team State.**
 
@@ -384,7 +384,7 @@ Quyền hạn có thể tổ chức phân tầng theo quản trị tổ chức, 
 
 Quyền hiệu lực của một hành động là **giao** của quyền con người, ranh giới team, policy Agent, policy tài nguyên và phạm vi uỷ quyền; và **mọi từ chối tường minh đều được ưu tiên.** Việc bàn giao giữa các Agent **không mở rộng quyền hạn**: bên nhận chỉ được phạm vi tối thiểu cần cho task hiện tại và được cả hai bên cho phép. Với các bối cảnh như tool rủi ro cao, dữ liệu xuyên team, thao tác ghi lên production và vượt ngân sách, nên cấu hình phê duyệt của con người kết hợp mô hình rủi ro tổ chức; còn uỷ quyền khẩn thì **bắt buộc phải có thời hạn ngắn, lý do rõ ràng và rà soát hậu kiểm.**
 
-Mỗi Task Run cố định version policy và các kết quả quyết định then chốt. Policy thay đổi về sau **không viết lại sự thật lịch sử**, nhưng có thể quyết định có chấm dứt các task đang chạy hay không theo mức rủi ro. Kết quả từ chối phải trả về lý do hiểu được — ví dụ thiếu vai trò, uỷ quyền đã hết hạn, tài nguyên vượt ranh giới team, hay hành động cần phê duyệt — **chứ không chỉ trả về một câu "không có quyền" chung chung.**
+Mỗi Task Run cố định version policy và các kết quả quyết định then chốt. Policy thay đổi về sau **không viết lại sự thật lịch sử**, nhưng có thể quyết định có chấm dứt các task đang chạy hay không theo mức rủi ro. Kết quả từ chối phải trả về lý do hiểu được - ví dụ thiếu vai trò, uỷ quyền đã hết hạn, tài nguyên vượt ranh giới team, hay hành động cần phê duyệt - **chứ không chỉ trả về một câu "không có quyền" chung chung.**
 
 Quyền hạn của Agent phải phân biệt **hai hướng: vào và ra.** Quyền hướng vào quyết định "ai được gọi Agent, phát ra task gì"; quyền hướng ra quyết định "Agent được đại diện cho ai, truy cập tài nguyên bên ngoài nào và thực hiện thao tác gì". **Hai loại quyền được cấu hình độc lập, kiểm chứng riêng; không được vì bên gọi truy cập được Agent mà mặc định Agent truy cập được mọi tài nguyên bên gọi đang có.**
 
@@ -420,7 +420,7 @@ Log nên giữ lại context chẩn đoán cần thiết, nhưng **không ghi th
 
 Observability không chỉ quan tâm hệ thống có khả dụng hay không, mà còn phải trả lời **việc cộng tác trong team có hiệu quả hay không.** Nền tảng nên hỗ trợ đánh giá mức độ hoàn thành task, chất lượng kết quả, tính hiệu quả của việc bàn giao, mức liên quan của memory, tính hợp lý của việc chọn tool và tính nhất quán khi thực thi policy, đồng thời liên kết kết quả đánh giá tới đúng Task, Task Run và version Agent.
 
-Đánh giá có thể đến từ luật, model thẩm định, phản hồi nghiệp vụ hay con người rà soát. Đánh giá online dùng để phát hiện bất thường và suy giảm chất lượng; đánh giá offline dùng để so sánh version và kiểm chứng hồi quy. **Kết luận đánh giá phải lưu tách khỏi bản ghi sự thật, ghi rõ phương pháp, version và thời điểm đánh giá — tránh coi nhận định của model là sự thật vận hành không thể chất vấn.**
+Đánh giá có thể đến từ luật, model thẩm định, phản hồi nghiệp vụ hay con người rà soát. Đánh giá online dùng để phát hiện bất thường và suy giảm chất lượng; đánh giá offline dùng để so sánh version và kiểm chứng hồi quy. **Kết luận đánh giá phải lưu tách khỏi bản ghi sự thật, ghi rõ phương pháp, version và thời điểm đánh giá - tránh coi nhận định của model là sự thật vận hành không thể chất vấn.**
 
 Nền tảng nên hỗ trợ truy hồi và tổng hợp dữ liệu quan sát theo team, Agent, version, model, tool, policy và môi trường chạy, và từ task thất bại, bất thường chi phí hay sự cố vượt quyền mà định vị ngược về chủ thể chịu trách nhiệm cùng node thực thi cụ thể. **Cảnh báo nên ưu tiên dựa trên trạng thái vận hành ổn định và chỉ số tổng hợp, chứ không dựa trên trường cardinality cao hay một dòng log đơn lẻ.**
 

@@ -1,4 +1,4 @@
-# Chương 20 — Xử lý dữ liệu runtime của Agent
+# Chương 20 - Xử lý dữ liệu runtime của Agent
 
 Người phụ trách chăm sóc khách hàng nêu một yêu cầu cụ thể: mỗi ngày xem một lô hội thoại hoàn tiền, tìm ra các trường hợp "tool chưa làm được việc, mà Agent lại báo với người dùng là đã xong"; sau khi sửa prompt, còn phải dùng chính những ca đó để kiểm tra vấn đề có giảm không.
 
@@ -78,7 +78,7 @@ Phần xem trước cũng hợp để chốt luôn hình thái output tại ch�
 
 ### Tạo, chạy, rồi dùng kết quả trong Dataset
 
-Bấm "Tạo và khởi động" trên trang, vào phần "Thông tin task và chính sách lập lịch", điền tên task, mô tả, chọn "Chạy một lần", và đặt rõ thời gian xử lý là hôm qua. Trong phần "Output" thì điền tên dataset mới `refund_review_samples`. Trước khi gửi, hãy nhìn kỹ lại khoảng thời gian — khoảng thời gian đã chọn lúc xem trước không nhất thiết là khoảng sẽ chạy chính thức.
+Bấm "Tạo và khởi động" trên trang, vào phần "Thông tin task và chính sách lập lịch", điền tên task, mô tả, chọn "Chạy một lần", và đặt rõ thời gian xử lý là hôm qua. Trong phần "Output" thì điền tên dataset mới `refund_review_samples`. Trước khi gửi, hãy nhìn kỹ lại khoảng thời gian - khoảng thời gian đã chọn lúc xem trước không nhất thiết là khoảng sẽ chạy chính thức.
 
 Xác nhận xong thì bấm "Tạo và khởi động" lần nữa. Hệ thống tạo dataset output và task xử lý; lần chạy một lần sẽ vào hàng đợi. Sau đó xem cửa sổ dữ liệu, trạng thái, số dòng output và thời lượng trong "Lịch sử chạy" ở phần chi tiết task. Chạy xong thì quay lại "Cấu hình Pipeline", vào Dataset qua biểu tượng "Nhảy tới chi tiết dataset" trên card đích output, tìm mẫu theo một `trace_id` đã biết, rồi mở các trường ra đọc. Phần xem trước giúp ta chốt phương án, còn bước này thì giúp đội kiểm định có được dữ liệu truy vấn được và gán nhãn được.
 
@@ -86,7 +86,7 @@ Nếu kết quả rỗng, hãy xác nhận khoảng thời gian đã chọn có 
 
 ## 20.4 Thêm phần lấy mẫu và xử lý bằng AI theo nhu cầu thực tế
 
-Task đầu tiên chỉ cần sắp xếp tài liệu cho rõ ràng. Sau khi bắt đầu dùng, hãy tuỳ theo khối lượng soát, độ phủ kịch bản và cách phân tích mà thêm các phép xử lý — như vậy dễ đánh giá từng bước có ích không.
+Task đầu tiên chỉ cần sắp xếp tài liệu cho rõ ràng. Sau khi bắt đầu dùng, hãy tuỳ theo khối lượng soát, độ phủ kịch bản và cách phân tích mà thêm các phép xử lý - như vậy dễ đánh giá từng bước có ích không.
 
 ### Con người xem không xuể thì hãy thu về mức xử lý nổi
 
@@ -118,7 +118,7 @@ Khi mẫu của hôm qua đã dùng được, có thể dùng chính bộ xử l
 
 Khi cấu hình lần đầu, hãy nối khớp phạm vi bù dữ liệu lịch sử với thời điểm bắt đầu của chu kỳ tiếp theo. Về sau thì chủ yếu xem lịch sử chạy, tình hình thành công và thất bại trong phần chi tiết task, rồi lấy mẫu kiểm tra các bản ghi mới. Khi ứng dụng thêm kênh mới hay cách trả lời mới thì cũng phải cập nhật quy tắc xử lý tương ứng, để dataset chứa được những thay đổi đó.
 
-Tiếp theo hãy vào chức năng đánh giá, tạo task đánh giá mới lấy Dataset làm nguồn, chọn `refund_review_samples` cùng evaluator kiểm định hoàn tiền đã chuẩn bị, rồi ánh xạ các biến input, output, trajectory mà evaluator cần lần lượt sang `input`, `output`, `agent_trajectory`. Hãy chấm một lô mẫu trước, xem điểm, lý do và bằng chứng tương ứng — sẽ tìm ra được các ca chờ xử lý như "tool thất bại mà lại trả lời thành công". Sau khi bắt đầu kiểm định hằng ngày thì lấy các mẫu mới trong `refund_review_daily` làm tài liệu đánh giá.
+Tiếp theo hãy vào chức năng đánh giá, tạo task đánh giá mới lấy Dataset làm nguồn, chọn `refund_review_samples` cùng evaluator kiểm định hoàn tiền đã chuẩn bị, rồi ánh xạ các biến input, output, trajectory mà evaluator cần lần lượt sang `input`, `output`, `agent_trajectory`. Hãy chấm một lô mẫu trước, xem điểm, lý do và bằng chứng tương ứng - sẽ tìm ra được các ca chờ xử lý như "tool thất bại mà lại trả lời thành công". Sau khi bắt đầu kiểm định hằng ngày thì lấy các mẫu mới trong `refund_review_daily` làm tài liệu đánh giá.
 
 Người phụ trách nghiệp vụ nhìn thấy được vấn đề tập trung ở kịch bản nào, người phát triển cầm trajectory tương ứng để định vị và sửa, còn người làm đánh giá thì đưa các vấn đề đã xác nhận vào tài liệu hồi quy. Sau khi version mới chạy lại những task đó, thí nghiệm sẽ so sánh kết quả để đánh giá phần sửa có hữu hiệu không. Các bản ghi vận hành mới tiếp tục đi vào cùng task gia công đó, và việc chuẩn bị dữ liệu hằng ngày thế là nối được vào công việc tối ưu.
 
@@ -132,4 +132,4 @@ Khi dùng lâu dài, hãy giữ ba giao ước đơn giản: **độ mịn của
 
 Để đánh giá có đáng tiếp tục đầu tư không, cũng có thể nhìn xem công việc cụ thể đã trôi chảy hơn chưa: nhân viên kiểm định có còn phải đi tìm log gốc từng bản ghi không, thêm một loại kịch bản nghiệp vụ mới thì có đưa vào được bằng cách bổ sung trường và quy tắc không, người phát triển nhận vấn đề rồi có định vị được về đúng lần thực thi đó không. Nếu các khâu này đã nối được với nhau, thì việc thêm gom cụm ngữ nghĩa, dữ liệu tổng hợp hay phân tích bằng Agent phức tạp mới có mục đích rõ ràng. Một pipeline đơn giản mà output được dùng liên tục thường có giá trị hơn một pipeline cấu hình đủ thứ mà không ai tiêu thụ.
 
-Lần bàn giao đầu tiên của việc kiểm định hoàn tiền có thể rất rõ ràng: tìm được các task của hôm qua trong `refund_review_samples`, mở một dòng ra là đọc hiểu được câu hỏi, câu trả lời và quá trình xử lý, và khởi động đánh giá thì có được kết luận có căn cứ. Còn những bản ghi nào đáng giữ lâu dài, và qua sự xác nhận của con người thì thành golden set cùng tập hồi quy ra sao — chương sau sẽ triển khai tiếp.
+Lần bàn giao đầu tiên của việc kiểm định hoàn tiền có thể rất rõ ràng: tìm được các task của hôm qua trong `refund_review_samples`, mở một dòng ra là đọc hiểu được câu hỏi, câu trả lời và quá trình xử lý, và khởi động đánh giá thì có được kết luận có căn cứ. Còn những bản ghi nào đáng giữ lâu dài, và qua sự xác nhận của con người thì thành golden set cùng tập hồi quy ra sao - chương sau sẽ triển khai tiếp.

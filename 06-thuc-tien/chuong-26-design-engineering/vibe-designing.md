@@ -14,7 +14,7 @@ Chuyện này có ý nghĩa gì với nhà thiết kế? Không phải là "nhà
 
 Đó là một thay đổi về sức sản xuất, và cũng là một thay đổi về khuôn mẫu thiết kế.
 
-## Một — AI Coding đang trở thành một năng lực sáng tạo mang tính phổ thông
+## Một - AI Coding đang trở thành một năng lực sáng tạo mang tính phổ thông
 
 Thay đổi đang lặng lẽ diễn ra.
 
@@ -24,17 +24,17 @@ Thay đổi đang lặng lẽ diễn ra.
 
 ![jam.gif](../../assets/imgs/chapter-26/image-014.gif)
 
-**Ở tầng giáo dục**, cô Chen Xiaojiao ở Học viện Nghệ thuật và Khảo cổ, Đại học Chiết Giang, đã đưa AI Coding vào môn tính toán văn hoá, dẫn dắt sinh viên xoay quanh các chủ đề như văn hoá Nuo, nhạc cụ truyền thống, để nối nghiên cứu văn hoá, biểu đạt thị giác và trải nghiệm tương tác lại với nhau — biến những nội dung văn hoá vốn chỉ nằm trong hình ảnh và văn bản thành các tác phẩm số tương tác được, chạy được và lan truyền được.
+**Ở tầng giáo dục**, cô Chen Xiaojiao ở Học viện Nghệ thuật và Khảo cổ, Đại học Chiết Giang, đã đưa AI Coding vào môn tính toán văn hoá, dẫn dắt sinh viên xoay quanh các chủ đề như văn hoá Nuo, nhạc cụ truyền thống, để nối nghiên cứu văn hoá, biểu đạt thị giác và trải nghiệm tương tác lại với nhau - biến những nội dung văn hoá vốn chỉ nằm trong hình ảnh và văn bản thành các tác phẩm số tương tác được, chạy được và lan truyền được.
 
-Với giáo dục nghệ thuật — thiết kế, đó là một thay đổi rất lớn. Trước đây, nhiều sinh viên hình dung được một trải nghiệm tương tác, nhưng muốn thực sự làm ra thì thường cần bạn học bên kỹ thuật tham gia sâu. Giờ đây, sau khi nắm được công cụ AI Coding, sinh viên có thể chuyển hoá sáng tạo văn hoá truyền thống không còn dừng ở việc phong cách hoá hình ảnh, mà có cơ hội đi vào tầng tự sự động, trải nghiệm tương tác và hệ thống số.
+Với giáo dục nghệ thuật - thiết kế, đó là một thay đổi rất lớn. Trước đây, nhiều sinh viên hình dung được một trải nghiệm tương tác, nhưng muốn thực sự làm ra thì thường cần bạn học bên kỹ thuật tham gia sâu. Giờ đây, sau khi nắm được công cụ AI Coding, sinh viên có thể chuyển hoá sáng tạo văn hoá truyền thống không còn dừng ở việc phong cách hoá hình ảnh, mà có cơ hội đi vào tầng tự sự động, trải nghiệm tương tác và hệ thống số.
 
 ![khuon-mau-thiet-ke-ai-moi-0710.009.png](../../assets/imgs/chapter-26/image-015.png)
 
 [https://mp.weixin.qq.com/s/fKVXt6D3VW8ikS1XmW2J7g](https://mp.weixin.qq.com/s/fKVXt6D3VW8ikS1XmW2J7g)
 
-Từ một công cụ nhỏ của một nhà thiết kế, tới cách làm việc của một đội ngũ, rồi tới con đường sáng tác của giáo dục nghệ thuật — thiết kế, AI Coding đang trở thành một năng lực sáng tạo mang tính phổ thông.
+Từ một công cụ nhỏ của một nhà thiết kế, tới cách làm việc của một đội ngũ, rồi tới con đường sáng tác của giáo dục nghệ thuật - thiết kế, AI Coding đang trở thành một năng lực sáng tạo mang tính phổ thông.
 
-## Hai — Khuôn mẫu thiết kế AI mới do ý định dẫn dắt
+## Hai - Khuôn mẫu thiết kế AI mới do ý định dẫn dắt
 
 Sau khi công nghệ được bình đẳng hoá, một người nói ra ý định là Agent đã có cơ hội biến nó thành code, giao diện, công cụ và sản phẩm.
 
@@ -56,9 +56,9 @@ Từ ý định tới trải nghiệm, ở giữa không phải một prompt, c�
 
 > Design is the New Code.
 
-## Ba — Kỹ thuật thiết kế: đưa năng lực thiết kế vào chuỗi sinh của Agent
+## Ba - Kỹ thuật thiết kế: đưa năng lực thiết kế vào chuỗi sinh của Agent
 
-Kỹ thuật thiết kế giải quyết bài toán xây năng lực ở trạng thái R&D và trạng thái sáng tác: chuyển kinh nghiệm thiết kế, quy phạm component, tri thức nghiệp vụ, vật liệu văn hoá, phương pháp thiết kế và chuẩn nghiệm thu thành những tài sản kỹ thuật mà Agent gọi được, thực thi được, tái dùng được — để Agent khi sinh ra trải nghiệm sản phẩm hay tác phẩm văn hoá thì không còn sinh trần trụi, mà sinh trong đúng ngữ cảnh thật và hệ thiết kế thật.
+Kỹ thuật thiết kế giải quyết bài toán xây năng lực ở trạng thái R&D và trạng thái sáng tác: chuyển kinh nghiệm thiết kế, quy phạm component, tri thức nghiệp vụ, vật liệu văn hoá, phương pháp thiết kế và chuẩn nghiệm thu thành những tài sản kỹ thuật mà Agent gọi được, thực thi được, tái dùng được - để Agent khi sinh ra trải nghiệm sản phẩm hay tác phẩm văn hoá thì không còn sinh trần trụi, mà sinh trong đúng ngữ cảnh thật và hệ thiết kế thật.
 
 Vì vậy, việc đầu tiên mà kỹ thuật thiết kế phải làm không phải tiếp tục chồng prompt, mà là chủ động mở hộp đen của Agent ra để hiểu nó sinh ra kết quả thế nào. Nếu giao hết các quá trình đó cho một model trần, nó sẽ sinh theo kinh nghiệm đa dụng; còn nếu ta cấp năng lực thiết kế cho nó một cách có kỹ thuật, thì nó có cơ hội sinh theo đúng ngữ nghĩa nghiệp vụ, hệ component và chuẩn trải nghiệm của ta.
 
@@ -66,7 +66,7 @@ Vì vậy, việc đầu tiên mà kỹ thuật thiết kế phải làm không 
 
 Trong CloudAI, chúng tôi tách kỹ thuật thiết kế thành hai loại năng lực:
 
-**Loại thứ nhất là khai báo thiết kế, trả lời câu thế nào là thiết kế tốt.** Nó gồm cấu trúc sản phẩm, ngữ nghĩa nghiệp vụ, phong cách thiết kế, logic tương tác, ràng buộc component và các nguyên tắc trải nghiệm chung — để Agent không còn sinh trong một không gian trừu tượng, mà sinh trong ngữ cảnh nghiệp vụ thật.
+**Loại thứ nhất là khai báo thiết kế, trả lời câu thế nào là thiết kế tốt.** Nó gồm cấu trúc sản phẩm, ngữ nghĩa nghiệp vụ, phong cách thiết kế, logic tương tác, ràng buộc component và các nguyên tắc trải nghiệm chung - để Agent không còn sinh trong một không gian trừu tượng, mà sinh trong ngữ cảnh nghiệp vụ thật.
 
 **Loại thứ hai là hợp đồng thực thi, trả lời câu làm ra thiết kế tốt bằng cách nào.** Đây chính là cốt lõi của kỹ thuật thiết kế: chúng tôi không để Agent tự do phát huy, mà biến kinh nghiệm, quy trình và nhận định của nhà thiết kế thành năng lực của Agent.
 
@@ -82,13 +82,13 @@ Năng lực thiết kế đang đi vào hiện trường kỹ thuật, trở th�
 
 > GenUI is the New Interface.
 
-## Bốn — Tương tác động: trải nghiệm được tổ chức theo thời gian thực theo ý định
+## Bốn - Tương tác động: trải nghiệm được tổ chức theo thời gian thực theo ý định
 
-Tương tác và giao diện của phần mềm truyền thống được đặt sẵn: người dùng phải hiểu menu ở đâu, chức năng ở đâu, đường đi thế nào, rồi từng bước hoàn thành task. Còn sản phẩm AI Native thì chuyển từ "con người hiểu hệ thống ra sao" sang "Agent hiểu ý định con người ra sao và giúp con người đạt mục tiêu ra sao" — thay đổi này có thể tóm thành bước chuyển từ UX sang **AX (Agent eXperience)**.
+Tương tác và giao diện của phần mềm truyền thống được đặt sẵn: người dùng phải hiểu menu ở đâu, chức năng ở đâu, đường đi thế nào, rồi từng bước hoàn thành task. Còn sản phẩm AI Native thì chuyển từ "con người hiểu hệ thống ra sao" sang "Agent hiểu ý định con người ra sao và giúp con người đạt mục tiêu ra sao" - thay đổi này có thể tóm thành bước chuyển từ UX sang **AX (Agent eXperience)**.
 
 ![khuon-mau-thiet-ke-ai-moi-0710.029.png](../../assets/imgs/chapter-26/image-019.png)
 
-Nếu nói kỹ thuật thiết kế diễn ra chủ yếu ở trạng thái R&D, thì tương tác động diễn ra chủ yếu ở trạng thái vận hành của sản phẩm, giải quyết bài toán trải nghiệm AX lúc chạy (Runtime): tức là sau khi người dùng diễn đạt ý định, sản phẩm Agent dựa vào context của kịch bản mà gọi các luật thiết kế và component để tổ chức động một đoạn quá trình tương tác — đó chính là **Generative UI**.
+Nếu nói kỹ thuật thiết kế diễn ra chủ yếu ở trạng thái R&D, thì tương tác động diễn ra chủ yếu ở trạng thái vận hành của sản phẩm, giải quyết bài toán trải nghiệm AX lúc chạy (Runtime): tức là sau khi người dùng diễn đạt ý định, sản phẩm Agent dựa vào context của kịch bản mà gọi các luật thiết kế và component để tổ chức động một đoạn quá trình tương tác - đó chính là **Generative UI**.
 
 ![image.png](../../assets/imgs/chapter-26/image-020.png)
 
@@ -102,7 +102,7 @@ Vì vậy, **GenUI is the New Interface**: thứ mà tương tác động thực
 
 > Taste is the New Engine.
 
-## Năm — Tự tiến hoá: gu thẩm mỹ kéo lực căng của thiết kế
+## Năm - Tự tiến hoá: gu thẩm mỹ kéo lực căng của thiết kế
 
 Kỹ thuật thiết kế giải quyết chuyện Agent hiểu năng lực chuyên môn của ta ra sao; tương tác động giải quyết chuyện Agent tổ chức trải nghiệm theo ý định người dùng ra sao. Nhưng chỉ có hai tầng năng lực đó thì vẫn chưa đủ.
 
@@ -126,7 +126,7 @@ Mấu chốt của việc tự tiến hoá là kết tinh những luật chất 
 
 Từ một lần sinh tới tự tiến hoá, gu thẩm mỹ sẽ trở thành sức mạnh kéo trải nghiệm lớn lên không ngừng.
 
-## Sáu — Nhà thiết kế vẫn nói bằng tác phẩm, chỉ là hình thái tác phẩm đã đổi
+## Sáu - Nhà thiết kế vẫn nói bằng tác phẩm, chỉ là hình thái tác phẩm đã đổi
 
 Trong thời đại AI, nhà thiết kế tất nhiên vẫn phải nói bằng tác phẩm. Chỉ có điều tác phẩm hôm nay có thể không còn chỉ là một tấm hình tĩnh, cũng không còn chỉ là một file Figma. Nó có thể là một website động tương tác được, có thể là một bộ Design skill mà Agent gọi được, có thể là một nhóm evaluator liên tục tuần tra chất lượng trải nghiệm, và cũng có thể là một cơ chế Runtime tổ chức dữ liệu nghiệp vụ, component và luật thành trải nghiệm.
 

@@ -1,4 +1,4 @@
-# Chương 14 — Bảo mật Agent
+# Chương 14 - Bảo mật Agent
 
 # 14.1 Rủi ro và thách thức bảo mật của Agent
 
@@ -8,13 +8,13 @@ Một đợt đánh giá bảo mật của OpenAI bị phơi ra hồi tháng 7 �
 
 Cùng lúc đó, trong một đợt đánh giá bảo mật khác của Viện An toàn AI Anh, **10 trong số 122 lần chạy xuất hiện hành vi vượt biên.** Những sự kiện này xảy ra trong môi trường đánh giá đã hạ bớt một phần lớp phòng thủ, **nhưng đã cho thấy tầm quan trọng của việc ràng buộc ranh giới thực thi.**
 
-Vì vậy, bước sang năm 2026, bảo mật Agent đã nâng cấp toàn diện: **bắt buộc phải có cả phòng thủ lẫn kiểm soát.** Agent vừa là **đối tượng bị tấn công**, vừa là **chủ thể hành vi**: với vai đối tượng, nó đối mặt với các mối đe doạ như đầu độc chuỗi cung ứng, prompt injection và jailbreak, xâm nhập hệ thống và mạng; với vai chủ thể, nó nắm giữ định danh và quyền hạn, tự chủ gọi tool, tiếp xúc dữ liệu nhạy cảm — **ngay cả khi không bị tấn công, nó vẫn có thể gây thiệt hại vì hành vi vượt biên.** Vì vậy, bảo mật Agent vừa phải giải quyết chuyện **"không bị chọc thủng"**, vừa quan trọng hơn là chuyện **"không vượt ranh giới".**
+Vì vậy, bước sang năm 2026, bảo mật Agent đã nâng cấp toàn diện: **bắt buộc phải có cả phòng thủ lẫn kiểm soát.** Agent vừa là **đối tượng bị tấn công**, vừa là **chủ thể hành vi**: với vai đối tượng, nó đối mặt với các mối đe doạ như đầu độc chuỗi cung ứng, prompt injection và jailbreak, xâm nhập hệ thống và mạng; với vai chủ thể, nó nắm giữ định danh và quyền hạn, tự chủ gọi tool, tiếp xúc dữ liệu nhạy cảm - **ngay cả khi không bị tấn công, nó vẫn có thể gây thiệt hại vì hành vi vượt biên.** Vì vậy, bảo mật Agent vừa phải giải quyết chuyện **"không bị chọc thủng"**, vừa quan trọng hơn là chuyện **"không vượt ranh giới".**
 
-**Phòng thủ là cái khiên.** Từ tài sản và chuỗi cung ứng, tới input–output của model, rồi tới môi trường vận hành hệ thống và mạng — bố trí phòng thủ chiều sâu toàn stack theo từng lớp, để cuộc tấn công không thắng được ở bất kỳ tầng nào. **Kiểm soát là dây cương.** Bằng định danh–xác thực, nhận diện ý định, kiểm tra từng lời gọi, uỷ quyền lần hai cho thao tác rủi ro cao và chặn dữ liệu rời khỏi biên — ràng buộc mỗi hành động tự chủ của Agent trong một ranh giới kiểm soát được. **Khiên bảo đảm nó không bị lợi dụng; dây cương bảo đảm nó không bị buông lỏng.**
+**Phòng thủ là cái khiên.** Từ tài sản và chuỗi cung ứng, tới input–output của model, rồi tới môi trường vận hành hệ thống và mạng - bố trí phòng thủ chiều sâu toàn stack theo từng lớp, để cuộc tấn công không thắng được ở bất kỳ tầng nào. **Kiểm soát là dây cương.** Bằng định danh–xác thực, nhận diện ý định, kiểm tra từng lời gọi, uỷ quyền lần hai cho thao tác rủi ro cao và chặn dữ liệu rời khỏi biên - ràng buộc mỗi hành động tự chủ của Agent trong một ranh giới kiểm soát được. **Khiên bảo đảm nó không bị lợi dụng; dây cương bảo đảm nó không bị buông lỏng.**
 
 ![Ảnh chụp màn hình 2026-09-14 13.53.20.png](../assets/imgs/chapter-14/image-001.png)
 
-**Chiều sâu quyết định năng lực, chiều rộng quyết định ứng phó với cái gì.** Điều đó được cụ thể hoá thành: ở mỗi tầng công nghệ — từ hạ tầng, tới định danh, dữ liệu và ứng dụng — đều đồng thời gánh cả phòng thủ lẫn kiểm soát; và mỗi yêu cầu kiểm soát đều được triển khai xuyên suốt toàn stack. **Chỉ khi có đủ cả phòng thủ và kiểm soát, ta mới vừa trao nhiều quyền hơn cho Agent vừa giữ cho rủi ro luôn hội tụ — khi đó Agent mới thực sự "mở ra được mà vẫn quản được".**
+**Chiều sâu quyết định năng lực, chiều rộng quyết định ứng phó với cái gì.** Điều đó được cụ thể hoá thành: ở mỗi tầng công nghệ - từ hạ tầng, tới định danh, dữ liệu và ứng dụng - đều đồng thời gánh cả phòng thủ lẫn kiểm soát; và mỗi yêu cầu kiểm soát đều được triển khai xuyên suốt toàn stack. **Chỉ khi có đủ cả phòng thủ và kiểm soát, ta mới vừa trao nhiều quyền hơn cho Agent vừa giữ cho rủi ro luôn hội tụ - khi đó Agent mới thực sự "mở ra được mà vẫn quản được".**
 
 # 14.2 Bảo vệ an toàn ứng dụng
 
@@ -74,7 +74,7 @@ Song song với việc giới hạn phạm vi thực thi, cần liên tục quan
 
 ## 14.3.1 Bối cảnh và thách thức
 
-Khi công nghệ mô hình lớn thẩm thấu ngày càng nhanh vào ứng dụng AI-native, AI Agent — với tư cách vật mang cốt lõi có năng lực cảm nhận, ra quyết định và thực thi — đang được dùng rộng rãi trong các bối cảnh tương tác trực tiếp với người dùng như chăm sóc khách hàng thông minh, trợ lý ảo, hỏi–đáp tri thức. Tuy nhiên, tính mở, tính tự chủ cùng đặc tính input–output đa phương thức của nó cũng **mở rộng đáng kể diện rủi ro của hệ thống.** AI Agent không chỉ phải hiểu chỉ dẫn ngôn ngữ tự nhiên của người dùng, mà còn phải xử lý input đa phương thức, truy cập kho tri thức bên ngoài, gọi interface hàm, thậm chí sinh nội dung có cấu trúc hay thực hiện thao tác. Chuỗi hành vi này khiến nó **trở thành lối vào then chốt cho việc thâm nhập tấn công, mất kiểm soát nội dung và rò rỉ dữ liệu.** Vì vậy, xây dựng cơ chế phòng thủ hạt mịn, phủ toàn quy trình theo đúng đặc điểm vận hành của AI Agent là tiền đề cốt lõi để ứng dụng mô hình lớn triển khai một cách đáng tin cậy.
+Khi công nghệ mô hình lớn thẩm thấu ngày càng nhanh vào ứng dụng AI-native, AI Agent - với tư cách vật mang cốt lõi có năng lực cảm nhận, ra quyết định và thực thi - đang được dùng rộng rãi trong các bối cảnh tương tác trực tiếp với người dùng như chăm sóc khách hàng thông minh, trợ lý ảo, hỏi–đáp tri thức. Tuy nhiên, tính mở, tính tự chủ cùng đặc tính input–output đa phương thức của nó cũng **mở rộng đáng kể diện rủi ro của hệ thống.** AI Agent không chỉ phải hiểu chỉ dẫn ngôn ngữ tự nhiên của người dùng, mà còn phải xử lý input đa phương thức, truy cập kho tri thức bên ngoài, gọi interface hàm, thậm chí sinh nội dung có cấu trúc hay thực hiện thao tác. Chuỗi hành vi này khiến nó **trở thành lối vào then chốt cho việc thâm nhập tấn công, mất kiểm soát nội dung và rò rỉ dữ liệu.** Vì vậy, xây dựng cơ chế phòng thủ hạt mịn, phủ toàn quy trình theo đúng đặc điểm vận hành của AI Agent là tiền đề cốt lõi để ứng dụng mô hình lớn triển khai một cách đáng tin cậy.
 
 Việc bảo vệ ở tầng ứng dụng Web truyền thống chủ yếu gồm bảo mật ứng dụng Web, bảo mật API và chống crawler; còn các mối đe doạ ứng dụng cốt lõi mà Agent đối mặt đã vượt phạm vi ứng dụng Web truyền thống, và cần ứng phó một cách hệ thống với ba nhóm bối cảnh rủi ro cao liên quan tới bảo mật model:
 
@@ -100,13 +100,13 @@ Việc bảo vệ ở tầng ứng dụng Web truyền thống chủ yếu gồm
 
 *   **Chặn URL độc hại:** khi Agent thực hiện tìm kiếm web, truy hồi tri thức hay gọi API bên ngoài, nó có thể parse hoặc sinh ra link lừa đảo, địa chỉ website độc hại. Bằng việc đánh giá rủi ro thời gian thực và khớp blacklist cho mọi URL, ta ngăn Agent trở thành bàn đạp tấn công hay dụ người dùng truy cập site rủi ro cao, bảo vệ người dùng cuối.
 
-*   **Cơ chế chống cào qua prompt:** kẻ tấn công có thể dựng một chuỗi prompt cụ thể để liên tục thăm dò nội dung kho tri thức RAG hay dữ liệu huấn luyện model qua Agent — tức tấn công Prompt Crawling. Bằng phân tích hành vi động và nhận dạng mẫu, ta nhận diện tần suất truy vấn và ý định ngữ nghĩa bất thường, kịp chặn rủi ro tài sản dữ liệu bị đánh cắp một cách hệ thống.
+*   **Cơ chế chống cào qua prompt:** kẻ tấn công có thể dựng một chuỗi prompt cụ thể để liên tục thăm dò nội dung kho tri thức RAG hay dữ liệu huấn luyện model qua Agent - tức tấn công Prompt Crawling. Bằng phân tích hành vi động và nhận dạng mẫu, ta nhận diện tần suất truy vấn và ý định ngữ nghĩa bất thường, kịp chặn rủi ro tài sản dữ liệu bị đánh cắp một cách hệ thống.
 
 *   **Phát hiện jailbreak model:** qua một số input đặc thù, kẻ tấn công có thể phá vỡ cơ chế an toàn định trước của mô hình lớn, khiến nó sinh ra nội dung trái đạo đức, pháp luật hay giá trị thông thường. Để ứng phó với kiểu tấn công này, ngoài việc triển khai phòng thủ prompt ở khâu input phía trước, ta còn phát hiện và đánh giá jailbreak trên kết quả output của model, tạo nên sự bảo đảm toàn chuỗi, nhiều khâu.
 
 *   **Kìm chế ảo giác model:** do thiếu cơ chế kiểm chứng với thế giới thật, Agent dễ sinh "ảo giác" trong lúc suy luận, xuất ra thông tin trông hợp lý nhưng sai sự thật (như bịa quy định, lời khuyên y tế sai). Bằng việc đối chiếu tính nhất quán của thông tin context và cơ chế đối chiếu tri thức bên ngoài, ta kiểm chứng độ tin cậy của output Agent tại các nút quyết định then chốt, giảm đáng kể xác suất nhận định sai trong các lĩnh vực rủi ro cao.
 
-*   **Đánh dấu watermark số:** khi Agent sinh hình ảnh và nội dung khác, guardrail an toàn sẽ tự động chèn watermark số nhìn thấy được hay không nhìn thấy được theo *Quy định về đánh dấu nội dung tổng hợp do trí tuệ nhân tạo tạo ra*, để nội dung AIGC **truy nguyên được, audit được**, ngăn việc lan truyền thông tin giả và tranh chấp bản quyền — thực sự làm được "sinh ra có dấu vết, trách nhiệm truy được".
+*   **Đánh dấu watermark số:** khi Agent sinh hình ảnh và nội dung khác, guardrail an toàn sẽ tự động chèn watermark số nhìn thấy được hay không nhìn thấy được theo *Quy định về đánh dấu nội dung tổng hợp do trí tuệ nhân tạo tạo ra*, để nội dung AIGC **truy nguyên được, audit được**, ngăn việc lan truyền thông tin giả và tranh chấp bản quyền - thực sự làm được "sinh ra có dấu vết, trách nhiệm truy được".
 
 Lấy AI Guardrail của Alibaba Cloud làm ví dụ: dựa trên engine kiểm duyệt bằng mô hình lớn tự phát triển, nó không chỉ phủ toàn diện các mối đe doạ đã biết, mà còn dựa vào nền công nghệ mô hình Tongyi để liên tục tiến hoá năng lực kiểm duyệt đa phương thức, hỗ trợ xử lý mức đồng thời cao với độ trễ mili-giây, cân bằng giữa an toàn và tính khả dụng. Đồng thời, thông qua cấu hình policy trực quan, whitelist/blacklist tuỳ biến và điều chỉnh ngưỡng linh hoạt, nó đáp ứng được nhu cầu tuân thủ khác biệt của khách hàng ở các ngành khác nhau.
 
@@ -114,7 +114,7 @@ Lấy AI Guardrail của Alibaba Cloud làm ví dụ: dựa trên engine kiểm 
 
 **Model an toàn tổng quát khó nhận diện được rủi ro nghiệp vụ riêng của từng doanh nghiệp**; các ngành như tài chính, chăm sóc khách hàng, tìm kiếm đều đối mặt với thách thức tuân thủ mang tính tuỳ biến trong ứng dụng AI của mình. Doanh nghiệp cần những **model kiểm duyệt "nghe hiểu được ngôn ngữ nghiệp vụ"** để nhận diện các rủi ro đặc thù.
 
-**Agent phát hiện tuỳ biến** có thể đáp ứng nhu cầu nhận diện rủi ro nghiệp vụ đặc thù của khách hàng ở các ngành khác nhau. Đây là một module phát hiện thông minh hỗ trợ người dùng tự định nghĩa nhãn và prompt, có thể nhận diện chính xác các rủi ro nghiệp vụ đặc thù theo ngành, theo bối cảnh. Nó đưa vào các model thuật toán chuyên dụng và hỗ trợ cấu hình linh hoạt cho nhiều ngành, nhiều bối cảnh — qua đó **nâng cấp năng lực phát hiện an toàn từ tổng quát lên chuyên biệt.**
+**Agent phát hiện tuỳ biến** có thể đáp ứng nhu cầu nhận diện rủi ro nghiệp vụ đặc thù của khách hàng ở các ngành khác nhau. Đây là một module phát hiện thông minh hỗ trợ người dùng tự định nghĩa nhãn và prompt, có thể nhận diện chính xác các rủi ro nghiệp vụ đặc thù theo ngành, theo bối cảnh. Nó đưa vào các model thuật toán chuyên dụng và hỗ trợ cấu hình linh hoạt cho nhiều ngành, nhiều bối cảnh - qua đó **nâng cấp năng lực phát hiện an toàn từ tổng quát lên chuyên biệt.**
 
 Trong tương lai, khi năng lực Agent tiếp tục tiến hoá, AI guardrail native cũng phải nâng cấp đồng bộ, hướng tới bảo đảm tính an toàn và kiểm soát được của nó trong các bối cảnh phức tạp, tạo phòng tuyến vững chắc cho sự phát triển bền vững của ứng dụng AI-native.
 
@@ -130,11 +130,11 @@ Việc ứng dụng và sử dụng mô hình lớn trên cloud có ba nhóm r�
 
 *   **Rủi ro dữ liệu trong huấn luyện model**
 
-Trước hết, trong quá trình huấn luyện model, người dùng đối mặt với các yếu tố như dữ liệu gốc bị đầu độc, việc làm sạch dữ liệu chưa hoàn thiện, lưu trữ dữ liệu không an toàn — những thứ này gây ra rủi ro an toàn cho model và ứng dụng trong quá trình huấn luyện cũng như sử dụng. Kế đến, khách hàng doanh nghiệp quan tâm tới việc mã hoá và chống tấn công cho bí mật thương mại trong lúc truyền và lưu trữ, cùng việc giới hạn quyền hạn trong quá trình ứng dụng xử lý. Với người dùng cá nhân, phải bảo đảm quyền kiểm soát và tính an toàn với dữ liệu cá nhân của họ, bảo đảm sự đồng ý có hiểu biết đối với việc xử lý dữ liệu. Ngoài ra, cần kiện toàn và hoàn thiện cơ chế an toàn model, **ngăn việc suy ngược ra dữ liệu gốc từ output của model** dẫn tới rò rỉ dữ liệu nhạy cảm.
+Trước hết, trong quá trình huấn luyện model, người dùng đối mặt với các yếu tố như dữ liệu gốc bị đầu độc, việc làm sạch dữ liệu chưa hoàn thiện, lưu trữ dữ liệu không an toàn - những thứ này gây ra rủi ro an toàn cho model và ứng dụng trong quá trình huấn luyện cũng như sử dụng. Kế đến, khách hàng doanh nghiệp quan tâm tới việc mã hoá và chống tấn công cho bí mật thương mại trong lúc truyền và lưu trữ, cùng việc giới hạn quyền hạn trong quá trình ứng dụng xử lý. Với người dùng cá nhân, phải bảo đảm quyền kiểm soát và tính an toàn với dữ liệu cá nhân của họ, bảo đảm sự đồng ý có hiểu biết đối với việc xử lý dữ liệu. Ngoài ra, cần kiện toàn và hoàn thiện cơ chế an toàn model, **ngăn việc suy ngược ra dữ liệu gốc từ output của model** dẫn tới rò rỉ dữ liệu nhạy cảm.
 
 *   **Xây dựng model: khả năng kiểm soát của người dùng với dữ liệu**
 
-Người dùng cần hiểu và kiểm soát được tình hình model sử dụng dữ liệu, tránh để dữ liệu người dùng bị dùng cho việc huấn luyện model khi chưa được uỷ quyền, làm phá vỡ trạng thái bí mật của dữ liệu và pha loãng giá trị thương mại. Sự phụ thuộc của AI truyền thống vào dữ liệu hành vi người dùng đã khiến quan niệm "dữ liệu ứng dụng sẽ bị dùng cho model" ăn sâu, thậm chí tiến hoá thành sự dè chừng của người dùng với các ứng dụng thông minh. Người dùng lo rằng dữ liệu họ upload hay dữ liệu tương tác với model — đặc biệt là bí mật thương mại của doanh nghiệp — bị công khai khi chưa được uỷ quyền, hoặc bị dùng để huấn luyện lần hai, biến thành ngữ liệu nâng cao năng lực model cho nhà cung cấp.
+Người dùng cần hiểu và kiểm soát được tình hình model sử dụng dữ liệu, tránh để dữ liệu người dùng bị dùng cho việc huấn luyện model khi chưa được uỷ quyền, làm phá vỡ trạng thái bí mật của dữ liệu và pha loãng giá trị thương mại. Sự phụ thuộc của AI truyền thống vào dữ liệu hành vi người dùng đã khiến quan niệm "dữ liệu ứng dụng sẽ bị dùng cho model" ăn sâu, thậm chí tiến hoá thành sự dè chừng của người dùng với các ứng dụng thông minh. Người dùng lo rằng dữ liệu họ upload hay dữ liệu tương tác với model - đặc biệt là bí mật thương mại của doanh nghiệp - bị công khai khi chưa được uỷ quyền, hoặc bị dùng để huấn luyện lần hai, biến thành ngữ liệu nâng cao năng lực model cho nhà cung cấp.
 
 *   **Ứng dụng model: thao tác audit được và trách nhiệm truy nguyên được**
 
@@ -146,19 +146,19 @@ Một mặt, cần ràng buộc trước về nguyên tắc đối với trách 
 
 ## 14.4.2 Khung phòng thủ
 
-Để ứng phó với các thách thức an toàn dữ liệu nêu trên và giảm mối lo của người dùng về an toàn dữ liệu trên nền tảng dịch vụ mô hình lớn, cần dựa trên cơ chế và năng lực phòng thủ nền tảng của cloud, **lấy dữ liệu của dịch vụ mô hình lớn làm đối tượng bảo vệ trọng tâm**, xoay quanh nhu cầu bảo đảm an toàn dữ liệu trong toàn vòng đời — thu thập, truyền, lưu trữ, truy cập, xử lý, xoá — để phủ mọi khâu bảo vệ an toàn dữ liệu của dịch vụ mô hình lớn. Từ đó xây năng lực phòng thủ **"nền tảng public cloud + nền tảng dịch vụ mô hình lớn"**, và kiểm chứng tính tuân thủ của chính mình qua audit nghiêm ngặt của tổ chức uy tín bên thứ ba, tạo nên hệ bảo đảm an toàn dữ liệu **"nền tảng đáng tin, đường truyền đáng tin, dữ liệu kiểm soát được, tự chủ chọn được, thao tác audit được, trách nhiệm truy được".**
+Để ứng phó với các thách thức an toàn dữ liệu nêu trên và giảm mối lo của người dùng về an toàn dữ liệu trên nền tảng dịch vụ mô hình lớn, cần dựa trên cơ chế và năng lực phòng thủ nền tảng của cloud, **lấy dữ liệu của dịch vụ mô hình lớn làm đối tượng bảo vệ trọng tâm**, xoay quanh nhu cầu bảo đảm an toàn dữ liệu trong toàn vòng đời - thu thập, truyền, lưu trữ, truy cập, xử lý, xoá - để phủ mọi khâu bảo vệ an toàn dữ liệu của dịch vụ mô hình lớn. Từ đó xây năng lực phòng thủ **"nền tảng public cloud + nền tảng dịch vụ mô hình lớn"**, và kiểm chứng tính tuân thủ của chính mình qua audit nghiêm ngặt của tổ chức uy tín bên thứ ba, tạo nên hệ bảo đảm an toàn dữ liệu **"nền tảng đáng tin, đường truyền đáng tin, dữ liệu kiểm soát được, tự chủ chọn được, thao tác audit được, trách nhiệm truy được".**
 
 ![image](../assets/imgs/chapter-14/image-005.png)
 
 ## 14.4.3 Xây dựng bảo đảm an toàn cho toàn vòng đời của toàn bộ dữ liệu
 
-Xây dựng bảo đảm an toàn cho toàn vòng đời của toàn bộ dữ liệu hướng tới mô hình lớn và Agent: bằng cách tăng cường các biện pháp kỹ thuật an toàn cho việc thu thập, truyền, lưu trữ, truy cập, xử lý và xoá dữ liệu trong suy luận model, fine-tune và RAG; tích hợp năng lực của nhiều sản phẩm bảo mật cloud-native như bảo mật dữ liệu, dịch vụ quản lý khoá (KMS), an toàn nội dung và kiểm soát truy cập (RAM) — nhằm đáp ứng nhu cầu bảo vệ dữ liệu AI linh hoạt, cấu hình được và mở rộng được của các khách hàng mục tiêu có yêu cầu an toàn dữ liệu cao.
+Xây dựng bảo đảm an toàn cho toàn vòng đời của toàn bộ dữ liệu hướng tới mô hình lớn và Agent: bằng cách tăng cường các biện pháp kỹ thuật an toàn cho việc thu thập, truyền, lưu trữ, truy cập, xử lý và xoá dữ liệu trong suy luận model, fine-tune và RAG; tích hợp năng lực của nhiều sản phẩm bảo mật cloud-native như bảo mật dữ liệu, dịch vụ quản lý khoá (KMS), an toàn nội dung và kiểm soát truy cập (RAM) - nhằm đáp ứng nhu cầu bảo vệ dữ liệu AI linh hoạt, cấu hình được và mở rộng được của các khách hàng mục tiêu có yêu cầu an toàn dữ liệu cao.
 
 ### 1. Thu thập dữ liệu
 
 #### (1) Nguồn dữ liệu
 
-Trong các bối cảnh phổ biến khi người dùng dùng nền tảng dịch vụ mô hình lớn — suy luận model, RAG, fine-tune — chủ yếu liên quan tới các nguồn dữ liệu sau:
+Trong các bối cảnh phổ biến khi người dùng dùng nền tảng dịch vụ mô hình lớn - suy luận model, RAG, fine-tune - chủ yếu liên quan tới các nguồn dữ liệu sau:
 
 ##### a. Dữ liệu do người dùng upload
 
@@ -166,7 +166,7 @@ Trong các bối cảnh phổ biến khi người dùng dùng nền tảng dịc
 
 *   **Dữ liệu kho tri thức:** lấy nền tảng Alibaba Cloud Bailian làm ví dụ, nó cung cấp năng lực RAG và ứng dụng Agent; ở đây liên quan tới các tài liệu phi cấu trúc mà người dùng upload (pdf, doc, pptx, word, md…), cùng dữ liệu trung gian và dữ liệu vector hoá mà nền tảng Bailian sinh ra sau khi gia công để phù hợp cho RAG. Nói gọn: tài liệu gốc upload lên, kết quả trung gian sau khi parse, và dữ liệu vector hoá tiện cho việc truy hồi RAG.
 
-*   **Dữ liệu đa phương thức:** lấy nền tảng Alibaba Cloud Bailian làm ví dụ, nó cung cấp các model đa phương thức như model hiểu thị giác VL, model sinh ảnh Wanxiang, model ASR, model TTS — liên quan tới việc upload và xử lý dữ liệu đa phương thức như hình ảnh, âm thanh, video.
+*   **Dữ liệu đa phương thức:** lấy nền tảng Alibaba Cloud Bailian làm ví dụ, nó cung cấp các model đa phương thức như model hiểu thị giác VL, model sinh ảnh Wanxiang, model ASR, model TTS - liên quan tới việc upload và xử lý dữ liệu đa phương thức như hình ảnh, âm thanh, video.
 
 ##### b. File model và dữ liệu suy luận
 
@@ -184,7 +184,7 @@ Phân loại – phân cấp dữ liệu là nền của bảo mật và quản 
 
 Lấy Data Security Center của Alibaba Cloud làm ví dụ: năng lực phân loại – phân cấp mà nó cung cấp sẽ nhận diện tính nhạy cảm của dữ liệu từ góc độ quản lý quyền hạn, và chia dữ liệu thành 4 cấp an toàn S1, S2, S3, S4 dựa trên nhiều góc độ như giá trị dữ liệu, tính nhạy cảm, tuân thủ dữ liệu và nhu cầu nghiệp vụ. Nó hỗ trợ nhận diện cả dữ liệu có cấu trúc lẫn phi cấu trúc, và cung cấp template dựng sẵn, model nhận diện, năng lực nhận diện đặc trưng; các template dựng sẵn phủ nhiều bối cảnh ngành như Internet tổng quát, ngành tài chính, ngành điện lực, xe kết nối và các bối cảnh bảo đảm trọng điểm. Template phân loại – phân cấp chủ yếu dựa trên (nhưng không giới hạn ở) *GB/T 35273-2020 Quy phạm an toàn thông tin cá nhân và model nhận diện dữ liệu tổng quát*, *JRT 0197-2020 Hướng dẫn phân cấp an toàn dữ liệu tài chính*, *YDT3751-2020 Yêu cầu kỹ thuật an toàn dữ liệu dịch vụ thông tin xe kết nối*, cùng thực tiễn tốt nhất về quản trị dữ liệu của Alibaba. Nó cũng hỗ trợ template phân loại – phân cấp do người dùng tự định nghĩa, và AI tự sinh policy an toàn.
 
-Trong thực tế, do quy định của các quốc gia, khu vực không giống nhau, và môi trường người dùng thực tế có rất nhiều dữ liệu nhạy cảm cao mang tính đặc thù, người dùng thường phải kết hợp nhu cầu của mình để liên tục cập nhật, bổ sung trên nền các yêu cầu của tiêu chuẩn quốc gia và ngành. Vì dữ liệu nhạy cảm cao của người dùng có thể **không nằm trong phạm vi loại được liệt kê ở phụ lục của văn bản pháp quy**, hoặc tuy nằm trong phạm vi loại nhưng lại là một hình thái dữ liệu hoàn toàn mới — lúc này model luật dựng sẵn theo tiêu chuẩn quốc gia trong phương án truyền thống khó phủ được theo kiểu "mỗi khách hàng một kiểu". Ta sẽ thấy cùng một bộ thuật toán phát hiện khó thích ứng được với những khác biệt tinh tế về định nghĩa loại và thang đo giữa các người dùng; **lúc này model AI có thể tự thích ứng dựa trên dữ liệu thực tế hay phạm vi định nghĩa loại mà người dùng chỉnh.** Với hãng bảo mật, điều này cũng giúp thoát khỏi mô hình "bán nhân lực" kiểu tuỳ chỉnh – fine-tune cho từng khách. **Đó là phần cổ tức công nghệ mà AI mang lại cho ngành bảo mật trong bối cảnh mới.**
+Trong thực tế, do quy định của các quốc gia, khu vực không giống nhau, và môi trường người dùng thực tế có rất nhiều dữ liệu nhạy cảm cao mang tính đặc thù, người dùng thường phải kết hợp nhu cầu của mình để liên tục cập nhật, bổ sung trên nền các yêu cầu của tiêu chuẩn quốc gia và ngành. Vì dữ liệu nhạy cảm cao của người dùng có thể **không nằm trong phạm vi loại được liệt kê ở phụ lục của văn bản pháp quy**, hoặc tuy nằm trong phạm vi loại nhưng lại là một hình thái dữ liệu hoàn toàn mới - lúc này model luật dựng sẵn theo tiêu chuẩn quốc gia trong phương án truyền thống khó phủ được theo kiểu "mỗi khách hàng một kiểu". Ta sẽ thấy cùng một bộ thuật toán phát hiện khó thích ứng được với những khác biệt tinh tế về định nghĩa loại và thang đo giữa các người dùng; **lúc này model AI có thể tự thích ứng dựa trên dữ liệu thực tế hay phạm vi định nghĩa loại mà người dùng chỉnh.** Với hãng bảo mật, điều này cũng giúp thoát khỏi mô hình "bán nhân lực" kiểu tuỳ chỉnh – fine-tune cho từng khách. **Đó là phần cổ tức công nghệ mà AI mang lại cho ngành bảo mật trong bối cảnh mới.**
 
 #### (3) Ẩn danh dữ liệu
 
@@ -218,7 +218,7 @@ Về giao thức mạng an toàn, để ngăn các cách tấn công mạng như
 
 Để ngăn rò rỉ dữ liệu, đánh cắp sở hữu trí tuệ, và việc dữ liệu nhạy cảm bị lợi dụng ác ý, dữ liệu liên quan tới mô hình lớn của người dùng **phải được lưu và dùng độc lập dưới chính tài khoản cloud của người dùng.**
 
-Lấy Alibaba Cloud làm ví dụ: nền tảng cloud bảo đảm dữ liệu người dùng thuộc quyền sở hữu hoàn toàn của họ; dữ liệu người dùng trong suy luận model, huấn luyện và ứng dụng RAG đều hỗ trợ cách triển khai lưu trữ bên ngoài, hỗ trợ đấu nối OSS, ES, ADB, SLS. Dữ liệu thu thập được tiếp nhận vào các instance database thuộc về khách hàng; **người dùng kiểm soát 100% dữ liệu và tự quản lý.** Các dịch vụ lưu trữ của Alibaba Cloud — ADB (dữ liệu vector), ES (dữ liệu kiểm thử, bộ nhớ dài hạn), SLS (lịch sử phiên, log audit, dữ liệu hệ quan sát), NAS (file model), OSS (tập huấn luyện, kiểm thử, kho tri thức) — đều đạt được sự cô lập an toàn theo tenant.
+Lấy Alibaba Cloud làm ví dụ: nền tảng cloud bảo đảm dữ liệu người dùng thuộc quyền sở hữu hoàn toàn của họ; dữ liệu người dùng trong suy luận model, huấn luyện và ứng dụng RAG đều hỗ trợ cách triển khai lưu trữ bên ngoài, hỗ trợ đấu nối OSS, ES, ADB, SLS. Dữ liệu thu thập được tiếp nhận vào các instance database thuộc về khách hàng; **người dùng kiểm soát 100% dữ liệu và tự quản lý.** Các dịch vụ lưu trữ của Alibaba Cloud - ADB (dữ liệu vector), ES (dữ liệu kiểm thử, bộ nhớ dài hạn), SLS (lịch sử phiên, log audit, dữ liệu hệ quan sát), NAS (file model), OSS (tập huấn luyện, kiểm thử, kho tri thức) - đều đạt được sự cô lập an toàn theo tenant.
 
 Đồng thời, dịch vụ nền tảng mô hình lớn chạy trên môi trường thực thi ảo hoá của cloud, và tầng ảo hoá hiện thực sự cô lập an toàn giữa các không gian đĩa khác nhau. Ví dụ, phần lưu trữ cục bộ của môi trường suy luận đạt được sự cô lập ở mức ảo hoá qua secure container, nhờ đó bảo đảm rằng trong khâu suy luận, dịch vụ thực thi request của người dùng chỉ truy cập được phần không gian đĩa được cấp cho nó.
 
@@ -236,7 +236,7 @@ Lấy nền tảng dịch vụ mô hình lớn Bailian của Alibaba Cloud làm 
 
 ### 4. Truy cập dữ liệu
 
-Có thể dùng sản phẩm dịch vụ kiểm soát truy cập cloud-native (như RAM — Resource Access Management của Alibaba Cloud) để quản lý định danh và kiểm soát truy cập tài nguyên; đây là nền của việc quản lý an toàn tài khoản và vận hành an toàn. Với các bối cảnh người dùng tuỳ biến, dịch vụ nền tảng mô hình lớn truy cập các tài nguyên cloud thuộc về người dùng như lưu trữ, ElasticSearch, SLS thông qua năng lực role liên kết của dịch vụ kiểm soát truy cập.
+Có thể dùng sản phẩm dịch vụ kiểm soát truy cập cloud-native (như RAM - Resource Access Management của Alibaba Cloud) để quản lý định danh và kiểm soát truy cập tài nguyên; đây là nền của việc quản lý an toàn tài khoản và vận hành an toàn. Với các bối cảnh người dùng tuỳ biến, dịch vụ nền tảng mô hình lớn truy cập các tài nguyên cloud thuộc về người dùng như lưu trữ, ElasticSearch, SLS thông qua năng lực role liên kết của dịch vụ kiểm soát truy cập.
 
 ### 5. Xử lý dữ liệu
 
@@ -264,11 +264,11 @@ Các thách thức chính của bảo mật định danh Agent gồm:
 
 1.  **Hộp đen tài sản:** rất nhiều doanh nghiệp không biết nội bộ có bao nhiêu Agent, ai tạo ra, đã gọi những tài nguyên nào, có những quyền gì.
 
-2.  **Thoát quyền:** nhân viên có thể gián tiếp có được quyền vượt quá vị trí công việc của mình thông qua Agent — ví dụ một nhân viên bán hàng bình thường nhờ "trợ lý hoàn ứng" mà xem được chi tiết công tác phí của CEO; Agent của nhân viên đã nghỉ việc có thể vẫn tiếp tục chạy, gây tồn dư quyền hạn.
+2.  **Thoát quyền:** nhân viên có thể gián tiếp có được quyền vượt quá vị trí công việc của mình thông qua Agent - ví dụ một nhân viên bán hàng bình thường nhờ "trợ lý hoàn ứng" mà xem được chi tiết công tác phí của CEO; Agent của nhân viên đã nghỉ việc có thể vẫn tiếp tục chạy, gây tồn dư quyền hạn.
 
 3.  **Mất kiểm soát quản lý credential:** Agent thường được cấp "quyền vạn năng"; API Key hard-code trong code, có hiệu lực dài hạn và không audit được. **IAM truyền thống không được thiết kế cho "định danh phi con người" với cơ chế credential động và token chu kỳ ngắn.**
 
-4.  **Chuỗi trách nhiệm mờ:** khi nhiều Agent cộng tác, một lần rò rỉ dữ liệu có thể đi qua nhiều mắt xích: người dùng, client, Agent, dịch vụ MCP, tài nguyên hạ nguồn — audit truyền thống khó truy về định danh và hành động cụ thể.
+4.  **Chuỗi trách nhiệm mờ:** khi nhiều Agent cộng tác, một lần rò rỉ dữ liệu có thể đi qua nhiều mắt xích: người dùng, client, Agent, dịch vụ MCP, tài nguyên hạ nguồn - audit truyền thống khó truy về định danh và hành động cụ thể.
 
 5.  **Chuẩn và bối cảnh chưa chín:** dù chính sách đang thúc đẩy giao thức liên thông Agent và nền tảng đăng ký, doanh nghiệp vẫn thiếu bối cảnh vào cuộc rõ ràng và lộ trình triển khai lặp lại được.
 
@@ -284,13 +284,13 @@ Sau khi phát hiện, cần quản lý nhất thể về định danh, quyền h
 
 *   **Tích hợp nguồn định danh doanh nghiệp:** qua OIDC / OAuth 2.0 chuẩn để đấu nối DingTalk, Feishu, WeCom, LDAP, Azure AD, Okta, Entra ID cùng các nguồn định danh khác, triển khai truyền định danh đầu cuối **"người dùng → client → Agent → tài nguyên truy cập"**, ngăn giả mạo định danh.
 
-*   **Quản lý credential động:** các credential nhạy cảm như API Key, OAuth Secret, LLM Key được KMS mã hoá rồi quản lý tập trung trong **Token Vault**. **Code Agent không chạm vào credential dài hạn dạng plaintext**; chỉ lúc chạy mới lấy token ngắn hạn theo Agent ID và phần uỷ quyền của người dùng — tức là "phát triển không cần khoá".
+*   **Quản lý credential động:** các credential nhạy cảm như API Key, OAuth Secret, LLM Key được KMS mã hoá rồi quản lý tập trung trong **Token Vault**. **Code Agent không chạm vào credential dài hạn dạng plaintext**; chỉ lúc chạy mới lấy token ngắn hạn theo Agent ID và phần uỷ quyền của người dùng - tức là "phát triển không cần khoá".
 
 *   **Quyền tối thiểu:** Agent **mặc định không có quyền**; chỉ sau khi người dùng uỷ quyền mới truy cập tài nguyên hạ nguồn bằng định danh và phạm vi quyền của người dùng đó, và **quyền của Agent không vượt quá quyền của người dùng.**
 
 *   **Audit toàn chuỗi:** hỗ trợ xem mọi thao tác quản trị trong truy cập toàn chuỗi của Agent cùng từng lần lấy credential, với độ hạt tới mức **"người dùng nào, qua Agent nào, đã lấy credential nào".**
 
-*   **Quản trị vòng đời:** khi nhân viên vào làm, chuyển vị trí hay nghỉ việc, quyền của các Agent do họ tạo hay uỷ quyền có thể được đổi đồng bộ; việc đăng ký Agent, cấp quyền, xoay vòng credential, gỡ và huỷ đăng ký đều quản lý được trên một console thống nhất — giải quyết vấn đề **"Agent bóng"** và tồn dư quyền hạn.
+*   **Quản trị vòng đời:** khi nhân viên vào làm, chuyển vị trí hay nghỉ việc, quyền của các Agent do họ tạo hay uỷ quyền có thể được đổi đồng bộ; việc đăng ký Agent, cấp quyền, xoay vòng credential, gỡ và huỷ đăng ký đều quản lý được trên một console thống nhất - giải quyết vấn đề **"Agent bóng"** và tồn dư quyền hạn.
 
 ### 2. Năng lực đăng ký định danh và quản lý nhãn
 
@@ -361,7 +361,7 @@ Agent mặc định truy cập tài nguyên hạ nguồn bằng định danh và
 
 *   **Credential động thay cho khoá dài hạn**
 
-Mọi API Key, OAuth Secret, LLM Key đều do KMS mã hoá và quản lý; chỉ lúc chạy mới tiêm Access Token / STS Token ngắn hạn theo Agent ID và phần uỷ quyền của người dùng — **triệt tiêu việc hard-code AK/SK và credential dài hạn.**
+Mọi API Key, OAuth Secret, LLM Key đều do KMS mã hoá và quản lý; chỉ lúc chạy mới tiêm Access Token / STS Token ngắn hạn theo Agent ID và phần uỷ quyền của người dùng - **triệt tiêu việc hard-code AK/SK và credential dài hạn.**
 
 ### 2. Hỗ trợ uỷ quyền cho ứng dụng mô hình lớn
 
@@ -374,7 +374,7 @@ Mọi API Key, OAuth Secret, LLM Key đều do KMS mã hoá và quản lý; ch�
 
 ### 3. Hỗ trợ năng lực uỷ quyền động nhận biết context
 
-Có thể uỷ quyền động dựa trên context của người dùng, Agent, tool cùng context trong request của người dùng — ví dụ: **cho phép người dùng thuộc phòng marketing dùng Agent đặt hàng, với số tiền đơn hàng < 1000.** Bằng policy Cedar + AI Gateway để hiện thực uỷ quyền động, **chỉ khi trong quá trình hội thoại của người dùng thoả điều kiện context thì mới có được quyền.**
+Có thể uỷ quyền động dựa trên context của người dùng, Agent, tool cùng context trong request của người dùng - ví dụ: **cho phép người dùng thuộc phòng marketing dùng Agent đặt hàng, với số tiền đơn hàng < 1000.** Bằng policy Cedar + AI Gateway để hiện thực uỷ quyền động, **chỉ khi trong quá trình hội thoại của người dùng thoả điều kiện context thì mới có được quyền.**
 
 ## 14.5.4 Audit và truy nguyên toàn chuỗi
 
@@ -404,7 +404,7 @@ Quản lý an toàn bắt đầu từ một danh sách tài sản rõ ràng. L�
 
 *   **View tập trung:** phân loại tài sản theo nhãn "ứng dụng AI", "PAI"…, giúp người dùng nhanh chóng định vị sản phẩm cloud, image container hay tài nguyên host, tạo thành một danh sách tài sản cập nhật động làm nền cho việc phân tích rủi ro về sau.
 
-Khi Agent bước vào môi trường production, đối tượng kiểm kê tài sản còn phải mở rộng từ tài nguyên tính toán xuống tầng Agent: **instance Agent cùng các phiên task của nó, dịch vụ MCP và connector đã tích hợp, cấu hình skill và tool, cùng các credential NHI mà Agent nắm giữ — tất cả đều nên đưa vào danh sách tài sản và view rủi ro thống nhất, tránh xuất hiện những "Agent bóng" nằm ngoài vòng quản lý an toàn.**
+Khi Agent bước vào môi trường production, đối tượng kiểm kê tài sản còn phải mở rộng từ tài nguyên tính toán xuống tầng Agent: **instance Agent cùng các phiên task của nó, dịch vụ MCP và connector đã tích hợp, cấu hình skill và tool, cùng các credential NHI mà Agent nắm giữ - tất cả đều nên đưa vào danh sách tài sản và view rủi ro thống nhất, tránh xuất hiện những "Agent bóng" nằm ngoài vòng quản lý an toàn.**
 
 **2. Đánh giá rủi ro đa chiều**
 
@@ -416,9 +416,9 @@ Trên tiền đề tài sản đã trực quan hoá, hãy phơi mối đe doạ 
 
 *   **Kiểm tra rủi ro cấu hình:** dựa trên thực tiễn tốt nhất về an toàn AI của Alibaba Cloud và các hãng cloud chủ đạo, kiểm tra tính tuân thủ cấu hình của các nền tảng như PAI, EAS, tránh rủi ro do cấu hình sai.
 
-*   **Quét thông tin nhạy cảm:** qua công nghệ quét không cần agent trên image và hệ thống file, nhận diện API key lưu ở dạng plaintext (như Token PAI-EAS của Alibaba Cloud, OpenAI Key), ngăn việc lạm dụng do rò rỉ credential. **Giá trị cốt lõi nằm ở năng lực "liên kết context"**: ví dụ, nếu phát hiện một component Ollama có lỗ hổng, hệ thống sẽ liên kết thẳng lỗ hổng đó với ảnh hưởng của nó tới instance dịch vụ model cụ thể, giúp đội bảo mật xây chiến lược vá theo thứ tự ưu tiên nghiệp vụ — tức quản trị chính xác **"lấy ứng dụng AI làm trung tâm".**
+*   **Quét thông tin nhạy cảm:** qua công nghệ quét không cần agent trên image và hệ thống file, nhận diện API key lưu ở dạng plaintext (như Token PAI-EAS của Alibaba Cloud, OpenAI Key), ngăn việc lạm dụng do rò rỉ credential. **Giá trị cốt lõi nằm ở năng lực "liên kết context"**: ví dụ, nếu phát hiện một component Ollama có lỗ hổng, hệ thống sẽ liên kết thẳng lỗ hổng đó với ảnh hưởng của nó tới instance dịch vụ model cụ thể, giúp đội bảo mật xây chiến lược vá theo thứ tự ưu tiên nghiệp vụ - tức quản trị chính xác **"lấy ứng dụng AI làm trung tâm".**
 
-Cần chỉ rõ: **quản lý tình hình giải quyết vấn đề "nhìn thấy được"; còn rủi ro phát hiện ra thì vẫn phải liên động khép kín với các biện pháp kiểm soát lúc chạy.** Với các workload Agent có lỗ hổng nghiêm trọng, phơi ra bất thường hay hành vi méo mó, phải liên động được với gateway, firewall và tầng orchestration task để kịp giới hạn tốc độ, cô lập hay tạm dừng task — **biến view tài sản và rủi ro thành năng lực xử lý thực tế.**
+Cần chỉ rõ: **quản lý tình hình giải quyết vấn đề "nhìn thấy được"; còn rủi ro phát hiện ra thì vẫn phải liên động khép kín với các biện pháp kiểm soát lúc chạy.** Với các workload Agent có lỗ hổng nghiêm trọng, phơi ra bất thường hay hành vi méo mó, phải liên động được với gateway, firewall và tầng orchestration task để kịp giới hạn tốc độ, cô lập hay tạm dừng task - **biến view tài sản và rủi ro thành năng lực xử lý thực tế.**
 
 ## 14.6.3 Gia cố an toàn tầng tính toán
 
@@ -450,7 +450,7 @@ Qua cơ chế quét image và ký số, bảo đảm việc bàn giao container 
 
 **4. Cô lập ở mức phiên cho runtime của Agent**
 
-Khi thực thi task, Agent sẽ sinh và chạy code động, truy cập dịch vụ bên ngoài; **bản thân môi trường chạy của nó phải được đối xử như một workload không đáng tin.** Từ năm 2026, ngành đã phổ biến việc **hội tụ đơn vị cô lập từ dịch vụ xuống phiên**: cấp cho mỗi phiên Agent một sandbox hay máy ảo nhẹ (microVM) độc lập, đạt cô lập ở mức kernel, môi trường **dùng xong là bỏ**, và tự thu hồi sau khi idle quá hạn hay chạm vòng đời tối đa — tránh để môi trường và credential tồn dư bị các task sau hay kẻ tấn công tái dùng. Trên Alibaba Cloud, có thể dựa vào sandbox an toàn của dịch vụ container ACK để cung cấp cô lập ở mức kernel cho phiên Agent, và tiêm credential tạm tối thiểu theo phiên, thay cho khoá dạng biến môi trường có hiệu lực dài hạn.
+Khi thực thi task, Agent sẽ sinh và chạy code động, truy cập dịch vụ bên ngoài; **bản thân môi trường chạy của nó phải được đối xử như một workload không đáng tin.** Từ năm 2026, ngành đã phổ biến việc **hội tụ đơn vị cô lập từ dịch vụ xuống phiên**: cấp cho mỗi phiên Agent một sandbox hay máy ảo nhẹ (microVM) độc lập, đạt cô lập ở mức kernel, môi trường **dùng xong là bỏ**, và tự thu hồi sau khi idle quá hạn hay chạm vòng đời tối đa - tránh để môi trường và credential tồn dư bị các task sau hay kẻ tấn công tái dùng. Trên Alibaba Cloud, có thể dựa vào sandbox an toàn của dịch vụ container ACK để cung cấp cô lập ở mức kernel cho phiên Agent, và tiêm credential tạm tối thiểu theo phiên, thay cho khoá dạng biến môi trường có hiệu lực dài hạn.
 
 Với bối cảnh cộng tác multi-agent, **các Agent với nhau cũng nên theo nguyên tắc cô lập lẫn nhau**: phân chia môi trường chạy và chính sách mạng theo ranh giới task, để một Agent bị chọc thủng không lan ngang sang các Agent khác cùng dữ liệu và tool mà chúng truy cập được.
 
@@ -488,6 +488,6 @@ Rủi ro của Agent không chỉ đến từ traffic bên ngoài đi vào, mà 
 
 Cùng lúc đó, tư tưởng zero-trust cũng đang mở rộng sang bối cảnh AI; ngành đã lần lượt đề xuất các khung zero-trust hướng tới AI (như Zero Trust for AI của Microsoft, Agentic Trust Framework của CSA), **lấy định danh Agent làm yếu tố cốt lõi của việc kiểm chứng policy mạng**, tạo sự hô ứng với hệ bảo mật định danh ở mục 14.5.
 
-Về thiết kế kiến trúc hệ phòng thủ: security group và cloud firewall bổ trợ nhau, trong đó cloud firewall đóng vai node kiểm soát trung tâm, cung cấp quản lý policy traffic toàn cục, phát hiện mối đe doạ và phân tích trực quan. Hai thứ cùng dựng nên một hệ phòng thủ lập thể **"điểm – tuyến – diện"**: security group lo phòng thủ ở mức node (**điểm**), firewall biên VPC chặn mối đe doạ traffic xuyên vùng (**tuyến**), còn firewall Internet thì kiểm soát lối vào công cộng và ràng buộc phần outbound của Agent (**diện**) — tạo thành một mạng lưới phòng thủ phủ mọi tầng mạng.
+Về thiết kế kiến trúc hệ phòng thủ: security group và cloud firewall bổ trợ nhau, trong đó cloud firewall đóng vai node kiểm soát trung tâm, cung cấp quản lý policy traffic toàn cục, phát hiện mối đe doạ và phân tích trực quan. Hai thứ cùng dựng nên một hệ phòng thủ lập thể **"điểm – tuyến – diện"**: security group lo phòng thủ ở mức node (**điểm**), firewall biên VPC chặn mối đe doạ traffic xuyên vùng (**tuyến**), còn firewall Internet thì kiểm soát lối vào công cộng và ràng buộc phần outbound của Agent (**diện**) - tạo thành một mạng lưới phòng thủ phủ mọi tầng mạng.
 
 **Một hạ tầng AI an toàn không phải một đích đến đạt một lần rồi thôi, mà là một quá trình động cần đánh giá, tối ưu và tiến hoá liên tục.** Khi công nghệ AI và các thủ đoạn tấn công không ngừng phát triển, hệ phòng thủ an toàn cũng phải lặp và nâng cấp đồng bộ, **biến bảo mật thành một thuộc tính nội tại thực sự của kiến trúc ứng dụng AI-native.**

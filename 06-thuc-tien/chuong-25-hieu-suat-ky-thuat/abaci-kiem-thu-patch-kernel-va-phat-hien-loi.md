@@ -1,4 +1,4 @@
-# ABACI — Agent kiểm thử có trọng tâm và phát hiện khiếm khuyết cho patch kernel
+# ABACI - Agent kiểm thử có trọng tâm và phát hiện khiếm khuyết cho patch kernel
 
 ## Tóm lược
 
@@ -10,7 +10,7 @@ Trên một tập đánh giá gồm hàng trăm lần thay đổi thật đã me
 
 ---
 
-## Một — ABACI giải quyết vấn đề gì
+## Một - ABACI giải quyết vấn đề gì
 
 > Code viết ngày càng nhanh, thời gian dành cho test ngày càng ít.
 
@@ -24,7 +24,7 @@ Mâu thuẫn mang tính cấu trúc nằm ngay đó: **phía cung thay đổi đ
 
 ---
 
-## Hai — Các thách thức cốt lõi
+## Hai - Các thách thức cốt lõi
 
 Đi từ khám phá theo chiều rộng sang chạm tới có trọng tâm đòi hỏi vượt qua ba thách thức ở ba tầng.
 
@@ -52,7 +52,7 @@ Bản thân việc đánh giá khiếm khuyết cũng đòi hỏi rất cao về
 
 ---
 
-## Ba — Triết lý kỹ thuật và kiến trúc năng lực
+## Ba - Triết lý kỹ thuật và kiến trúc năng lực
 
 > Phát huy tối đa điểm mạnh về hiểu ngữ nghĩa của model lớn, và ràng buộc rủi ro ảo giác trong phạm vi kiểm chứng được.
 
@@ -92,11 +92,11 @@ Nhắm vào thách thức ba, ABACI dựng một hệ chưng cất và tái dùn
 
 Thiết kế này phân bổ lại ngân sách suy luận của model từ việc hiểu code sang việc định vị vấn đề; và việc sàng lọc khiếm khuyết cũng chuyển từ soát code chung chung thành phép khớp mẫu và kiểm chứng có phương hướng.
 
-**Biểu hiện năng lực**: ở giai đoạn soát thay đổi thì đưa ra đánh giá về các điểm đáng ngờ kèm điều kiện kích hoạt và tiền đề trạng thái, rồi giao cho chuỗi test có trọng tâm kiểm chứng lúc chạy — nhờ đó chi phí báo nhầm của đánh giá tĩnh giảm rõ rệt.
+**Biểu hiện năng lực**: ở giai đoạn soát thay đổi thì đưa ra đánh giá về các điểm đáng ngờ kèm điều kiện kích hoạt và tiền đề trạng thái, rồi giao cho chuỗi test có trọng tâm kiểm chứng lúc chạy - nhờ đó chi phí báo nhầm của đánh giá tĩnh giảm rõ rệt.
 
 ---
 
-## Bốn — Hiện thực kỹ thuật và hiệu quả triển khai
+## Bốn - Hiện thực kỹ thuật và hiệu quả triển khai
 
 > Từ công cụ thành dịch vụ: tích hợp vào pipeline continuous integration như một cổng chất lượng.
 
@@ -108,10 +108,10 @@ Chuỗi dịch vụ chia thành bốn giai đoạn tự động:
 
 | Giai đoạn | Trách nhiệm | Output |
 | --- | --- | --- |
-| **Một — Nhận diện mục tiêu** | Phân giải nội dung thay đổi, xác định phạm vi code mục tiêu và độ ưu tiên cho lần test này | Mục tiêu test có cấu trúc |
-| **Hai — Phân tích mục tiêu và chuẩn bị môi trường** | Hoàn tất phần phân tích ngữ nghĩa hướng mục tiêu và dựng môi trường test | Cấu hình job test có trọng tâm |
-| **Ba — Chạy test có trọng tâm** | Chạy song song phần test có trọng tâm và sàng lọc khiếm khuyết trong môi trường ảo hoá cô lập | Trajectory thực thi, crash và các điểm đáng ngờ |
-| **Bốn — Gom kết quả và báo cáo** | Tổng hợp dữ liệu về khả năng chạm tới, manh mối khiếm khuyết và tài liệu tái hiện | Báo cáo test có cấu trúc |
+| **Một - Nhận diện mục tiêu** | Phân giải nội dung thay đổi, xác định phạm vi code mục tiêu và độ ưu tiên cho lần test này | Mục tiêu test có cấu trúc |
+| **Hai - Phân tích mục tiêu và chuẩn bị môi trường** | Hoàn tất phần phân tích ngữ nghĩa hướng mục tiêu và dựng môi trường test | Cấu hình job test có trọng tâm |
+| **Ba - Chạy test có trọng tâm** | Chạy song song phần test có trọng tâm và sàng lọc khiếm khuyết trong môi trường ảo hoá cô lập | Trajectory thực thi, crash và các điểm đáng ngờ |
+| **Bốn - Gom kết quả và báo cáo** | Tổng hợp dữ liệu về khả năng chạm tới, manh mối khiếm khuyết và tài liệu tái hiện | Báo cáo test có cấu trúc |
 
 ### 4.2 Đặc tính kỹ thuật và hình thái bàn giao
 
@@ -139,7 +139,7 @@ Những con số này hỗ trợ cho một nhận định then chốt: **một k
 
 ---
 
-## Năm — Thực tiễn
+## Năm - Thực tiễn
 
 > Nhìn từ quá trình xử lý một lần thay đổi để thấy bộ năng lực này vận hành ra sao trong pipeline.
 
@@ -149,7 +149,7 @@ Dưới đây là trọn quá trình xử lý một merge request thật trong p
 
 Sau khi thay đổi được gửi lên, giai đoạn nhận diện mục tiêu phân giải ra rằng phần sửa lần này rơi vào đường quản lý trạng thái của một subsystem mạng nào đó; bản thân phần sửa chỉ có một dòng, chỉnh một chỗ điều kiện đánh giá trạng thái. Chỗ sửa đó được đánh dấu là mục tiêu test của vòng này.
 
-Giai đoạn phân tích liền suy luận ngược lên từ vị trí đó. Muốn kernel chạy tới đây thì trước hết phải dựng một đối tượng trạng thái qua interface cấu hình, rồi kích hoạt đường xoá của nó, và giữa hai thao tác có phụ thuộc. Với mục tiêu cùng loại, nếu liệt kê xuôi từ phía lối vào thì số đường ứng viên lên tới hàng trăm hàng nghìn; còn suy luận ngược thì cuối cùng chỉ cho ra vài đường hữu hiệu, trong đó chỉ có đúng một ràng buộc then chốt cần model quyết định — nó đòi định danh mà request xoá mang theo phải khớp với đối tượng đã dựng trước đó.
+Giai đoạn phân tích liền suy luận ngược lên từ vị trí đó. Muốn kernel chạy tới đây thì trước hết phải dựng một đối tượng trạng thái qua interface cấu hình, rồi kích hoạt đường xoá của nó, và giữa hai thao tác có phụ thuộc. Với mục tiêu cùng loại, nếu liệt kê xuôi từ phía lối vào thì số đường ứng viên lên tới hàng trăm hàng nghìn; còn suy luận ngược thì cuối cùng chỉ cho ra vài đường hữu hiệu, trong đó chỉ có đúng một ràng buộc then chốt cần model quyết định - nó đòi định danh mà request xoá mang theo phải khớp với đối tượng đã dựng trước đó.
 
 Ở giai đoạn thực thi, test case của vòng đầu đi hết quy trình dựng, nhưng request xoá lại trả về sớm vì định danh không khớp. Phản hồi theo phương hướng cho thấy vị trí giữ nguyên, nên test case được giữ lại để tiến hoá tiếp: xương sống chuỗi giữ ổn định, còn các giá trị tự do thì đổi qua từng vòng. Sau vài vòng thì định danh trúng, đường xoá đi thông, và vị trí mục tiêu được thực sự thực thi. Cũng chính lần thay đổi đó, khi giao cho một công cụ fuzzing đa dụng chạy hết cùng khoảng thời lượng, thì vị trí mục tiêu vẫn nằm ngoài phạm vi thực thi.
 
@@ -171,7 +171,7 @@ Trải cùng quy trình đó lên một lô thay đổi thật đã merge để 
 | **Độ phủ hàm mục tiêu** | **66,8%** | khoảng 0% | **∞** |
 | **Tỉ lệ chạm tới hàm mục tiêu** | **54,1%** | 4,5% | **12 lần** |
 
-Ba con số này đáng nói thêm. Tỉ lệ chạm tới hàm mục tiêu 54,1% nghĩa là hơn một nửa số thay đổi đã được kiểm chứng bằng việc thực thi thật trước khi merge — lần đầu tiên câu kết luận "test đã qua" có ý nghĩa thực chất với chính lần thay đổi đó. Độ phủ dòng thay đổi 48,4% cho thấy sau khi chạm tới thì việc khám phá vẫn tiếp tục, và test case đã mở ra nhiều nhánh quanh mục tiêu. Nhóm đối chứng thì bám sát giá trị không ở hai chỉ số đầu, qua đó xác nhận sự lệch chỗ của khuôn mẫu dẫn dắt bởi độ phủ trong kịch bản có trọng tâm.
+Ba con số này đáng nói thêm. Tỉ lệ chạm tới hàm mục tiêu 54,1% nghĩa là hơn một nửa số thay đổi đã được kiểm chứng bằng việc thực thi thật trước khi merge - lần đầu tiên câu kết luận "test đã qua" có ý nghĩa thực chất với chính lần thay đổi đó. Độ phủ dòng thay đổi 48,4% cho thấy sau khi chạm tới thì việc khám phá vẫn tiếp tục, và test case đã mở ra nhiều nhánh quanh mục tiêu. Nhóm đối chứng thì bám sát giá trị không ở hai chỉ số đầu, qua đó xác nhận sự lệch chỗ của khuôn mẫu dẫn dắt bởi độ phủ trong kịch bản có trọng tâm.
 
 Nhìn từ góc năng lực tính toán, cơ chế có trọng tâm đã rót lại phần ngân sách vốn tiêu vào các đường không liên quan sang các đường mục tiêu. Đầu tư phần cứng giữ nguyên, còn sản lượng chất lượng trên mỗi đơn vị năng lực tính toán thì tăng mạnh.
 
@@ -187,7 +187,7 @@ Nhìn từ góc năng lực tính toán, cơ chế có trọng tâm đã rót l�
 
 ---
 
-## Sáu — Giá trị ứng dụng
+## Sáu - Giá trị ứng dụng
 
 ### Với các đội R&D phần mềm nền tảng
 
@@ -203,7 +203,7 @@ Các vấn đề và patch sửa lỗi phát hiện được đối với code u
 
 ---
 
-## Bảy — Tóm tắt
+## Bảy - Tóm tắt
 
 AI đang tái cấu trúc quan hệ sản xuất trong việc phát triển phần mềm. Khâu sản xuất code đã hoàn tất bước nhảy về hiệu suất, còn cuộc cách mạng khuôn mẫu ở khâu bảo đảm chất lượng thì mới chỉ bắt đầu. ABACI đưa ra một lời giải triển khai được cho mệnh đề đó trong lĩnh vực phần mềm nền tảng.
 

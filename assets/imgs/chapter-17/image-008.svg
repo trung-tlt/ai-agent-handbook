@@ -55,7 +55,7 @@
     <rect x="960" y="150" width="260" height="230" rx="18" fill="#FFFFFF" stroke="#CBD5E1" filter="url(#sh)"/>
     <rect x="960" y="150" width="260" height="46" rx="18" fill="#7C3AED"/>
     <text x="1090" y="180" text-anchor="middle" font-size="19" font-weight="700" fill="#FFFFFF">④ 部署灰度</text>
-    <text x="982" y="226" font-size="15.5" fill="#334155">• 学生—教师级联 / 路由</text>
+    <text x="982" y="226" font-size="15.5" fill="#334155">• 学生-教师级联 / 路由</text>
     <text x="982" y="256" font-size="15.5" fill="#334155">• 置信度 / 一致性阈值升级</text>
     <text x="982" y="286" font-size="15.5" fill="#334155">• 投机解码（draft = 蒸馏小模型）</text>
     <text x="982" y="316" font-size="15.5" fill="#334155">• shadow→1%→10%→…→100%</text>

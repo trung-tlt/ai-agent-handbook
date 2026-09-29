@@ -1,4 +1,4 @@
-# Chương 21 — Golden dataset của Agent
+# Chương 21 - Golden dataset của Agent
 
 Đội chăm sóc khách hàng phát hiện Agent bỏ sót một bước then chốt; phía kỹ thuật bổ sung Prompt rồi hỏi lại, và câu trả lời đã đầy đủ. Tiếp theo còn phải biết: đổi cách hỏi thì còn hữu hiệu không, các câu hỏi khác có bị trả lời tệ đi không, và sau này đổi model thì có bỏ sót bước đó lần nữa không.
 
@@ -72,8 +72,8 @@ Hai đề trên có thể sắp xếp như sau. Dưới đây liệt kê hướn
 
 | Đề bài | Trọng tâm của đáp án tham chiếu | Trọng tâm của yêu cầu chấm điểm |
 | --- | --- | --- |
-| Phần quan sát và tối ưu Agent có những chức năng gì? | Nói rõ các năng lực quan sát, xử lý dữ liệu, đánh giá — thí nghiệm, sử dụng kinh nghiệm cùng công dụng của chúng | Có phủ được các năng lực người dùng quan tâm không; có giải thích giải quyết được vấn đề gì không; có chứa lời hứa thiếu chính xác không |
-| Phần quan sát và tối ưu Agent làm đánh giá ra sao? | Nói rõ các bước chuẩn bị dữ liệu, tạo evaluator, cấu hình task, xem kết quả và cải thiện | Có nói rõ lối vào không; có cấu hình ánh xạ input — output không; có giải thích cách dùng kết quả chấm điểm không |
+| Phần quan sát và tối ưu Agent có những chức năng gì? | Nói rõ các năng lực quan sát, xử lý dữ liệu, đánh giá - thí nghiệm, sử dụng kinh nghiệm cùng công dụng của chúng | Có phủ được các năng lực người dùng quan tâm không; có giải thích giải quyết được vấn đề gì không; có chứa lời hứa thiếu chính xác không |
+| Phần quan sát và tối ưu Agent làm đánh giá ra sao? | Nói rõ các bước chuẩn bị dữ liệu, tạo evaluator, cấu hình task, xem kết quả và cải thiện | Có nói rõ lối vào không; có cấu hình ánh xạ input - output không; có giải thích cách dùng kết quả chấm điểm không |
 
 Bản demo ban đầu viết yêu cầu của cả hai đề vào cùng một evaluator, về sau đổi sang thêm cột `rubric` vào dataset và điền yêu cầu riêng cho từng câu. Sau khi chỉnh như vậy, điểm thấp ứng được về đúng phần nội dung mà câu hiện tại bỏ sót, và phía kỹ thuật cũng dễ biết nên bổ sung tri thức, bổ sung bước hay bổ sung ví dụ hơn.
 

@@ -1,4 +1,4 @@
-# Chương 6 — Hành động: thực thi có kiểm soát, phản hồi kiểm chứng và chuẩn bị bàn giao
+# Chương 6 - Hành động: thực thi có kiểm soát, phản hồi kiểm chứng và chuẩn bị bàn giao
 
 Lời gọi tool mà model xuất ra chỉ là một **ý định hành động**. Nó không tự nhiên có được định danh của người dùng hiện tại, không đồng nghĩa với việc policy doanh nghiệp cho phép thực thi, và cũng không chứng minh được rằng hệ thống từ xa đã tạo ra kết quả như mong đợi. Thứ thực sự biến ý định thành hành động là Harness: nó chọn và tiết lộ năng lực, kiểm tra tham số, gắn định danh cùng credential, thực thi policy quyền hạn và phê duyệt, chạy trong môi trường cô lập, chuyển kết quả thành Observation, rồi giao quá trình task cho người dùng, hệ thống quan sát và hệ thống đánh giá.
 
@@ -31,11 +31,11 @@ flowchart LR
 
 Chuỗi này xác lập ba sự thật bắt buộc phải phân biệt:
 
-1.  **Model nhìn thấy một tool nào đó** — nghĩa là mô tả Tool đã vào Context hiện tại.
+1.  **Model nhìn thấy một tool nào đó** - nghĩa là mô tả Tool đã vào Context hiện tại.
 
-2.  **Harness đã đăng ký một tool nào đó** — nghĩa là hệ thống biết cách gọi và parse nó.
+2.  **Harness đã đăng ký một tool nào đó** - nghĩa là hệ thống biết cách gọi và parse nó.
 
-3.  **Người dùng và task hiện tại đã được uỷ quyền thực thi** — chỉ khi đó, hành động cụ thể này mới được phép xảy ra.
+3.  **Người dùng và task hiện tại đã được uỷ quyền thực thi** - chỉ khi đó, hành động cụ thể này mới được phép xảy ra.
 
 Ba thứ đó không phải một. Doanh nghiệp có thể đăng ký rất nhiều năng lực trong Registry nhưng chỉ tiết lộ cho model hiện tại một vài năng lực liên quan; model có thể mô tả được một hành động rủi ro cao, nhưng vẫn cần Policy và phê duyệt quyết định có thực thi hay không. **Nếu "xuất hiện trong Tool Schema" tương đương với "được phép gọi", thì quyền tối thiểu, uỷ nhiệm theo người dùng và chế độ chỉ-đọc theo giai đoạn đều không thành lập được.**
 
@@ -128,7 +128,7 @@ Giao thức sẽ không làm thay Harness phần uỷ quyền, cô lập tenant,
 
 ### 6.2.2 Thiết kế Tool hướng tới Agent
 
-Tool là đơn vị hành động mà Harness trao cho model. Model dùng đúng được hay không phụ thuộc vào việc Tool có cung cấp ngữ nghĩa rõ ràng, ổn định, ràng buộc được hay không — **chứ không chỉ là API có gọi được hay không.**
+Tool là đơn vị hành động mà Harness trao cho model. Model dùng đúng được hay không phụ thuộc vào việc Tool có cung cấp ngữ nghĩa rõ ràng, ổn định, ràng buộc được hay không - **chứ không chỉ là API có gọi được hay không.**
 
 Một Tool phù hợp với Agent nên đạt được:
 
@@ -197,11 +197,11 @@ Chương 4 đã định nghĩa ngữ nghĩa orchestration của Delegation. Vi�
 
 *   Schema kết quả, bằng chứng và tiêu chí nghiệm thu cuối.
 
-**Agent từ xa không nên nhận toàn bộ Context của Agent cha.** Bên uỷ nhiệm gửi lượng thông tin tối thiểu cần thiết, và truyền kèm các giới hạn sử dụng dữ liệu dưới dạng policy máy thực thi được. Message và Artifact mà bên nhận trả về đều là **input bên ngoài**, bắt buộc phải qua kiểm tra Schema, quyền hạn và an toàn nội dung — **không được vì nguồn là một Agent khác mà coi chúng là chỉ dẫn hệ thống đáng tin.**
+**Agent từ xa không nên nhận toàn bộ Context của Agent cha.** Bên uỷ nhiệm gửi lượng thông tin tối thiểu cần thiết, và truyền kèm các giới hạn sử dụng dữ liệu dưới dạng policy máy thực thi được. Message và Artifact mà bên nhận trả về đều là **input bên ngoài**, bắt buộc phải qua kiểm tra Schema, quyền hạn và an toàn nội dung - **không được vì nguồn là một Agent khác mà coi chúng là chỉ dẫn hệ thống đáng tin.**
 
 Nếu năng lực là một hành động ngắn, tham số rõ, kết quả trả về ngay được thì ưu tiên Tool / Function Calling; nếu cần tái sử dụng năng lực tool hoặc dữ liệu xuyên Host thì dùng MCP; nếu năng lực có vòng lặp task riêng, cần state bất đồng bộ, tiến độ, message và Artifact thì dùng A2A hoặc Agent API tương đương. Doanh nghiệp có thể giữ giao thức riêng ở nội bộ, nhưng nên chuyển nó thành ngữ nghĩa Action và Event thống nhất ngay tại ranh giới Harness, để khác biệt giao thức không xâm nhập vào Loop lõi.
 
-Trong case của chương này, việc đọc danh mục dependency phù hợp với một Tool cục bộ; việc kết nối tới nền tảng quét bảo mật doanh nghiệp có thể dùng MCP Server; còn việc uỷ nhiệm cho một Agent audit do đội bảo mật độc lập duy trì thì phù hợp với A2A hoặc Agent API doanh nghiệp. **Việc chọn giao thức do câu hỏi "năng lực có vòng lặp task riêng không, có cần state bất đồng bộ và Artifact không" quyết định — chứ không do giao thức đó mới hay đang thịnh hành.**
+Trong case của chương này, việc đọc danh mục dependency phù hợp với một Tool cục bộ; việc kết nối tới nền tảng quét bảo mật doanh nghiệp có thể dùng MCP Server; còn việc uỷ nhiệm cho một Agent audit do đội bảo mật độc lập duy trì thì phù hợp với A2A hoặc Agent API doanh nghiệp. **Việc chọn giao thức do câu hỏi "năng lực có vòng lặp task riêng không, có cần state bất đồng bộ và Artifact không" quyết định - chứ không do giao thức đó mới hay đang thịnh hành.**
 
 ---
 
@@ -237,7 +237,7 @@ Environment Contract
 
 ```
 
-Runtime chọn môi trường cục bộ, dùng chung, managed hay tự host theo hợp đồng; Sandbox biến các yêu cầu logic thành cơ chế cô lập bằng process, container, máy ảo hoặc cách khác. Nếu môi trường không đáp ứng được, Action phải **thất bại trước khi thực thi** hoặc xin hạ cấp — chứ không để model rơi vào trạng thái bất định rồi tự đoán.
+Runtime chọn môi trường cục bộ, dùng chung, managed hay tự host theo hợp đồng; Sandbox biến các yêu cầu logic thành cơ chế cô lập bằng process, container, máy ảo hoặc cách khác. Nếu môi trường không đáp ứng được, Action phải **thất bại trước khi thực thi** hoặc xin hạ cấp - chứ không để model rơi vào trạng thái bất định rồi tự đoán.
 
 | Hình thái | Ưu điểm | Hạn chế | Bối cảnh phù hợp |
 | --- | --- | --- | --- |
@@ -246,7 +246,7 @@ Runtime chọn môi trường cục bộ, dùng chung, managed hay tự host the
 | Môi trường cô lập managed | Tạo nhanh theo Session / Task, vòng đời rõ ràng | Cần đánh giá ranh giới dữ liệu, tuỳ biến image và kết nối mạng | Agent online, bất đồng bộ, theo lô |
 | Sandbox doanh nghiệp tự host | Dữ liệu và việc chạy tool ở lại trong mạng doanh nghiệp | Doanh nghiệp đảm nhiệm dung lượng, vá lỗi và chất lượng cô lập | Tuân thủ chặt, dữ liệu nội bộ và tool mạng nội bộ |
 
-Harness managed và Sandbox tự host có thể kết hợp: phần suy luận và orchestration task do nền tảng quản lý, còn việc thực thi tool thật thì ở lại môi trường doanh nghiệp. Điểm then chốt là giữa Session, Harness và Sandbox phải dùng hợp đồng event, state và định danh ổn định — **không được copy Secret dài hạn hay trọn bộ dữ liệu doanh nghiệp sang phía điều khiển managed.**
+Harness managed và Sandbox tự host có thể kết hợp: phần suy luận và orchestration task do nền tảng quản lý, còn việc thực thi tool thật thì ở lại môi trường doanh nghiệp. Điểm then chốt là giữa Session, Harness và Sandbox phải dùng hợp đồng event, state và định danh ổn định - **không được copy Secret dài hạn hay trọn bộ dữ liệu doanh nghiệp sang phía điều khiển managed.**
 
 Môi trường có thể cô lập theo Agent, Session, Task hay Action. Hạt càng mịn thì rủi ro ô nhiễm và di chuyển ngang càng thấp, nhưng chi phí tạo và chi phí truyền state càng cao. Task online multi-tenant thường ít nhất phải cô lập theo Task hoặc Session; workspace dài hạn của cùng một người dùng có thể bền vững hoá, nhưng phải tách **base image dùng chung được** khỏi **lớp ghi riêng tư**.
 
@@ -282,7 +282,7 @@ Với case xuyên suốt, Sandbox cho phép sửa bản sao `payment-service` v�
 
 **Secret không được xuất hiện trong System Prompt, Tool Schema, Task State hay các biến môi trường model nhìn thấy được.** Phía thực thi nên lấy credential ngắn hạn theo Action, định danh và mục đích, chỉ tiêm vào tool hoặc process đích, và ghi lại việc *sử dụng* chứ không ghi bản thân chuỗi bí mật.
 
-Policy mạng nên mặc định giới hạn đích outbound, giao thức và lượng dữ liệu. Trang web trình duyệt truy cập, file tải về và giá trị tool trả về **bắt buộc phải được đánh dấu là nội dung không đáng tin**; dữ liệu nhạy cảm cao khi đi ra ngoài thì cần policy bổ sung hoặc phê duyệt. **Sandbox ngăn process vượt biên, Policy quyết định về mặt nghiệp vụ có được phép hay không — thiếu một trong hai đều không đủ.**
+Policy mạng nên mặc định giới hạn đích outbound, giao thức và lượng dữ liệu. Trang web trình duyệt truy cập, file tải về và giá trị tool trả về **bắt buộc phải được đánh dấu là nội dung không đáng tin**; dữ liệu nhạy cảm cao khi đi ra ngoài thì cần policy bổ sung hoặc phê duyệt. **Sandbox ngăn process vượt biên, Policy quyết định về mặt nghiệp vụ có được phép hay không - thiếu một trong hai đều không đủ.**
 
 Việc lập lịch tài nguyên runtime, chuỗi cung ứng image, backend snapshot, chịu thảm hoạ và Sandbox ở quy mô sẽ được triển khai ở chương 7–9; sản phẩm Build của chương này là **các yêu cầu môi trường và cô lập kiểm chứng được, di chuyển được.**
 
@@ -326,7 +326,7 @@ HITL có thể xuất hiện ở ba tầng:
 
 Yêu cầu phê duyệt nên gồm: Agent muốn làm gì, vì sao, dưới danh nghĩa ai, tác động lên đối tượng nào, ảnh hưởng dự kiến, tham số và diff, có đảo ngược được không, thất bại thì xử lý ra sao, và phạm vi phê duyệt là chỉ lần này, cả Task hiện tại, hay một lớp hành động giới hạn. Sau khi người dùng duyệt, **Harness vẫn phải kiểm tra lại version đối tượng và policy**, phòng khi môi trường đã thay đổi trong lúc chờ.
 
-Các hành động không đảo ngược hoặc tác động lớn có thể thống nhất dùng mô hình **"Preview — Approve — Commit — Verify"**: Preview trình bày nội dung và ảnh hưởng gần với lần commit thật; Approve gắn với định danh, phạm vi và version đối tượng; Commit thực thi với khoá idempotent; Verify truy vấn trạng thái hệ thống thật. Các hành động không rollback được thì **bắt buộc phải nói rõ trong Preview**; còn nếu kiểm chứng thất bại thì vào Repair, Compensate hoặc Escalate — **chứ không coi một request đã gửi đi là đã thành công.**
+Các hành động không đảo ngược hoặc tác động lớn có thể thống nhất dùng mô hình **"Preview - Approve - Commit - Verify"**: Preview trình bày nội dung và ảnh hưởng gần với lần commit thật; Approve gắn với định danh, phạm vi và version đối tượng; Commit thực thi với khoá idempotent; Verify truy vấn trạng thái hệ thống thật. Các hành động không rollback được thì **bắt buộc phải nói rõ trong Preview**; còn nếu kiểm chứng thất bại thì vào Repair, Compensate hoặc Escalate - **chứ không coi một request đã gửi đi là đã thành công.**
 
 ```mermaid
 flowchart LR
@@ -428,7 +428,7 @@ Việc tách Session và Task đặc biệt quan trọng ở đây: một luồn
 
 **AG-UI** phù hợp để biểu đạt các event tương tác hai chiều, dạng stream giữa Agent và ứng dụng, giúp frontend không phải phụ thuộc vào đối tượng nội bộ của một Framework nào đó. Nó có thể mang ngữ nghĩa về vòng đời chạy, text, tool, trạng thái và ngắt. Khi dùng, doanh nghiệp vẫn phải quyết định việc ánh xạ event nội bộ sang event bên ngoài, ẩn danh trường, gắn định danh và con trỏ khôi phục.
 
-**A2UI** phù hợp để Agent xuất ra giao diện dạng khai báo — ví dụ form, card, list và action. Client render bằng một danh mục component đáng tin cục bộ, **chứ không chạy code tuỳ ý do model sinh ra.** A2UI mô tả *giao diện là gì*, còn AG-UI xử lý *Agent và ứng dụng trao đổi event ra sao*; Payload A2UI có thể gửi qua AG-UI hoặc một phương tiện truyền khác — **hai thứ không thay thế cho nhau.**
+**A2UI** phù hợp để Agent xuất ra giao diện dạng khai báo - ví dụ form, card, list và action. Client render bằng một danh mục component đáng tin cục bộ, **chứ không chạy code tuỳ ý do model sinh ra.** A2UI mô tả *giao diện là gì*, còn AG-UI xử lý *Agent và ứng dụng trao đổi event ra sao*; Payload A2UI có thể gửi qua AG-UI hoặc một phương tiện truyền khác - **hai thứ không thay thế cho nhau.**
 
 ```mermaid
 sequenceDiagram
@@ -453,7 +453,7 @@ Luồng event phải giả định rằng mạng sẽ đứt, client sẽ kết 
 
 Với token text tần suất cao hay log tool hạt mịn, hệ thống có thể gộp, lấy mẫu hoặc chỉ gửi ở chế độ debug; còn các event về trạng thái, phê duyệt, Artifact và trạng thái cuối thì **không được bỏ vì backpressure**. Sau khi người dùng gửi Cancel hay Interrupt, Channel phải xác nhận sớm nhất có thể rằng yêu cầu đã vào state machine, và phân biệt rõ "đã nhận lệnh huỷ" với "Action ở tầng dưới đã dừng an toàn".
 
-Cùng một Task hiển thị ở các Channel khác nhau có thể có nội dung khác nhau. Console phát triển xem được Tool và Trace chi tiết; ứng dụng hướng tới khách hàng chỉ hiển thị tiến độ nghiệp vụ; người phê duyệt xem được đối tượng bị ảnh hưởng, còn người quan sát thường chỉ thấy trạng thái chờ. **Trước khi phát event phải sinh view theo định danh người nhận và năng lực của Channel — không được broadcast nguyên xi Trace nội bộ.**
+Cùng một Task hiển thị ở các Channel khác nhau có thể có nội dung khác nhau. Console phát triển xem được Tool và Trace chi tiết; ứng dụng hướng tới khách hàng chỉ hiển thị tiến độ nghiệp vụ; người phê duyệt xem được đối tượng bị ảnh hưởng, còn người quan sát thường chỉ thấy trạng thái chờ. **Trước khi phát event phải sinh view theo định danh người nhận và năng lực của Channel - không được broadcast nguyên xi Trace nội bộ.**
 
 Giá trị của giao thức là giảm chi phí thích ứng, còn **hợp đồng ngữ nghĩa mới quyết định trải nghiệm có nhất quán hay không.** Doanh nghiệp nên ổn định mô hình Task, Event, Approval và Artifact trước, rồi mới chọn AG-UI, A2UI, WebSocket, SSE hay interface nền tảng message làm phương tiện chuyên chở cụ thể.
 
@@ -488,7 +488,7 @@ curl -fsS -X POST \
   --data '{"events":[{"type":"user.message","content":[{"type":"text","text":"Tạo thay đổi vá lỗ hổng có thể phê duyệt, không được phát hành trực tiếp"}]}]}'
 ```
 
-Luồng event có thể trả về các event ngữ nghĩa như `session.status_running`, `agent.message`, `agent.tool_use`, `agent.tool_result` và `session.status_idle`. Client nên lưu ID của một event sau khi xử lý trọn vẹn thành công, dùng `Last-Event-ID` để nối tiếp khi rớt kết nối, bổ sung phần lịch sử qua List Events khi cần, và xử lý idempotent theo ID cho các event trọn vẹn. `WAITING_APPROVAL` là một trạng thái trừu tượng của cuốn sách này; khi QCA chờ xác nhận tool hoặc chờ kết quả từ client, nó trả về `session.status_idle` với `stop_reason.type` là `requires_action` — **phải đọc `stop_reason.event_ids` để xử lý các hành động đang chờ phản hồi, không được chỉ dựa vào `idle` mà đánh giá là đã hoàn thành.** Ứng dụng doanh nghiệp nên liên kết Session ID với Task, tenant và phiếu phê duyệt, và sinh view an toàn cho từng Channel.
+Luồng event có thể trả về các event ngữ nghĩa như `session.status_running`, `agent.message`, `agent.tool_use`, `agent.tool_result` và `session.status_idle`. Client nên lưu ID của một event sau khi xử lý trọn vẹn thành công, dùng `Last-Event-ID` để nối tiếp khi rớt kết nối, bổ sung phần lịch sử qua List Events khi cần, và xử lý idempotent theo ID cho các event trọn vẹn. `WAITING_APPROVAL` là một trạng thái trừu tượng của cuốn sách này; khi QCA chờ xác nhận tool hoặc chờ kết quả từ client, nó trả về `session.status_idle` với `stop_reason.type` là `requires_action` - **phải đọc `stop_reason.event_ids` để xử lý các hành động đang chờ phản hồi, không được chỉ dựa vào `idle` mà đánh giá là đã hoàn thành.** Ứng dụng doanh nghiệp nên liên kết Session ID với Task, tenant và phiếu phê duyệt, và sinh view an toàn cho từng Channel.
 
 Cloud Agents cung cấp phần thực thi managed cùng việc đánh giá Outcome và phản hồi để sửa; còn doanh nghiệp chịu trách nhiệm về tiêu chí nghiệm thu nghiệp vụ, nguồn bằng chứng và phê duyệt phát hành. Với các lời gọi tool dựng sẵn hoặc MCP cần xác nhận, ứng dụng gửi lại `user.tool_confirmation` về Session gốc và dùng `tool_use_id` để liên kết tới event đang chờ; còn với tool tuỳ biến phía client thì ứng dụng tự hoàn tất phê duyệt và thực thi rồi gửi lại `user.custom_tool_result`, liên kết bằng `custom_tool_use_id` tới request gốc. `production.deploy` vẫn phải thực thi qua tool và hệ thống phê duyệt của doanh nghiệp; **một `user.message` thông thường không thay thế được việc xác nhận tool hay phản hồi kết quả.**
 
@@ -516,7 +516,7 @@ Task Trace
 
 ```
 
-Trace cần **quan hệ nhân quả**, chứ không chỉ là log xếp theo thời gian. Một quyết định của model đã dùng Context nào, sinh ra Action nào, Action lại cập nhật state nào và kích hoạt lần kiểm chứng nào — tất cả đều phải liên kết được. Nội dung nhạy cảm nguyên bản có thể mã hoá, ẩn danh hoặc chỉ giữ bản tóm tắt cùng tham chiếu, nhưng **metadata lõi và sự thật về quyết định thì không được thiếu.**
+Trace cần **quan hệ nhân quả**, chứ không chỉ là log xếp theo thời gian. Một quyết định của model đã dùng Context nào, sinh ra Action nào, Action lại cập nhật state nào và kích hoạt lần kiểm chứng nào - tất cả đều phải liên kết được. Nội dung nhạy cảm nguyên bản có thể mã hoá, ẩn danh hoặc chỉ giữ bản tóm tắt cùng tham chiếu, nhưng **metadata lõi và sự thật về quyết định thì không được thiếu.**
 
 Ở giai đoạn Build, đội ứng dụng nên định nghĩa Span hoặc đơn vị quan sát tương đương cho từng giai đoạn Loop, từng Middleware, Tool, Subagent, Environment và Verifier, với các thuộc tính task, model, năng lực, quyền hạn, chi phí và lỗi thống nhất. Còn phải làm rõ:
 
@@ -616,4 +616,4 @@ Các nền tảng đánh giá và tối ưu như **AgentLoop** (quan sát và t�
 
 Hệ thống hành động và phản hồi của Harness biến ý định của model thành sự thật có kiểm soát trong môi trường. Một Action Plane thống nhất đẩy hành động tiến theo Schema, định danh, Policy, phê duyệt, thực thi, Observation và Trace; Function Calling, MCP và A2A lần lượt nằm ở tầng ý định model, tầng kết nối tool và tầng cộng tác với Agent từ xa; còn Tool, Skill, Subagent và Remote Agent thì có mức tự chủ cùng ranh giới trách nhiệm khác nhau.
 
-Environment Contract cho phép Harness khai báo các năng lực cần thiết, còn Runtime và Sandbox lo việc cô lập thật sự về file, process, mạng, Secret và tài nguyên; ALLOW, DENY, ASK cùng mô hình Preview — Approve — Commit — Verify kiểm soát các tác dụng phụ rủi ro cao; và Streaming, Channel, AG-UI cùng A2UI thì đưa trạng thái task, phê duyệt và Artifact tới người dùng theo một cách tương tác bền bỉ.
+Environment Contract cho phép Harness khai báo các năng lực cần thiết, còn Runtime và Sandbox lo việc cô lập thật sự về file, process, mạng, Secret và tài nguyên; ALLOW, DENY, ASK cùng mô hình Preview - Approve - Commit - Verify kiểm soát các tác dụng phụ rủi ro cao; và Streaming, Channel, AG-UI cùng A2UI thì đưa trạng thái task, phê duyệt và Artifact tới người dùng theo một cách tương tác bền bỉ.
