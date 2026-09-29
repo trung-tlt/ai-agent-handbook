@@ -1,4 +1,4 @@
-# PatchPilot Agents: biến việc bàn giao patch kernel thành một vòng khép kín kỹ thuật orchestration được và kiểm chứng được
+# PatchPilot Agents: biến việc bàn giao patch kernel thành một vòng lặp khép kín kỹ thuật orchestration được và kiểm chứng được
 
 ## 1. Vì sao cần PatchPilot
 
@@ -18,7 +18,7 @@ PatchPilot không coi model lớn là một "cỗ máy sinh code vạn năng", m
 
 | Cơ chế | Thực hành kỹ thuật | Giá trị mang lại |
 | --- | --- | --- |
-| **Phân luồng theo tính khả thi** | Đánh giá nhanh bằng luật heuristic trước, rồi chỉ gọi LLM phán định tinh với các task còn mơ hồ | Dồn tài nguyên suy luận đắt đỏ vào đúng những vấn đề thực sự phức tạp |
+| **Phân luồng theo tính khả thi** | Đánh giá nhanh bằng luật heuristic trước, rồi chỉ gọi LLM đánh giá tinh với các task còn mơ hồ | Dồn tài nguyên suy luận đắt đỏ vào đúng những vấn đề thực sự phức tạp |
 | **Phân tích phụ thuộc** | Kết hợp ý định của patch, trạng thái code và các commit tiền đề để nhận diện đệ quy các phụ thuộc cần thiết | Tránh việc chỉ vá theo symbol còn thiếu khiến chuỗi phụ thuộc phình ra |
 | **Giải xung đột bằng AI** | Suy luận theo từng hunk, giữ lại phương án, nguyên nhân thất bại và phạm vi thay đổi của mỗi vòng | Giúp lần thử sau né được những đường đã kiểm chứng là vô hiệu |
 | **Gác chất lượng** | Kiểm phần dấu xung đột còn sót, phần code trôi và độ lệch ngữ nghĩa | Không phán nhầm "merge được" thành "bàn giao được" |
@@ -30,21 +30,21 @@ PatchPilot không coi model lớn là một "cỗ máy sinh code vạn năng", m
 
 ### Thực hành một: tự động phân luồng các task thất bại
 
-**Vấn đề**: một lần merge thất bại có thể do thiếu phụ thuộc, do context thay đổi, hoặc do xung đột code thật. Việc con người phán định trước "có đáng sửa không, sửa được không" tự nó đã ngốn rất nhiều thời gian.
+**Vấn đề**: một lần merge thất bại có thể do thiếu phụ thuộc, do context thay đổi, hoặc do xung đột code thật. Việc con người đánh giá trước "có đáng sửa không, sửa được không" tự nó đã ngốn rất nhiều thời gian.
 
-Cách làm: PatchPilot dùng luật heuristic đánh giá nhanh quy mô xung đột, symbol còn thiếu, các thay đổi nguy hiểm và độ phức tạp của patch trước; chỉ những task rơi vào vùng mơ hồ mới giao cho LLM phán định tiếp. Nhờ vậy hình thành một phễu hai tầng "sàng nhanh + phán tinh": task rõ ràng thì đẩy nhanh, còn task phức tạp thì mới đầu tư phân tích sâu.
+Cách làm: PatchPilot dùng luật heuristic đánh giá nhanh quy mô xung đột, symbol còn thiếu, các thay đổi nguy hiểm và độ phức tạp của patch trước; chỉ những task rơi vào vùng mơ hồ mới giao cho LLM đánh giá tiếp. Nhờ vậy hình thành một phễu hai tầng "sàng nhanh + phán tinh": task rõ ràng thì đẩy nhanh, còn task phức tạp thì mới đầu tư phân tích sâu.
 
-Điểm then chốt: tự động hoá không phải tự trị vô biên. Hệ thống đưa phán định "có xử lý tự động không" lên trước, và đặt lối nâng lên cho con người với những thay đổi rủi ro cao. Nhờ đó, Agent tập trung vào phần việc chắc chắn cao và kiểm chứng được; còn kỹ sư thì tập trung xử lý những vấn đề thực sự cần kinh nghiệm như khác biệt kiến trúc, đánh đổi ngữ nghĩa và quyết định về rủi ro.
+Điểm then chốt: tự động hoá không phải tự trị vô biên. Hệ thống đưa đánh giá "có xử lý tự động không" lên trước, và đặt lối nâng lên cho con người với những thay đổi rủi ro cao. Nhờ đó, Agent tập trung vào phần việc chắc chắn cao và kiểm chứng được; còn kỹ sư thì tập trung xử lý những vấn đề thực sự cần kinh nghiệm như khác biệt kiến trúc, đánh đổi ngữ nghĩa và quyết định về rủi ro.
 
 ### Thực hành hai: tránh kiểu giải xung đột bằng AI "trông như thành công"
 
 **Vấn đề**: giải xong xung đột Git không đồng nghĩa với việc giữ được ý định của patch gốc. AI có thể để sót dấu xung đột, bỏ mất phần thay đổi then chốt, thậm chí sinh ra code không tồn tại ở upstream.
 
-Cách làm: trước khi giải xung đột, hệ thống đối chiếu ý định của patch trước, và lần theo phụ thuộc dựa trên manh mối "trạng thái code lệch" chứ không thuần tuý là symbol còn thiếu: sự tiến hoá của phần hiện thực hàm, trường struct và chữ ký hàm đều được đưa vào phán định. Sau khi thực thi thì lần lượt kiểm phần xung đột còn sót, phần code trôi và độ lệch ngữ nghĩa.
+Cách làm: trước khi giải xung đột, hệ thống đối chiếu ý định của patch trước, và lần theo phụ thuộc dựa trên manh mối "trạng thái code lệch" chứ không thuần tuý là symbol còn thiếu: sự tiến hoá của phần hiện thực hàm, trường struct và chữ ký hàm đều được đưa vào đánh giá. Sau khi thực thi thì lần lượt kiểm phần xung đột còn sót, phần code trôi và độ lệch ngữ nghĩa.
 
 Điểm then chốt: mỗi vòng thử của Agent đều ghi lại phương án xử lý, nguyên nhân thất bại và phạm vi thay đổi; lần retry sau mang theo phần memory có cấu trúc đó mà tiếp tục, chứ không lặp lại đúng một đường vô hiệu. Các commit phụ thuộc bắt buộc phải do tool Git liệt kê chính xác, tránh việc model theo trực giác mà bịa ra những thay đổi tiền đề không tồn tại.
 
-### Thực hành ba: định nghĩa thành công bằng việc bàn giao đầu-cuối
+### Thực hành ba: định nghĩa thành công bằng việc bàn giao đầu cuối
 
 **Vấn đề**: một vòng thành công rồi thì vẫn có thể thất bại ở PR, ở vòng kiểm tra hay ở chuỗi về sau. Chỉ thống kê "lệnh chạy thành công" sẽ đánh giá quá cao giá trị của tự động hoá.
 
@@ -66,7 +66,7 @@ Nhờ vậy, Agent của PatchPilot không chỉ "đưa ra đề xuất", mà th
 
 ### Bảo đảm vận hành: để tự động hoá chạy ổn định lâu dài
 
-Hướng tới nhiều version kernel và lượng lớn patch, độ tin cậy của Agent không chỉ phụ thuộc vào hiệu quả model, mà còn phụ thuộc vào việc hệ task có khôi phục được không. PatchPilot liên tục kết tinh trạng thái task, sản phẩm thực thi và kết quả soát; rồi qua việc khử trùng lặp, khôi phục lịch và xử lý timeout mà tránh cho việc thực thi lặp, gián đoạn bất thường hay bỏ sót task ảnh hưởng tới nhịp bàn giao tổng thể.
+Hướng tới nhiều version kernel và lượng lớn patch, độ tin cậy của Agent không chỉ phụ thuộc vào hiệu quả model, mà còn phụ thuộc vào việc hệ task có khôi phục được không. PatchPilot liên tục lưu lại trạng thái task, sản phẩm thực thi và kết quả soát; rồi qua việc loại bỏ trùng lặp, khôi phục lịch và xử lý timeout mà tránh cho việc thực thi lặp, gián đoạn bất thường hay bỏ sót task ảnh hưởng tới nhịp bàn giao tổng thể.
 
 Điều này cũng có nghĩa là đối tượng tối ưu của hệ thống không chỉ là "một lần giải xung đột có thành công không", mà còn gồm thông lượng task, tính nhìn thấy được của thất bại và độ ổn định của chuỗi bàn giao. Năng lực model, phần orchestration workflow và phần bảo đảm vận hành cùng tạo thành hạ tầng hiệu suất R&D mở rộng quy mô được.
 
@@ -88,9 +88,9 @@ Giá trị của PatchPilot Agents không chỉ đến từ việc "đã dùng L
 
 3. **Ràng buộc phần sinh bằng cổng chất lượng.** Với mỗi hành động tự động, hãy định nghĩa kết quả kiểm chứng được và điều kiện nâng lên cho con người.
 
-4. **Đo giá trị bằng kết quả đầu-cuối.** Hãy quan sát đồng thời hiệu suất, chi phí, tỉ lệ bàn giao, tỉ lệ nâng lên cho con người và tỉ lệ làm lại, tránh chỉ nhìn tỉ lệ thành công ở một điểm.
+4. **Đo giá trị bằng kết quả đầu cuối.** Hãy quan sát đồng thời hiệu suất, chi phí, tỉ lệ bàn giao, tỉ lệ nâng lên cho con người và tỉ lệ làm lại, tránh chỉ nhìn tỉ lệ thành công ở một điểm.
 
-5. **Biến thất bại thành tài sản.** Hãy kết tinh có cấu trúc nguyên nhân thất bại, quá trình thử và quyết định của con người, rồi liên tục nuôi ngược lại luật, prompt và phần đánh giá.
+5. **Biến thất bại thành tài sản.** Hãy kết tinh có cấu trúc nguyên nhân thất bại, quá trình thử và quyết định của con người, rồi liên tục phản hồi trở lại luật, prompt và phần đánh giá.
 
 ---
 

@@ -68,7 +68,7 @@ Với nội dung bên ngoài như trang web, email, tài liệu và giá trị t
 
 Dù hành vi ngoài dự kiến đến từ việc bị dụ dỗ bên ngoài hay từ sai lệch khi thực thi task, **nó đều phải chịu ràng buộc của luật thực thi ứng dụng.** Phải làm rõ theo nhu cầu nghiệp vụ: Agent truy cập được những đích nào, thực hiện được những thao tác nào, xử lý được phạm vi dữ liệu nào; và **kiểm tra trước khi request thực sự phát ra hay trước khi commit nghiệp vụ.** Truy cập database thì dùng truy vấn tham số hoá; interface nghiệp vụ thì kiểm tra đối tượng thao tác, số lượng và trạng thái; request mạng thì kiểm tra địa chỉ kết nối thực tế, redirect và đích gửi hộ của dịch vụ trung gian; còn output thì phải hoàn tất xử lý an toàn và kiểm tra dữ liệu nhạy cảm trước khi render, gửi hay phát hành. Với các thao tác ảnh hưởng lớn, còn phải đặt khâu xác nhận theo luật nghiệp vụ, và **bảo đảm nội dung xác nhận khớp với phần thực thi thực tế.**
 
-Song song với việc giới hạn phạm vi thực thi, cần liên tục quan sát hành vi thực tế của Agent. Hãy liên kết task, lời gọi tool và kết quả nghiệp vụ với bản ghi giao tiếp đông–tây và bắc–nam; chú ý các tình huống thăm dò xuyên dịch vụ, duyệt interface bất thường, đọc hàng loạt, gửi dữ liệu ra ngoài ngoài dự kiến, và việc liên tục đổi đích sau nhiều lần thất bại. Giới hạn truy cập mạng có thể triển khai qua cloud firewall và kiểm soát outbound; việc phát hiện bất thường có thể kết hợp NDR để audit nghiệp vụ; còn việc kiểm tra dữ liệu nhạy cảm đi ra ngoài thì kết hợp DLP. **Kết quả phát hiện phải liên động với gateway, firewall và tầng orchestration task** để kịp chặn request, tạm dừng task và ngừng các lời gọi tiếp theo; với giao tiếp đã mã hoá và các thao tác nội bộ trong SaaS thì còn phải bù thêm log phía ứng dụng, **tránh chỉ dựa vào traffic mạng để phán đoán.**
+Song song với việc giới hạn phạm vi thực thi, cần liên tục quan sát hành vi thực tế của Agent. Hãy liên kết task, lời gọi tool và kết quả nghiệp vụ với bản ghi giao tiếp đông–tây và bắc–nam; chú ý các tình huống thăm dò xuyên dịch vụ, duyệt interface bất thường, đọc hàng loạt, gửi dữ liệu ra ngoài ngoài dự kiến, và việc liên tục đổi đích sau nhiều lần thất bại. Giới hạn truy cập mạng có thể triển khai qua cloud firewall và kiểm soát outbound; việc phát hiện bất thường có thể kết hợp NDR để audit nghiệp vụ; còn việc kiểm tra dữ liệu nhạy cảm đi ra ngoài thì kết hợp DLP. **Kết quả phát hiện phải liên động với gateway, firewall và tầng orchestration task** để kịp chặn request, tạm dừng task và ngừng các lời gọi tiếp theo; với giao tiếp đã mã hoá và các thao tác nội bộ trong SaaS thì còn phải bù thêm log phía ứng dụng, **tránh chỉ dựa vào traffic mạng để nhận định.**
 
 # 14.3 Bảo vệ an toàn model
 
@@ -78,7 +78,7 @@ Khi công nghệ mô hình lớn thẩm thấu ngày càng nhanh vào ứng dụ
 
 Việc bảo vệ ở tầng ứng dụng Web truyền thống chủ yếu gồm bảo mật ứng dụng Web, bảo mật API và chống crawler; còn các mối đe doạ ứng dụng cốt lõi mà Agent đối mặt đã vượt phạm vi ứng dụng Web truyền thống, và cần ứng phó một cách hệ thống với ba nhóm bối cảnh rủi ro cao liên quan tới bảo mật model:
 
-*   **Mối đe doạ ở tầng input:** gồm tấn công bằng mẫu đối kháng (ví dụ tinh chỉnh hình ảnh/âm thanh để dụ Agent đa phương thức phán đoán sai), các biến thể của prompt injection (như tấn công chia cắt context, tấn công gây nhiễu ngữ nghĩa), cùng việc kích hoạt lỗ hổng chuỗi cung ứng qua file độc hại (như steganography trong PDF);
+*   **Mối đe doạ ở tầng input:** gồm tấn công bằng mẫu đối kháng (ví dụ tinh chỉnh hình ảnh/âm thanh để dụ Agent đa phương thức nhận định sai), các biến thể của prompt injection (như tấn công chia cắt context, tấn công gây nhiễu ngữ nghĩa), cùng việc kích hoạt lỗ hổng chuỗi cung ứng qua file độc hại (như steganography trong PDF);
 
 *   **Mối đe doạ ở tầng suy luận:** bao gồm mất kiểm soát đạo đức do jailbreak model, rò rỉ tài sản dữ liệu do việc cào có định hướng kho tri thức RAG (Prompt Crawling), và việc chiếm quyền gọi hàm (như sửa tham số API để thực hiện thao tác chưa được uỷ quyền);
 
@@ -102,9 +102,9 @@ Việc bảo vệ ở tầng ứng dụng Web truyền thống chủ yếu gồm
 
 *   **Cơ chế chống cào qua prompt:** kẻ tấn công có thể dựng một chuỗi prompt cụ thể để liên tục thăm dò nội dung kho tri thức RAG hay dữ liệu huấn luyện model qua Agent — tức tấn công Prompt Crawling. Bằng phân tích hành vi động và nhận dạng mẫu, ta nhận diện tần suất truy vấn và ý định ngữ nghĩa bất thường, kịp chặn rủi ro tài sản dữ liệu bị đánh cắp một cách hệ thống.
 
-*   **Phát hiện jailbreak model:** qua một số input đặc thù, kẻ tấn công có thể phá vỡ cơ chế an toàn định trước của mô hình lớn, khiến nó sinh ra nội dung trái đạo đức, pháp luật hay giá trị thông thường. Để ứng phó với kiểu tấn công này, ngoài việc triển khai phòng thủ prompt ở khâu input phía trước, ta còn phát hiện và phán định jailbreak trên kết quả output của model, tạo nên sự bảo đảm toàn chuỗi, nhiều khâu.
+*   **Phát hiện jailbreak model:** qua một số input đặc thù, kẻ tấn công có thể phá vỡ cơ chế an toàn định trước của mô hình lớn, khiến nó sinh ra nội dung trái đạo đức, pháp luật hay giá trị thông thường. Để ứng phó với kiểu tấn công này, ngoài việc triển khai phòng thủ prompt ở khâu input phía trước, ta còn phát hiện và đánh giá jailbreak trên kết quả output của model, tạo nên sự bảo đảm toàn chuỗi, nhiều khâu.
 
-*   **Kìm chế ảo giác model:** do thiếu cơ chế kiểm chứng với thế giới thật, Agent dễ sinh "ảo giác" trong lúc suy luận, xuất ra thông tin trông hợp lý nhưng sai sự thật (như bịa quy định, lời khuyên y tế sai). Bằng việc đối chiếu tính nhất quán của thông tin context và cơ chế đối chiếu tri thức bên ngoài, ta kiểm chứng độ tin cậy của output Agent tại các nút quyết định then chốt, giảm đáng kể xác suất phán đoán sai trong các lĩnh vực rủi ro cao.
+*   **Kìm chế ảo giác model:** do thiếu cơ chế kiểm chứng với thế giới thật, Agent dễ sinh "ảo giác" trong lúc suy luận, xuất ra thông tin trông hợp lý nhưng sai sự thật (như bịa quy định, lời khuyên y tế sai). Bằng việc đối chiếu tính nhất quán của thông tin context và cơ chế đối chiếu tri thức bên ngoài, ta kiểm chứng độ tin cậy của output Agent tại các nút quyết định then chốt, giảm đáng kể xác suất nhận định sai trong các lĩnh vực rủi ro cao.
 
 *   **Đánh dấu watermark số:** khi Agent sinh hình ảnh và nội dung khác, guardrail an toàn sẽ tự động chèn watermark số nhìn thấy được hay không nhìn thấy được theo *Quy định về đánh dấu nội dung tổng hợp do trí tuệ nhân tạo tạo ra*, để nội dung AIGC **truy nguyên được, audit được**, ngăn việc lan truyền thông tin giả và tranh chấp bản quyền — thực sự làm được "sinh ra có dấu vết, trách nhiệm truy được".
 
@@ -138,7 +138,7 @@ Người dùng cần hiểu và kiểm soát được tình hình model sử d�
 
 *   **Ứng dụng model: thao tác audit được và trách nhiệm truy nguyên được**
 
-Việc dữ liệu người dùng bị ứng dụng model xử lý đòi hỏi **các bên phải thoả thuận quyền–trách nhiệm trước, và audit cùng truy nguyên được sau đó.** Trong tình huống xử lý dữ liệu model phức tạp, rất dễ xảy ra rò rỉ dữ liệu nhạy cảm; vì vậy việc xác định quyền–trách nhiệm an toàn dữ liệu và phán định trách nhiệm của từng bên đặt ra thách thức mới, khiến các nguyên tắc "ai nắm giữ, người đó chịu trách nhiệm", "ai sử dụng, người đó chịu trách nhiệm", "ai vận hành, người đó chịu trách nhiệm" trở nên khó thực hiện.
+Việc dữ liệu người dùng bị ứng dụng model xử lý đòi hỏi **các bên phải thoả thuận quyền–trách nhiệm trước, và audit cùng truy nguyên được sau đó.** Trong tình huống xử lý dữ liệu model phức tạp, rất dễ xảy ra rò rỉ dữ liệu nhạy cảm; vì vậy việc xác định quyền–trách nhiệm an toàn dữ liệu và đánh giá trách nhiệm của từng bên đặt ra thách thức mới, khiến các nguyên tắc "ai nắm giữ, người đó chịu trách nhiệm", "ai sử dụng, người đó chịu trách nhiệm", "ai vận hành, người đó chịu trách nhiệm" trở nên khó thực hiện.
 
 Một mặt, cần ràng buộc trước về nguyên tắc đối với trách nhiệm mà mỗi bên phải gánh khi rò rỉ hay lạm dụng dữ liệu. Mặt khác, khi gọi model để orchestration ứng dụng, cần ghi lại và quản lý quá trình cùng thông tin về quyền của nhiều bên, để về sau tìm được đúng nguồn gốc vấn đề và mắt xích yếu về an toàn, và để các bên liên quan đòi quyền lợi. Ngoài ra, **quá trình này khó có thể do chính nhà cung cấp dịch vụ model tự chứng minh**, nên cần cơ chế quản lý minh bạch và kiểm chứng tốt hơn để làm được việc audit thao tác.
 
@@ -240,7 +240,7 @@ Có thể dùng sản phẩm dịch vụ kiểm soát truy cập cloud-native (n
 
 ### 5. Xử lý dữ liệu
 
-An toàn khi xử lý dữ liệu là cực kỳ quan trọng; có thể dùng cơ chế guardrail cho mô hình lớn theo kiểu cloud-native. Lấy AI Guardrail của Alibaba Cloud làm ví dụ: nó có thể lọc và chặn thời gian thực để bảo đảm an toàn cho dữ liệu và thông tin nội dung trong quá trình khách hàng dùng Agent và model, nhờ đó kiểm soát hiệu quả an toàn dữ liệu trong quá trình người dùng dùng Agent, giảm rủi ro rò rỉ dữ liệu. Năng lực an toàn của AI Guardrail hỗ trợ nhận diện bất thường rủi ro, hỗ trợ nhận diện ý định, lọc thời gian thực các nội dung về đạo đức, giá trị, dữ liệu nhạy cảm cá nhân, và chặn ở khâu hỏi–đáp an toàn. Có thể theo nhu cầu người dùng để xây kho tri thức an toàn và kho tri thức chuyên đề, hiện thực việc tự định nghĩa linh hoạt luật an toàn dữ liệu và quyết định rủi ro.
+An toàn khi xử lý dữ liệu là cực kỳ quan trọng; có thể dùng cơ chế guardrail cho mô hình lớn theo kiểu cloud-native. Lấy AI Guardrail của Alibaba Cloud làm ví dụ: nó có thể lọc và chặn thời gian thực để bảo đảm an toàn cho dữ liệu và thông tin nội dung trong quá trình khách hàng dùng Agent và model, nhờ đó kiểm soát hiệu quả an toàn dữ liệu trong quá trình người dùng dùng Agent, giảm rủi ro rò rỉ dữ liệu. Năng lực an toàn của AI Guardrail hỗ trợ nhận diện bất thường rủi ro, hỗ trợ nhận diện ý định, lọc thời gian thực các nội dung về đạo đức, giá trị, dữ liệu nhạy cảm cá nhân, và chặn ở khâu hỏi–đáp an toàn. Có thể theo nhu cầu người dùng để xây kho tri thức an toàn và kho tri thức chuyên đề, triển khai tự định nghĩa linh hoạt luật an toàn dữ liệu và quyết định rủi ro.
 
 ![image](../assets/imgs/chapter-14/image-006.png)
 
@@ -282,7 +282,7 @@ Sau khi phát hiện, cần quản lý nhất thể về định danh, quyền h
 
 *   **Định danh Agent thống nhất (Agent Identity):** mỗi Agent được cấp một "thẻ nhân viên số" duy nhất; dù là Agent do nền tảng như Bailian, PAI, AgentRun tự tạo, hay Agent tạo thủ công qua API/console, đều được quản lý thống nhất. Hỗ trợ liên kết định danh Agent với định danh con người và định danh máy.
 
-*   **Tích hợp nguồn định danh doanh nghiệp:** qua OIDC / OAuth 2.0 chuẩn để đấu nối DingTalk, Feishu, WeCom, LDAP, Azure AD, Okta, Entra ID cùng các nguồn định danh khác, hiện thực việc truyền định danh đầu-cuối **"người dùng → client → Agent → tài nguyên truy cập"**, ngăn giả mạo định danh.
+*   **Tích hợp nguồn định danh doanh nghiệp:** qua OIDC / OAuth 2.0 chuẩn để đấu nối DingTalk, Feishu, WeCom, LDAP, Azure AD, Okta, Entra ID cùng các nguồn định danh khác, triển khai truyền định danh đầu cuối **"người dùng → client → Agent → tài nguyên truy cập"**, ngăn giả mạo định danh.
 
 *   **Quản lý credential động:** các credential nhạy cảm như API Key, OAuth Secret, LLM Key được KMS mã hoá rồi quản lý tập trung trong **Token Vault**. **Code Agent không chạm vào credential dài hạn dạng plaintext**; chỉ lúc chạy mới lấy token ngắn hạn theo Agent ID và phần uỷ quyền của người dùng — tức là "phát triển không cần khoá".
 
@@ -446,7 +446,7 @@ Qua cơ chế quét image và ký số, bảo đảm việc bàn giao container 
 
 *   **Quét và tuân thủ:** trên Alibaba Cloud, dịch vụ Container Registry ACR tự động quét image trong luồng CI/CD, phát hiện lỗ hổng hệ thống, lỗ hổng ứng dụng, mẫu độc hại và thông tin nhạy cảm (như khoá hard-code).
 
-*   **Ký và kiểm chữ ký:** lập trình viên ký lên các image tuân thủ; cụm ACK **chỉ cho phép triển khai các image có chữ ký hợp lệ**, ngăn đầu độc chuỗi cung ứng. Ưu thế kỹ thuật nằm ở việc **dịch chuyển bảo mật sang trái** tới giai đoạn phát triển (quét image) và sang giai đoạn vận hành (cô lập sandbox), tạo vòng khép kín trọn vẹn từ build code tới triển khai production.
+*   **Ký và kiểm chữ ký:** lập trình viên ký lên các image tuân thủ; cụm ACK **chỉ cho phép triển khai các image có chữ ký hợp lệ**, ngăn đầu độc chuỗi cung ứng. Ưu thế kỹ thuật nằm ở việc **dịch chuyển bảo mật sang trái** tới giai đoạn phát triển (quét image) và sang giai đoạn vận hành (cô lập sandbox), tạo vòng lặp khép kín trọn vẹn từ build code tới triển khai production.
 
 **4. Cô lập ở mức phiên cho runtime của Agent**
 

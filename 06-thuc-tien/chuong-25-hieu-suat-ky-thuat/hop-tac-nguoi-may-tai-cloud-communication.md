@@ -1,22 +1,22 @@
-# Từ nâng hiệu suất viết code tới bàn giao đầu-cuối — thực tiễn cộng tác người – máy ở mảng Cloud Communication
+# Từ nâng hiệu suất viết code tới bàn giao đầu cuối — thực tiễn cộng tác người – máy ở mảng Cloud Communication
 
 ## Một — Nâng hiệu suất viết code không đồng nghĩa với nâng hiệu suất bàn giao
 
-Cộng tác trong R&D là một trong những hướng triển khai AI then chốt nhất hiện nay. Đội R&D Cloud Communication đón nhận AI một cách chủ động và bắt đầu nâng hiệu suất bằng AI khá sớm: năm 2024 trải rộng phần tự động hoàn thành code, lập trình kiểu đối thoại và IDE sinh thành vào công việc phát triển hằng ngày. Năm 2025 chuẩn hoá tác nghiệp, kết tinh các quy phạm và tri thức lĩnh vực thành các vật liệu như hiến pháp project, Skill, để AI làm việc có quy củ. Tới năm 2026 thì đã chuyển hẳn sang mô hình tác nghiệp theo Agent, và đang tiến tới bàn giao đầu-cuối.
+Cộng tác trong R&D là một trong những hướng triển khai AI then chốt nhất hiện nay. Đội R&D Cloud Communication đón nhận AI một cách chủ động và bắt đầu nâng hiệu suất bằng AI khá sớm: năm 2024 trải rộng phần tự động hoàn thành code, lập trình kiểu đối thoại và IDE sinh thành vào công việc phát triển hằng ngày. Năm 2025 chuẩn hoá tác nghiệp, kết tinh các quy phạm và tri thức lĩnh vực thành các vật liệu như hiến pháp project, Skill, để AI làm việc có quy củ. Tới năm 2026 thì đã chuyển hẳn sang mô hình tác nghiệp theo Agent, và đang tiến tới bàn giao đầu cuối.
 
 ![fig1-1-ba-giai-doan.png](../../assets/imgs/chapter-25/image-018.png)
 
  _Hình 1-1 — Ba giai đoạn tiến hoá của AI Coding_
 
-Đi hết ba giai đoạn, xuất hiện một kết quả phản trực giác: lượng code AI sinh ra tăng gấp N lần, nhưng hiệu suất bàn giao đầu-cuối thì không nhảy vọt theo. Một nhu cầu, từ lúc nêu ra tới lúc lên production, chu kỳ bàn giao chỉ nén được một đoạn rất nhỏ, mức cải thiện không rõ rệt. Sự tương phản đó khiến chúng tôi nhìn lại cả chuỗi.
+Đi hết ba giai đoạn, xuất hiện một kết quả phản trực giác: lượng code AI sinh ra tăng gấp N lần, nhưng hiệu suất bàn giao đầu cuối thì không nhảy vọt theo. Một nhu cầu, từ lúc nêu ra tới lúc lên production, chu kỳ bàn giao chỉ nén được một đoạn rất nhỏ, mức cải thiện không rõ rệt. Sự tương phản đó khiến chúng tôi nhìn lại cả chuỗi.
 
-Sau khi phân tích, chúng tôi nhận ra: **nâng hiệu suất viết code không đồng nghĩa với nâng hiệu suất bàn giao.** Chỗ tắc không nằm ở bản thân việc viết code, mà ở những node ngoài việc viết code vẫn do con người nối: (1) Việc làm rõ và đối chiếu nhu cầu ngốn nhân lực; khi PRD thiếu yếu tố thì Agent không bắt tay thẳng được, con người phải bù context. (2) Việc review code không theo kịp sản lượng; một lần Agent cho ra cả vạn dòng code, mà cuối cùng vẫn phải có người soát từng dòng, nên hiệu suất khó nâng mạnh. (3) Lịch test thành nút thắt; lượng AI sinh ra dồn lên là hàng đợi test thủ công tắc ngay. Từ đó có thể thấy, hễ trong chuỗi bàn giao còn một node do con người nối, thì node đó quyết định trần thông lượng. Muốn thực sự nâng hiệu suất đầu-cuối thì bắt buộc phải hiện thực mô hình bàn giao R&D **cộng tác Agent trên toàn quy trình**.
+Sau khi phân tích, chúng tôi nhận ra: **nâng hiệu suất viết code không đồng nghĩa với nâng hiệu suất bàn giao.** Chỗ tắc không nằm ở bản thân việc viết code, mà ở những node ngoài việc viết code vẫn do con người nối: (1) Việc làm rõ và đối chiếu nhu cầu ngốn nhân lực; khi PRD thiếu yếu tố thì Agent không bắt tay thẳng được, con người phải bù context. (2) Việc review code không theo kịp sản lượng; một lần Agent cho ra cả vạn dòng code, mà cuối cùng vẫn phải có người soát từng dòng, nên hiệu suất khó nâng mạnh. (3) Lịch test thành nút thắt; lượng AI sinh ra dồn lên là hàng đợi test thủ công tắc ngay. Từ đó có thể thấy, hễ trong chuỗi bàn giao còn một node do con người nối, thì node đó quyết định trần thông lượng. Muốn thực sự nâng hiệu suất đầu cuối thì bắt buộc phải hiện thực mô hình bàn giao R&D **cộng tác Agent trên toàn quy trình**.
 
 ![fig1-2-so-sanh-code-va-ban-giao.png](../../assets/imgs/chapter-25/image-019.png)
 
  _Hình 1-2 — So sánh giữa việc viết code và việc bàn giao_
 
-Mà muốn hiện thực mô hình bàn giao đầu-cuối cộng tác Agent trên toàn quy trình thì có ba vấn đề then chốt phải giải quyết.
+Mà muốn hiện thực mô hình bàn giao đầu cuối cộng tác Agent trên toàn quy trình thì có ba vấn đề then chốt phải giải quyết.
 
 **Thứ nhất là vấn đề cộng tác** — các Agent phối hợp với nhau ra sao.
 
@@ -38,7 +38,7 @@ Trước ba vấn đề đó, câu trả lời của chúng tôi lần lượt l
 
 Chúng tôi chọn cách tác nghiệp theo digital twin. Lý do là một khi coi AI là cá thể độc lập thì không tránh khỏi ba vấn đề: (1) Quyền hạn của Agent định ra sao, sửa được code nào, xem được dữ liệu nào. (2) Trách nhiệm truy ra sao — R&D là công việc rủi ro cao, một bug nhỏ cũng có thể thành sự cố production, nên có chuyện thì quy trách nhiệm thế nào. (3) Ai lo việc lặp liên tục cho Agent, và tài sản nó sinh ra thì con người dùng ra sao.
 
-Vì digital twin tận dụng đúng cách tác nghiệp sẵn có của tổ chức, nên giải được cả ba vấn đề đó một thể. (1) Về quyền hạn, nó tái dùng thẳng quyền hạn của người mà nó nối dài, nên người và phân thân bị khuôn trong cùng một bộ ranh giới sẵn có, khỏi phải dựng lại từ đầu. (2) Về trách nhiệm, mỗi lần commit, mỗi sản phẩm đều gắn với chính người đó — ai làm, sửa gì, rõ như ban ngày. (3) Người được nối dài lo việc khởi tạo và xây dựng lặp cho phân thân; còn phân thân trong quá trình tác nghiệp lại cấu trúc hoá được tri thức nghiệp vụ, ngược lại giúp con người làm phần tin học hoá cho chắc.
+Vì digital twin tận dụng đúng cách tác nghiệp sẵn có của tổ chức, nên giải được cả ba vấn đề đó một thể. (1) Về quyền hạn, nó tái dùng trực tiếp quyền hạn của người mà nó nối dài, nên người và phân thân bị khuôn trong cùng một bộ ranh giới sẵn có, khỏi phải dựng lại từ đầu. (2) Về trách nhiệm, mỗi lần commit, mỗi sản phẩm đều gắn với chính người đó — ai làm, sửa gì, rõ như ban ngày. (3) Người được nối dài lo việc khởi tạo và xây dựng lặp cho phân thân; còn phân thân trong quá trình tác nghiệp lại cấu trúc hoá được tri thức nghiệp vụ, ngược lại giúp con người làm phần tin học hoá cho chắc.
 
 **Triển khai mô hình mới một cách tiệm tiến, lấy ổn định làm ưu tiên.** Chúng tôi theo đồng thuận của ngành, triển khai mô hình bàn giao cộng tác Agent toàn quy trình vào mô hình sản xuất sẵn có theo nguyên tắc "ổn định ưu tiên, nới dần". Trước hết, ổn định áp đảo tất cả, tối đa hoá việc tránh sự cố production. Dựa trên nguyên tắc đó, chúng tôi định nghĩa một hệ đánh giá **mức rủi ro của nhu cầu**. Nói chung, các nhu cầu đơn giản như công cụ vận hành, cấu hình thì rủi ro nhỏ; còn các nhu cầu phức tạp thuộc chuỗi lõi, phát triển phối hợp xuyên ứng dụng thì rủi ro lớn. Chúng tôi đặt một cổng kiểm soát ở khâu đánh giá nhu cầu. Mỗi khi nhận một nhu cầu, hệ thống trước hết đánh giá mức rủi ro của nhu cầu (R), rồi đánh giá mức năng lực của phân thân (L) theo độ hoàn bị của vật liệu và phần kỹ thuật Harness. Nếu năng lực hiện tại của phân thân đủ xử lý nhu cầu ở mức rủi ro đó thì bàn giao bằng cộng tác Agent toàn quy trình; còn nếu năng lực chưa đủ thì vẫn bàn giao theo cách tác nghiệp thủ công. Trước hết giới hạn phạm vi tác nghiệp của Agent toàn quy trình vào các nhu cầu nhỏ, đơn giản. Đợi quy trình chạy ổn, vật liệu đủ đầy, rồi mới nới ranh giới ra từng chút một.
 
@@ -48,11 +48,11 @@ Vì digital twin tận dụng đúng cách tác nghiệp sẵn có của tổ ch
 
 Gộp ba câu trả lời lại chính là hệ bàn giao R&D dựa trên digital twin và dây chuyền tự động mà chúng tôi đang chạy hôm nay.
 
-## Hai — Dây chuyền bàn giao đầu-cuối: kiến trúc bốn tầng và vòng khép kín tác nghiệp
+## Hai — Dây chuyền bàn giao đầu cuối: kiến trúc bốn tầng và vòng lặp khép kín tác nghiệp
 
 ### 2.1 Vòng khép kín tác nghiệp
 
-Hệ bàn giao R&D dựa trên digital twin và dây chuyền tự động hiện thực được việc tác nghiệp liên tục 7×24 giờ. Digital twin vừa là lối vào của nhu cầu, vừa là router của nhu cầu. Các vai sản phẩm, nghiệp vụ, kỹ thuật đều gửi nhu cầu thẳng cho phân thân của người phụ trách R&D được; phân thân nhận việc rồi phán định năng lực trước — nếu năng lực hiện tại gánh được nhu cầu thì đi một mạch từ đối chiếu nhu cầu → phương án kỹ thuật → viết code → tự kiểm → chạy test, cả dây chuyền khép kín; còn nếu năng lực hiện tại chưa gánh được thì chuyển cho người phụ trách tương ứng, đi theo mô hình phát triển thủ công.
+Hệ bàn giao R&D dựa trên digital twin và dây chuyền tự động hiện thực được việc tác nghiệp liên tục 7×24 giờ. Digital twin vừa là lối vào của nhu cầu, vừa là router của nhu cầu. Các vai sản phẩm, nghiệp vụ, kỹ thuật đều gửi nhu cầu thẳng cho phân thân của người phụ trách R&D được; phân thân nhận việc rồi đánh giá năng lực trước — nếu năng lực hiện tại gánh được nhu cầu thì đi một mạch từ đối chiếu nhu cầu → phương án kỹ thuật → viết code → tự kiểm → chạy test, cả dây chuyền khép kín; còn nếu năng lực hiện tại chưa gánh được thì chuyển cho người phụ trách tương ứng, đi theo mô hình phát triển thủ công.
 
 ![fig2-1-vong-khep-kin.png](../../assets/imgs/chapter-25/image-021.png)
 
@@ -60,13 +60,13 @@ Hệ bàn giao R&D dựa trên digital twin và dây chuyền tự động hiệ
 
 ### 2.2 Kiến trúc bốn tầng
 
-Hệ bàn giao R&D theo digital twin và dây chuyền tự động gồm bốn tầng từ dưới lên. Tầng đáy là **tầng công cụ**, gồm bot DingTalk, nền tảng thực thi Agent trên cloud cùng các hạ tầng khác. Trên nó là **tầng vật liệu ứng dụng**, cung cấp luật và căn cứ cho việc tác nghiệp của Agent. **Tầng dây chuyền** là môi trường tác nghiệp chính thức, nơi các Agent theo vai phối hợp làm việc. Trên cùng là **kho tri thức và nền tảng kiểm toán**, hiện thực việc kiểm toán lưu hồ sơ và lặp tri thức.
+Hệ bàn giao R&D theo digital twin và dây chuyền tự động gồm bốn tầng từ dưới lên. Tầng đáy là **tầng công cụ**, gồm bot DingTalk, nền tảng thực thi Agent trên cloud cùng các hạ tầng khác. Trên nó là **tầng vật liệu ứng dụng**, cung cấp luật và căn cứ cho việc tác nghiệp của Agent. **Tầng dây chuyền** là môi trường tác nghiệp chính thức, nơi các Agent theo vai phối hợp làm việc. Trên cùng là **kho tri thức và nền tảng kiểm toán**, triển khai kiểm toán lưu hồ sơ và lặp tri thức.
 
 ![fig2-2-kien-truc-bon-tang.png](../../assets/imgs/chapter-25/image-022.png)
 
  _Hình 2-2 — Kiến trúc bốn tầng_
 
-Lối vào của tầng công cụ là bot DingTalk; phía nghiệp vụ gửi hạng mục công việc cho digital twin của người phụ trách R&D qua DingTalk. Về sau, việc làm rõ nhu cầu, đồng bộ tiến độ và phán định các điểm then chốt đều tương tác với bên nêu nhu cầu qua phiên IM của bot DingTalk. Môi trường thực thi là nền tảng thực thi trên cloud, cung cấp cho mỗi hạng mục công việc một workspace code riêng cùng các chức năng build, deploy, và chống đỡ việc các Agent theo vai cùng tác nghiệp. Engine bàn giao là trung tâm orchestration của dây chuyền, mô tả topology quy trình chín giai đoạn bằng state diagram, lo việc điều phối và quyết định trách nhiệm cùng nội dung công việc của từng Agent theo vai ở từng giai đoạn.
+Lối vào của tầng công cụ là bot DingTalk; phía nghiệp vụ gửi hạng mục công việc cho digital twin của người phụ trách R&D qua DingTalk. Về sau, việc làm rõ nhu cầu, đồng bộ tiến độ và đánh giá các điểm then chốt đều tương tác với bên nêu nhu cầu qua phiên IM của bot DingTalk. Môi trường thực thi là nền tảng thực thi trên cloud, cung cấp cho mỗi hạng mục công việc một workspace code riêng cùng các chức năng build, deploy, và hỗ trợ việc các Agent theo vai cùng tác nghiệp. Engine bàn giao là trung tâm orchestration của dây chuyền, mô tả topology quy trình chín giai đoạn bằng state diagram, lo việc điều phối và quyết định trách nhiệm cùng nội dung công việc của từng Agent theo vai ở từng giai đoạn.
 
 ![fig2-3-tang-cong-cu.png](../../assets/imgs/chapter-25/image-023.png)
 
@@ -76,7 +76,7 @@ Tầng vật liệu ứng dụng biến các quy phạm ngầm của từng ứn
 
 Tầng dây chuyền là chiến trường tác nghiệp chính. Bằng cách định nghĩa chín công đoạn lớn, nó cắt chuỗi bàn giao thành những đoạn trách nhiệm rõ ràng, và các công đoạn đẩy tới nhau bằng sản phẩm bàn giao. Chủ thể thực thi là digital twin của các vai sản phẩm, R&D, test, kiểm định cùng kiểm toán; còn Agent của người phụ trách R&D đóng vai điều phối, thống lĩnh việc tác nghiệp của các phân thân. Vật mang năng lực tác nghiệp của phân thân là các **Skill cắm rút được**, để các mảng nghiệp vụ khác nhau thay hay bổ sung theo nhu cầu, bảo đảm hệ này thích ứng được với nhiều kịch bản hơn.
 
-Kho tri thức và nền tảng kiểm toán, tối ưu nằm ở trên cùng. Kho tri thức chưng cất các vật liệu gốc rời rạc thành những đơn vị tri thức có cấu trúc. Nền tảng kiểm toán thì sau khi bàn giao xong sẽ kiểm tra ở ba chiều dữ liệu, sản phẩm và quá trình; các vấn đề phát hiện được sẽ qua bộ định tuyến quy kết mà mở rộng vật liệu và kho tri thức, tạo thành vòng khép kín Loop. Tầng này chính là mấu chốt khiến cả hệ "càng dùng càng mạnh".
+Kho tri thức và nền tảng kiểm toán, tối ưu nằm ở trên cùng. Kho tri thức chưng cất các vật liệu gốc rời rạc thành những đơn vị tri thức có cấu trúc. Nền tảng kiểm toán thì sau khi bàn giao xong sẽ kiểm tra ở ba chiều dữ liệu, sản phẩm và quá trình; các vấn đề phát hiện được sẽ qua bộ định tuyến quy kết mà mở rộng vật liệu và kho tri thức, tạo thành vòng lặp khép kín Loop. Tầng này chính là mấu chốt khiến cả hệ "càng dùng càng mạnh".
 
 ### 2.3 Việc lắp đặt digital twin
 
@@ -94,7 +94,7 @@ Việc lắp đặt phân thân được làm thành ba bước tích hợp; khi
 
  _Hình 2-4 — Lắp đặt phân thân_
 
-Lắp đặt xong thì vai trò phía tổ chức cũng đổi theo: người phụ trách R&D chuyển từ người thực thi từng nhu cầu thành **người quản trị vật liệu và Skill + người phán định các điểm then chốt**. Con người lùi về hai điểm quyết định là xác nhận nhu cầu và xác nhận phương án kỹ thuật, còn các khâu ở giữa thì giao cho phân thân tự chủ tác nghiệp.
+Lắp đặt xong thì vai trò phía tổ chức cũng đổi theo: người phụ trách R&D chuyển từ người thực thi từng nhu cầu thành **người quản trị vật liệu và Skill + người đánh giá các điểm then chốt**. Con người lùi về hai điểm quyết định là xác nhận nhu cầu và xác nhận phương án kỹ thuật, còn các khâu ở giữa thì giao cho phân thân tự chủ tác nghiệp.
 
 ## Ba — Ba thiết kế then chốt: chuỗi hợp đồng, kiểm định chéo, tiệm tiến và Loop
 
@@ -110,9 +110,9 @@ Ba thứ đó lần lượt ứng với ba thiết kế then chốt:
 
 1. Dựa trên **chuỗi hợp đồng** để cố định input và output của từng công đoạn thành hợp đồng lúc chạy, xoá bỏ việc mất context ngay từ cấu trúc.
 
-2. **Nhiều phân thân tác nghiệp độc lập, Agent của người phụ trách kỹ thuật thu về một mối**, hiện thực việc nhiều phân thân cộng tác đầu-cuối.
+2. **Nhiều phân thân tác nghiệp độc lập, Agent của người phụ trách kỹ thuật thu về một mối**, triển khai nhiều phân thân cộng tác đầu cuối.
 
-3. **Tiệm tiến và Loop** kiểm soát nhịp nới ranh giới năng lực và việc kiểm toán nuôi ngược sau mỗi lần bàn giao, khiến hệ càng dùng càng mạnh.
+3. **Tiệm tiến và Loop** kiểm soát nhịp nới ranh giới năng lực và việc kiểm toán phản hồi trở lại sau mỗi lần bàn giao, khiến hệ càng dùng càng mạnh.
 
 ### 3.1 Chuỗi hợp đồng: thông tin không suy giảm giữa các công đoạn
 
@@ -152,9 +152,9 @@ Chuỗi hợp đồng không phải một quy phạm tĩnh thiết kế một l�
 
 ### 3.2 Nhiều phân thân cộng tác: tác nghiệp độc lập, Agent người phụ trách kỹ thuật thu về một mối
 
-Nhiều phân thân phối hợp cộng tác để hiện thực việc bàn giao đầu-cuối, nhờ đó giảm sự can thiệp của con người. Lấy khâu bảo đảm chất lượng làm ví dụ: việc bàn giao đầu-cuối phải giao phần kiểm chất lượng và làm lại cho dây chuyền tự chạy, để giải bài toán thiếu nhân lực ở các khâu tuần tra chất lượng code, test và kiểm chứng.
+Nhiều phân thân phối hợp cộng tác để triển khai bàn giao đầu cuối, nhờ đó giảm sự can thiệp của con người. Lấy khâu bảo đảm chất lượng làm ví dụ: việc bàn giao đầu cuối phải giao phần kiểm chất lượng và làm lại cho dây chuyền tự chạy, để giải bài toán thiếu nhân lực ở các khâu tuần tra chất lượng code, test và kiểm chứng.
 
-Vì thiên lệch ở tầng model, phân thân R&D khi soát chính sản phẩm của mình thì tự nhiên có xu hướng phán rằng sản phẩm đúng kỳ vọng. Để ngăn sai lệch mang tính hệ thống trong việc tự soát, cần nhiều phân thân soát từ góc nhìn bên ngoài thì mới có được phán đoán đáng tin.
+Vì thiên lệch ở tầng model, phân thân R&D khi soát chính sản phẩm của mình thì tự nhiên có xu hướng phán rằng sản phẩm đúng kỳ vọng. Để ngăn sai lệch mang tính hệ thống trong việc tự soát, cần nhiều phân thân soát từ góc nhìn bên ngoài thì mới có được nhận định đáng tin.
 
 Trước hết, trong công đoạn tự kiểm, phân thân sản phẩm, phân thân R&D, phân thân test và phân thân bảo mật mỗi bên mở phiên riêng, dùng workspace riêng, không chia sẻ context, chỉ nạp diff, spec, luật và kho tri thức. Phân thân sản phẩm đối chiếu mức hoàn thành nhu cầu; phân thân R&D kiểm độ vững của code; phân thân bảo mật soát tính tuân thủ của phần sửa; còn phân thân test thì tự sinh test case, chạy test kiểm chứng và đánh giá độ tin cậy của chức năng. Bốn góc nhìn mỗi bên xuất ra kết luận kèm bằng chứng.
 
@@ -162,13 +162,13 @@ Trước hết, trong công đoạn tự kiểm, phân thân sản phẩm, phân
 
  _Hình 3-2 — Kiểm định chéo_
 
-Rồi tới phần Agent của người phụ trách kỹ thuật thu về một mối. Báo cáo của bốn góc nhìn được tổng hợp về Agent người phụ trách kỹ thuật, rồi đối chiếu từng mục theo các checkpoint khai báo để đưa ra phán định cuối: cho qua hay trả về. Nếu kết luận là trả về thì kích hoạt phân thân viết code làm lại. Cho tới khi cả bốn phân thân đều nghiệm thu sản phẩm là đạt thì mới vào khâu tiếp theo.
+Rồi tới phần Agent của người phụ trách kỹ thuật thu về một mối. Báo cáo của bốn góc nhìn được tổng hợp về Agent người phụ trách kỹ thuật, rồi đối chiếu từng mục theo các checkpoint khai báo để đưa ra đánh giá cuối: cho qua hay trả về. Nếu kết luận là trả về thì kích hoạt phân thân viết code làm lại. Cho tới khi cả bốn phân thân đều nghiệm thu sản phẩm là đạt thì mới vào khâu tiếp theo.
 
 Tới đây, khâu kiểm định không cần con người soát từng dòng, cũng không cần người test can thiệp thủ công; nút thắt nhân lực vốn chặn việc bàn giao lâu nay được cơ chế gỡ trực diện ở chính mắt xích này.
 
 ### 3.3 Tiệm tiến và Loop: hệ không suy thoái theo thời gian sử dụng
 
-Để ngăn cả hệ mục ruỗng dần theo thời gian, cần hoà việc nới năng lực tiệm tiến và việc Loop quy kết nuôi ngược vào trong quá trình tác nghiệp, để đẩy ranh giới năng lực mở rộng liên tục ra ngoài.
+Để ngăn cả hệ mục ruỗng dần theo thời gian, cần hoà việc nới năng lực tiệm tiến và việc Loop quy kết phản hồi trở lại vào trong quá trình tác nghiệp, để đẩy ranh giới năng lực mở rộng liên tục ra ngoài.
 
 Trong hệ bàn giao theo digital twin, mỗi nhu cầu khi vào đều được đánh giá mức rủi ro (R), với các chiều đánh giá gồm độ trải rộng module, có thuộc chuỗi lõi không, có yêu cầu hiệu năng cao không, có dính tới các kịch bản rủi ro cao như tiền bạc không. Mức năng lực của phân thân (L) thì do độ hoàn bị của kho tri thức và vật liệu ứng dụng quyết định; R ≤ L thì mới nhận việc, còn R > L thì chuyển cho người phụ trách tương ứng. Việc tiệm tiến cho phép sửa động mức năng lực của phân thân, bảo đảm cơ chế này hữu hiệu lâu dài. Thành công liên tiếp vài lần thì nâng mức năng lực của digital twin lên. Còn nếu trong quá trình tác nghiệp mà nhiều lần sản phẩm bàn giao không đạt kỳ vọng thì phải hạ mức năng lực của digital twin xuống, siết cổng kiểm soát lại. Thực tiễn cho thấy, rất nhiều nhu cầu phức tạp vốn khó gánh, khi kho tri thức và vật liệu hoàn thiện dần qua từng vòng lặp, thì cũng tách được thành vài nhu cầu con giao cho digital twin hoàn thành. Phạm vi năng lực của digital twin sẽ mở rộng liên tục theo các lần bàn giao nhu cầu.
 
@@ -198,15 +198,15 @@ Output của kiểm toán không phải điểm số, mà là **quy kết**. B�
 
 Vật liệu, tri thức và luật sau khi chỉnh, qua kiểm chứng thì có hiệu lực toàn cục, và được đo lại ở lần kiểm toán cùng lần đánh giá hồi quy kế tiếp. Mỗi vấn đề đều được kết tinh thành một luật ngăn nó tái diễn. Bốn bước phát hiện, quy kết, chỉnh sửa, kiểm chứng lặp đi lặp lại khiến cả hệ mạnh dần theo thời gian sử dụng.
 
-## Bốn — Hành trình bàn giao đầu-cuối của một nhu cầu đơn giản
+## Bốn — Hành trình bàn giao đầu cuối của một nhu cầu đơn giản
 
 Chương này xem một nhu cầu thật chạy hết cả dây chuyền ra sao (thông tin nghiệp vụ đã ẩn danh).
 
 ![fig4-1-toan-chuoi.png](../../assets/imgs/chapter-25/image-029.png)
 
- _Hình 4-1 — Toàn chuỗi đầu-cuối_
+ _Hình 4-1 — Toàn chuỗi đầu cuối_
 
-Bản thân nhu cầu này thuộc loại "nhu cầu đơn giản" điển hình — một module, không thuộc chuỗi lõi, tự test được. Phía nghiệp vụ gửi nhu cầu cho phân thân qua DingTalk; phân thân nhận việc rồi phán định ở cổng nhu cầu trước: đối chiếu mức rủi ro của nhu cầu với mức năng lực của chính mình, rồi xuất ra chấp nhận hay từ chối. Hạng mục này được phán là chấp nhận, nên vào dây chuyền.
+Bản thân nhu cầu này thuộc loại "nhu cầu đơn giản" điển hình — một module, không thuộc chuỗi lõi, tự test được. Phía nghiệp vụ gửi nhu cầu cho phân thân qua DingTalk; phân thân nhận việc rồi đánh giá ở cổng nhu cầu trước: đối chiếu mức rủi ro của nhu cầu với mức năng lực của chính mình, rồi xuất ra chấp nhận hay từ chối. Hạng mục này được phán là chấp nhận, nên vào dây chuyền.
 
 ![fig4-2-gui-nhu-cau-qua-dingtalk.png](../../assets/imgs/chapter-25/image-030.png)
 
@@ -218,7 +218,7 @@ Bản thân nhu cầu này thuộc loại "nhu cầu đơn giản" điển hình
 
 Sau đó là giai đoạn đối chiếu nhu cầu và phương án kỹ thuật. Phiên bàn tròn cho ra `spec.md` có cấu trúc, bù đủ các yếu tố nhu cầu và làm rõ ranh giới. Phương án kỹ thuật sinh ra `plan.md`, do vai test thẩm định độc lập trước, rồi người phụ trách kỹ thuật xác nhận phương án. Người phụ trách kỹ thuật cần xác nhận ba điều:
 
-1. Phương án có phủ trọn vẹn các kịch bản và ranh giới mà spec cam kết không.
+1. Phương án có bao quát toàn bộ vẹn các kịch bản và ranh giới mà spec cam kết không.
 
 2. Kiến trúc và việc chọn middleware có khớp ràng buộc của ứng dụng không.
 
@@ -256,11 +256,11 @@ Tiếp quản được, truy vết được, nghiệm thu được — mỗi bư
 
 ## Năm — Kế hoạch và triển vọng tương lai
 
-Hiện việc bàn giao đầu-cuối cho các nhu cầu đơn giản đã chạy ổn định; phần đầu tư trong kế hoạch tương lai của chúng tôi chủ yếu tập trung vào ba hướng.
+Hiện việc bàn giao đầu cuối cho các nhu cầu đơn giản đã chạy ổn định; phần đầu tư trong kế hoạch tương lai của chúng tôi chủ yếu tập trung vào ba hướng.
 
 **Hướng một · Mở rộng ranh giới năng lực liên tục** — việc tích luỹ vật liệu và kinh nghiệm sẽ đẩy mức phức tạp của các nhu cầu mà phân thân gánh được lên dần. Mục tiêu là "khởi đầu từ nhu cầu đơn giản, rồi nới ranh giới từng bước", để đưa thêm nhiều nhu cầu phức tạp xuyên module, xuyên ứng dụng vào.
 
-**Hướng hai · Quản trị chi phí** — lằn ranh chi phí là làm một nhu cầu đầu-cuối không được đắt hơn làm thủ công. Các phương án chính là phân hạng model, quản lý context và chạy lệch giờ cao điểm, để chi phí bàn giao không tăng tuyến tính theo lượng nhu cầu.
+**Hướng hai · Quản trị chi phí** — lằn ranh chi phí là làm một nhu cầu đầu cuối không được đắt hơn làm thủ công. Các phương án chính là phân hạng model, quản lý context và chạy lệch giờ cao điểm, để chi phí bàn giao không tăng tuyến tính theo lượng nhu cầu.
 
 **Hướng ba · Thích ứng với sự tiến hoá của hình thái tổ chức** — hình thái tổ chức cũng có thể bị tái cấu trúc; bố trí quân ra sao, đo sản lượng ra sao đều là những đề bài mới. Về sau có thể dựng mô hình bàn giao trong đó một kỹ sư mang theo vài digital twin, hợp thành một đội nhỏ pha trộn người – máy, để thông lượng của đội không còn bị giới hạn bởi số đầu người.
 

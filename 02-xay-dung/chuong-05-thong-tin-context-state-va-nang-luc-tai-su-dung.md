@@ -31,12 +31,12 @@ Task Context
 ├── Recent Interaction     Message và Observation gần nhất
 ├── Compacted History      Tóm tắt có cấu trúc của quá trình trước đó
 ├── Retrieved Memory       Kinh nghiệm lịch sử liên quan tới task hiện tại
-├── Retrieved Knowledge    Sự thật doanh nghiệp kèm nguồn, quyền và tính thời sự
+├── Retrieved Knowledge    Sự thật doanh nghiệp kèm nguồn, quyền và tính cập nhật
 └── Workspace References   Tham chiếu tới file, Artifact và kết quả lớn
 
 ```
 
-Cách phân tầng này giải quyết vấn đề **trách nhiệm**. Policy nền tảng không được tài liệu dự án ghi đè; yêu cầu mới nhất của người dùng có thể đổi hướng task, nhưng không được phá ranh giới an toàn doanh nghiệp; sở thích lịch sử trong Memory không thay thế được sự thật nghiệp vụ hiện tại; và nội dung bên ngoài do tool trả về cũng không được tự động nâng cấp thành chỉ dẫn hệ thống. Nếu mọi thứ bị nối vào cùng một khối văn bản phẳng, Harness sẽ rất khó phán định xung đột đến từ đâu, và càng không thể gắn version cùng chạy hồi quy một cách độc lập.
+Cách phân tầng này giải quyết vấn đề **trách nhiệm**. Policy nền tảng không được tài liệu dự án ghi đè; yêu cầu mới nhất của người dùng có thể đổi hướng task, nhưng không được phá ranh giới an toàn doanh nghiệp; sở thích lịch sử trong Memory không thay thế được sự thật nghiệp vụ hiện tại; và nội dung bên ngoài do tool trả về cũng không được tự động nâng cấp thành chỉ dẫn hệ thống. Nếu mọi thứ bị nối vào cùng một khối văn bản phẳng, Harness sẽ rất khó đánh giá xung đột đến từ đâu, và càng không thể gắn version cùng chạy hồi quy một cách độc lập.
 
 ### Luồng xử lý của Context Builder
 
@@ -47,7 +47,7 @@ flowchart LR
     S[Đọc Task State<br/>Mục tiêu, giai đoạn, ngân sách] --> I[Phân giải định danh và scope]
     I --> C[Thu thập Context ứng viên<br/>Quy tắc, lịch sử, state, tài sản]
     C --> F[Lọc theo quyền và độ tin cậy]
-    F --> R[Xếp hạng theo mức liên quan và khử trùng]
+    F --> R[Xếp hạng theo mức liên quan và loại bỏ trùng lặp]
     R --> B[Phân bổ ngân sách token]
     B --> M[Nén, cắt bớt và chuyển thành tham chiếu]
     M --> P[Biên dịch input cho model theo phân tầng]
@@ -63,7 +63,7 @@ Việc dựng Context không thể chỉ xếp theo độ tương đồng. Một
 
 *   **Cường độ ràng buộc:** policy nền tảng và quy tắc nghiệp vụ tường minh cao hơn các gợi ý mang tính kinh nghiệm.
 
-*   **Mức liên quan tới task:** có ảnh hưởng trực tiếp tới phán đoán và hành động của giai đoạn hiện tại hay không.
+*   **Mức liên quan tới task:** có ảnh hưởng trực tiếp tới nhận định và hành động của giai đoạn hiện tại hay không.
 
 *   **Hiệu lực theo thời gian:** sự thật môi trường hiện tại cao hơn kết luận lịch sử đã hết hạn.
 
@@ -90,7 +90,7 @@ Mỗi lần gọi model đều nên sinh ra một **Context Manifest**, ghi lạ
 | `permission_basis` | Vì sao lượt này có quyền đọc nội dung đó |
 | `selected_reason` | Trúng luật, giai đoạn hiện tại, liên quan qua truy hồi, hay được tham chiếu tường minh |
 | `token_count` | Kích thước cửa sổ thực sự chiếm dụng |
-| `transform` | Nguyên văn, tóm tắt, cắt bớt, khử trùng hay chuyển thành tham chiếu |
+| `transform` | Nguyên văn, tóm tắt, cắt bớt, loại bỏ trùng lặp hay chuyển thành tham chiếu |
 | `content_hash` | Digest nội dung, phục vụ phát lại và phát hiện thay đổi |
 
 Manifest tạo nền cho ba việc: khi phát triển thì giải thích vì sao model bỏ sót một thông tin nào đó; khi đánh giá thì so sánh khác biệt Context giữa hai version Agent; khi audit bảo mật thì xác nhận vì sao một nội dung nhạy cảm nào đó đã đi vào input của model. **Chỉ ghi lại text của Prompt thì không làm ổn định được những việc này**, vì cùng một đoạn văn bản có thể có nguồn, quyền và version hoàn toàn khác nhau.
@@ -115,7 +115,7 @@ omitted:
 
 ```
 
-Manifest này không lưu bản thân nội dung nhạy cảm, nhưng trả lời được lượt này đã dùng version nào, vì sao chọn, biến đổi ra sao và vì sao loại bỏ. Khi có lỗi, đội ngũ có thể kiểm tra trước xem "model có nhìn thấy đúng tài liệu không", rồi mới phán đoán vấn đề nằm ở suy luận của model hay ở việc thực thi tool.
+Manifest này không lưu bản thân nội dung nhạy cảm, nhưng trả lời được lượt này đã dùng version nào, vì sao chọn, biến đổi ra sao và vì sao loại bỏ. Khi có lỗi, đội ngũ có thể kiểm tra trước xem "model có nhìn thấy đúng tài liệu không", rồi mới nhận định vấn đề nằm ở suy luận của model hay ở việc thực thi tool.
 
 ---
 
@@ -344,7 +344,7 @@ Working Memory gắn chặt nhất với Task State ở mục 5.3, và không nh
 
 ### Ghi vào và sử dụng Memory
 
-Kiểu "cứ hết task là tự động tóm tắt rồi ghi vào Memory" rất dễ gây ô nhiễm. Trước khi ghi, Harness nên phán định:
+Kiểu "cứ hết task là tự động tóm tắt rồi ghi vào Memory" rất dễ gây ô nhiễm. Trước khi ghi, Harness nên đánh giá:
 
 1.  Thông tin này có tạo ra giá trị dự đoán được trong các task tương lai không?
 
@@ -368,7 +368,7 @@ Quên không chỉ là xoá vector. Nó phải xử lý đồng thời bản g�
 
 ### Để Knowledge cung cấp sự thật, Memory cung cấp kinh nghiệm
 
-**Knowledge doanh nghiệp** là các sự thật nghiệp vụ do tổ chức duy trì, có nguồn và có tính thời sự — ví dụ quy chế, mô tả sản phẩm, tài liệu kỹ thuật, từ điển dữ liệu và dữ liệu kinh doanh. **Memory** là kinh nghiệm hoặc thông tin cá thể mà Agent tích luỹ chọn lọc từ task và tương tác người dùng. Cả hai đều có thể đi vào Context qua truy hồi, nhưng **trách nhiệm quản trị thì khác nhau**:
+**Knowledge doanh nghiệp** là các sự thật nghiệp vụ do tổ chức duy trì, có nguồn và có tính cập nhật — ví dụ quy chế, mô tả sản phẩm, tài liệu kỹ thuật, từ điển dữ liệu và dữ liệu kinh doanh. **Memory** là kinh nghiệm hoặc thông tin cá thể mà Agent tích luỹ chọn lọc từ task và tương tác người dùng. Cả hai đều có thể đi vào Context qua truy hồi, nhưng **trách nhiệm quản trị thì khác nhau**:
 
 | Chiều | Knowledge | Memory |
 | --- | --- | --- |
@@ -399,7 +399,7 @@ Với dữ liệu kinh doanh thời gian thực hoặc các sự thật cần nh
 
 ### AgentScope: giữ kinh nghiệm bằng bộ nhớ hai tầng
 
-Một cách hiện thực thực dụng là tách riêng **"dòng memory thô"** và **"memory dài hạn đã sắp xếp"**. AgentScope append các sự thật trích ra trong ngày vào `memory/YYYY-MM-DD.md`, rồi định kỳ gộp và khử trùng vào `MEMORY.md`; cái trước giữ lại quá trình nguồn, cái sau đi vào System Context ở mỗi lượt theo policy. Trước khi nén hội thoại còn có thể flush các sự thật then chốt trước, tránh việc bản tóm tắt xoá luôn cả kinh nghiệm tái sử dụng được.
+Một cách hiện thực thực dụng là tách riêng **"dòng memory thô"** và **"memory dài hạn đã sắp xếp"**. AgentScope append các sự thật trích ra trong ngày vào `memory/YYYY-MM-DD.md`, rồi định kỳ gộp và loại bỏ trùng lặp vào `MEMORY.md`; cái trước giữ lại quá trình nguồn, cái sau đi vào System Context ở mỗi lượt theo policy. Trước khi nén hội thoại còn có thể flush các sự thật then chốt trước, tránh việc bản tóm tắt xoá luôn cả kinh nghiệm tái sử dụng được.
 
 Trong task vá lỗ hổng, những nội dung dưới đây phù hợp để ghi vào những chỗ khác nhau:
 
@@ -421,7 +421,7 @@ Sự phân biệt này ngăn được kiểu dùng sai Memory phổ biến nhấ
 
 **Tool** nói cho Agent biết *nó làm được hành động gì*; **Skill** nói cho Agent biết *trong một loại task nào đó thì dùng một số hành động ra sao cho đúng*. Một Skill có thể gồm chỉ dẫn, script, template, ví dụ, checklist và tài liệu tham chiếu, đóng gói một phương pháp task đã được kiểm chứng — ví dụ chẩn đoán sự cố dịch vụ, rà soát hợp đồng, phân tích chất lượng dữ liệu hay kiểm tra trước khi phát hành.
 
-Skill **không** đồng nghĩa với một đoạn Prompt, và cũng không phải bí danh của Tool. Nó thường gồm cả những bước model phải phán đoán, đồng thời cũng có thể gọi script và tool có tính xác định; nó **không trực tiếp sở hữu thêm quyền** — chỉ khi người dùng, task và môi trường hiện tại cho phép, các năng lực liên quan mới được thực thi.
+Skill **không** đồng nghĩa với một đoạn Prompt, và cũng không phải bí danh của Tool. Nó thường gồm cả những bước model phải nhận định, đồng thời cũng có thể gọi script và tool có tính xác định; nó **không trực tiếp sở hữu thêm quyền** — chỉ khi người dùng, task và môi trường hiện tại cho phép, các năng lực liên quan mới được thực thi.
 
 ```text
 Skill Package
@@ -451,15 +451,15 @@ Khi doanh nghiệp tích luỹ hàng trăm Skill, việc tiêm tất cả vào m
 
 Việc chọn Skill **không nên chỉ dựa vào khớp ngữ nghĩa của model.** Harness còn phải kiểm tra tính tương thích model, phụ thuộc tool, điều kiện môi trường, giấy phép tenant, phạm vi dữ liệu và trạng thái version. Nếu một Skill đòi quyền ghi hệ thống production, trong khi task hiện tại đang ở giai đoạn thăm dò chỉ-đọc, thì nó có thể được **khám phá ra**, nhưng **không được vào trạng thái thực thi được.**
 
-**Ranh giới giữa bước có tính xác định và phán đoán của model.**
+**Ranh giới giữa bước có tính xác định và nhận định của model.**
 
 Những bước trong Skill vốn ổn định, lặp lại, mã hoá được và có cái giá thất bại cao thì phù hợp để tích tụ thành script, tool hoặc rule — ví dụ chuyển đổi định dạng, kiểm tra cố định, truy vấn quyền và chạy test; còn phần cần hiểu mục tiêu mơ hồ, so sánh phương án, giải thích bất thường hoặc chỉnh hướng theo bằng chứng mới thì giữ lại làm chỉ dẫn cho model.
 
-Ranh giới này giảm được cả chi phí lẫn phương sai: model lo phán đoán ngữ nghĩa, còn các thành phần có tính xác định lo phần thực thi đã biểu đạt rõ ràng được. Nhưng **script không được giấu trong phần văn bản mô tả rồi chạy không kiểm soát** — chúng vẫn phải đi qua Action Plane, hợp đồng môi trường và quyền hạn ở chương 6.
+Ranh giới này giảm được cả chi phí lẫn phương sai: model lo nhận định ngữ nghĩa, còn các thành phần có tính xác định lo phần thực thi đã biểu đạt rõ ràng được. Nhưng **script không được giấu trong phần văn bản mô tả rồi chạy không kiểm soát** — chúng vẫn phải đi qua Action Plane, hợp đồng môi trường và quyền hạn ở chương 6.
 
 ### Case: tích tụ một lần vá thành công thành Skill
 
-Một task thành công không có nghĩa nó đã trở thành năng lực tái sử dụng được. Đội ngũ nên trích các bước ổn định từ Trace trước, bỏ đi các ID task cụ thể, đường dẫn tạm và những phán đoán dùng một lần, bổ sung test cho script và template, rồi mới hình thành Skill. Dưới đây là một `SKILL.md` rút gọn:
+Một task thành công không có nghĩa nó đã trở thành năng lực tái sử dụng được. Đội ngũ nên trích các bước ổn định từ Trace trước, bỏ đi các ID task cụ thể, đường dẫn tạm và những nhận định dùng một lần, bổ sung test cho script và template, rồi mới hình thành Skill. Dưới đây là một `SKILL.md` rút gọn:
 
 ```markdown
 ---
@@ -478,7 +478,7 @@ description: Dùng khi codebase doanh nghiệp cần phân tích và vá lỗ h�
 
 ```
 
-Phần mô tả của Skill quyết định khi nào nó vào tập ứng viên; phần thân nói rõ các bước model phải phán đoán; script gánh các hành động có tính xác định; còn thư mục tham chiếu lưu quy chuẩn dự án và ma trận tương thích. Nội dung đầy đủ chỉ được nạp khi task thực sự cần; nếu người dùng hiện tại không có quyền ghi repo hoặc task đang ở Plan Mode, thì Skill vẫn **không thể vòng qua Action Plane để có được năng lực ghi.**
+Phần mô tả của Skill quyết định khi nào nó vào tập ứng viên; phần thân nói rõ các bước model phải nhận định; script đảm nhiệm các hành động có tính xác định; còn thư mục tham chiếu lưu quy chuẩn dự án và ma trận tương thích. Nội dung đầy đủ chỉ được nạp khi task thực sự cần; nếu người dùng hiện tại không có quyền ghi repo hoặc task đang ở Plan Mode, thì Skill vẫn **không thể vòng qua Action Plane để có được năng lực ghi.**
 
 ### Đưa Skill vào quy trình phát hành và hồi quy
 
@@ -550,7 +550,7 @@ Doanh nghiệp phải truy được **chuỗi phái sinh** từ một ID tài s�
 
 "Quên" đôi khi là suy giảm trọng số, đôi khi là xoá triệt để; hai thứ đó **bắt buộc phải được phân biệt trong policy.** Dữ liệu cần thu hồi không thể chỉ xử lý bằng cách hạ điểm truy hồi.
 
-### Đưa thay đổi tài sản vào vòng khép kín chống thoái hoá
+### Đưa thay đổi tài sản vào vòng lặp khép kín chống thoái hoá
 
 Bất kỳ cập nhật nào với Context Policy, Memory, Knowledge và Skill đều có thể làm thay đổi hành vi Agent. Doanh nghiệp nên đưa việc thay đổi tài sản vào cùng chuỗi phát hành như code:
 
@@ -587,4 +587,4 @@ Con đường Framework để doanh nghiệp chịu trách nhiệm về việc c
 
 Mục tiêu của hệ thống context và state trong Harness là thiết lập một ranh giới đáng tin giữa cửa sổ model hữu hạn và thế giới task không ngừng phình ra. Context Builder biên dịch động policy nền tảng, chỉ dẫn Agent, trạng thái task, lịch sử, Memory, Knowledge, Skill và mô tả Tool theo định danh, độ tin cậy, mức liên quan và ngân sách token, đồng thời dùng Context Manifest để giữ khả năng giải thích. Nén, offload và Reset lo việc kiểm soát độ phình của cửa sổ, nhưng **mọi sự thật then chốt đều phải được lưu vào state có thẩm quyền trước.**
 
-Session biểu đạt tính liên tục của tương tác, Task biểu đạt mục tiêu nghiệm thu được, Workspace gánh phần bộ nhớ làm việc nằm ngoài cửa sổ model; Event Log, Snapshot và Checkpoint lần lượt ghi lại quá trình, view hiện tại và điểm khôi phục an toàn. Memory lưu kinh nghiệm đã chọn lọc, Knowledge cung cấp sự thật doanh nghiệp kèm nguồn và quyền, còn Skill thì biến các phương pháp hành động tái sử dụng được thành tài sản năng lực khám phá được, test được, phát hành được. **Tất cả những tài sản này đều phải có scope, version, chủ sở hữu, ngữ nghĩa lưu giữ và xoá rõ ràng, và phải được gắn với version Agent.**
+Session biểu đạt tính liên tục của tương tác, Task biểu đạt mục tiêu nghiệm thu được, Workspace đảm nhiệm bộ nhớ làm việc nằm ngoài cửa sổ model; Event Log, Snapshot và Checkpoint lần lượt ghi lại quá trình, view hiện tại và điểm khôi phục an toàn. Memory lưu kinh nghiệm đã chọn lọc, Knowledge cung cấp sự thật doanh nghiệp kèm nguồn và quyền, còn Skill thì biến các phương pháp hành động tái sử dụng được thành tài sản năng lực khám phá được, test được, phát hành được. **Tất cả những tài sản này đều phải có scope, version, chủ sở hữu, ngữ nghĩa lưu giữ và xoá rõ ràng, và phải được gắn với version Agent.**

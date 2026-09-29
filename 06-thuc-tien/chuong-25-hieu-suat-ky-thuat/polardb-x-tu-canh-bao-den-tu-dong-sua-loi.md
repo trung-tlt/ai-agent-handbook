@@ -1,8 +1,8 @@
 # Từ cảnh báo tới tự động sửa lỗi — thực tiễn kỹ thuật Loop của PolarDB-X
 
-# Một — Từ nâng hiệu suất viết code tới nâng hiệu suất đầu-cuối
+# Một — Từ nâng hiệu suất viết code tới nâng hiệu suất đầu cuối
 
-Khi Agent dần tham gia vào công việc R&D hằng ngày, việc viết code và test đã thành những kịch bản ứng dụng thường gặp. Nhưng công việc R&D còn gồm hình thành nhu cầu, thiết kế phương án, phân tích vấn đề, chuẩn bị môi trường và kiểm chứng kết quả — những khâu cũng cần rất nhiều đầu tư. Muốn nâng hiệu suất tổng thể thêm nữa thì phải để Agent mở rộng từ chỗ tham gia viết code và test sang chỗ tự chủ đẩy tới những task R&D trọn vẹn hơn, hiện thực việc bàn giao đầu-cuối, nhờ đó giảm thao tác thủ công và những lần bàn giao qua lại ở từng khâu, rút ngắn chu kỳ bàn giao.
+Khi Agent dần tham gia vào công việc R&D hằng ngày, việc viết code và test đã thành những kịch bản ứng dụng thường gặp. Nhưng công việc R&D còn gồm hình thành nhu cầu, thiết kế phương án, phân tích vấn đề, chuẩn bị môi trường và kiểm chứng kết quả — những khâu cũng đòi hỏi rất nhiều công sức. Muốn nâng hiệu suất tổng thể thêm nữa thì phải để Agent mở rộng từ chỗ tham gia viết code và test sang chỗ tự chủ đẩy tới những task R&D trọn vẹn hơn, triển khai bàn giao đầu cuối, nhờ đó giảm thao tác thủ công và những lần bàn giao qua lại ở từng khâu, rút ngắn chu kỳ bàn giao.
 
 Đội PolarDB-X cũng đang khám phá cách nâng hiệu suất R&D bằng Agent. PolarDB-X là một database phân tán cloud native, tương thích cao với hệ sinh thái MySQL, có năng lực high availability, mở rộng ngang và HTAP (xử lý giao dịch và phân tích lai). Kiến trúc tổng thể như hình dưới.
 
@@ -14,13 +14,13 @@ _Hình 1: Kiến trúc tổng thể của PolarDB-X_
 
 Kiến trúc phân tán của database làm tăng độ phức tạp của việc định vị và kiểm chứng vấn đề; còn yêu cầu cao về tính đúng đắn, độ tin cậy và độ ổn định cũng quyết định rằng thành quả R&D bắt buộc phải qua kiểm chứng đầy đủ. Trên tiền đề thoả các yêu cầu chất lượng đó, với hai loại task R&D thường gặp, chúng tôi dùng hai cách cộng tác với Agent khác nhau.
 
-**Loại thứ nhất là phát triển chức năng mới và tối ưu chức năng sẵn có.** Ví dụ tối ưu giao dịch phân tán, hiện thực một chức năng nén dữ liệu mới. Loại task này thường có nhu cầu rõ ràng, nhưng phương án hiện thực thì phải cân nhắc tổng hợp tính trọn vẹn chức năng, tính tương thích, hiệu năng và độ tin cậy, nên khó chốt một lần ngay từ đầu, mà phải cải thiện liên tục theo kết quả hiện thực và kiểm chứng. Với loại task này, chúng tôi dùng cách cộng tác **R&D dẫn dắt, Agent thực thi**: kỹ sư lo phương án và các quyết định then chốt, và gác cửa liên tục trong quá trình phát triển, test; còn Agent thì gánh phần viết code và test cụ thể. Vì viết code và test vốn chiếm phần lớn khối lượng công việc, nên cách cộng tác này nâng hiệu suất phát triển rõ rệt và rút ngắn chu kỳ R&D.
+**Loại thứ nhất là phát triển chức năng mới và tối ưu chức năng sẵn có.** Ví dụ tối ưu giao dịch phân tán, triển khai một chức năng nén dữ liệu mới. Loại task này thường có nhu cầu rõ ràng, nhưng phương án triển khai thì phải cân nhắc tổng hợp tính trọn vẹn chức năng, tính tương thích, hiệu năng và độ tin cậy, nên khó chốt một lần ngay từ đầu, mà phải cải thiện liên tục theo kết quả hiện thực và kiểm chứng. Với loại task này, chúng tôi dùng cách cộng tác **R&D dẫn dắt, Agent thực thi**: kỹ sư lo phương án và các quyết định then chốt, và gác cửa liên tục trong quá trình phát triển, test; còn Agent thì đảm nhiệm viết code và test cụ thể. Vì viết code và test vốn chiếm phần lớn khối lượng công việc, nên cách cộng tác này nâng hiệu suất phát triển rõ rệt và rút ngắn chu kỳ R&D.
 
-**Loại thứ hai là xử lý cảnh báo, ticket và sửa khiếm khuyết — cũng là điểm đau về hiệu suất mà đội đối mặt lâu nay.** Trong quy trình xử lý cũ, kỹ sư không chỉ phải hoàn tất phần viết code và test, mà còn phải gánh phần phân tích vấn đề, định vị căn nguyên và cho ra nhu cầu sửa chữa ở giai đoạn đầu. Một lần sửa cuối cùng có thể chỉ động tới vài dòng code, nhưng kỹ sư thì phải thu thập thông tin instance, monitoring và log, kết hợp mã nguồn mà truy nguyên, rồi dựng môi trường, dựng điều kiện kích hoạt, kiểm chứng vấn đề có tái hiện ổn định được không. Sửa code xong thì còn phải kiểm chứng hiệu quả sửa, chạy test hồi quy, và đẩy phần sửa đi merge. Phần phân tích đầu và kiểm chứng sau cần rất nhiều đầu tư, nên nếu chỉ để Agent hỗ trợ viết code thì thời gian tiết kiệm được rất hạn chế.
+**Loại thứ hai là xử lý cảnh báo, ticket và sửa khiếm khuyết — cũng là điểm đau về hiệu suất mà đội đối mặt lâu nay.** Trong quy trình xử lý cũ, kỹ sư không chỉ phải hoàn tất phần viết code và test, mà còn phải đảm nhiệm phân tích vấn đề, định vị căn nguyên và cho ra nhu cầu sửa chữa ở giai đoạn đầu. Một lần sửa cuối cùng có thể chỉ động tới vài dòng code, nhưng kỹ sư thì phải thu thập thông tin instance, monitoring và log, kết hợp mã nguồn mà truy nguyên, rồi dựng môi trường, dựng điều kiện kích hoạt, kiểm chứng vấn đề có tái hiện ổn định được không. Sửa code xong thì còn phải kiểm chứng hiệu quả sửa, chạy test hồi quy, và đẩy phần sửa đi merge. Phần phân tích đầu và kiểm chứng sau đòi hỏi rất nhiều công sức, nên nếu chỉ để Agent hỗ trợ viết code thì thời gian tiết kiệm được rất hạn chế.
 
 May thay, loại task thứ hai thường có hiện tượng sự cố cụ thể, nên kiểm chứng được giả thuyết về nguyên nhân bằng cách tái hiện, rồi kiểm nghiệm hiệu quả sửa bằng phép test đối chứng trước và sau khi sửa. Quá trình truy nguyên tuy phức tạp, nhưng việc tái hiện ổn định và kết quả test cung cấp được căn cứ nghiệm thu rõ ràng, tạo điều kiện cho Agent tự chủ hoàn tất phần phân tích, sửa và kiểm chứng.
 
-Vì vậy, khi khám phá việc Agent tự chủ xử lý đầu-cuối, chúng tôi chọn bắt đầu từ loại task thứ hai, với mục tiêu để Agent xuất phát từ một cảnh báo hay ticket, tự chủ hoàn tất phần phân tích hiện trường, kiểm chứng căn nguyên, tái hiện ổn định, sửa code, kiểm chứng bằng test và gửi phần sửa — mà không cần con người can thiệp, và kỹ sư chỉ tham gia ở khâu soát cuối cùng, nhờ đó nâng mạnh hiệu suất xử lý khiếm khuyết.
+Vì vậy, khi khám phá việc Agent tự chủ xử lý đầu cuối, chúng tôi chọn bắt đầu từ loại task thứ hai, với mục tiêu để Agent xuất phát từ một cảnh báo hay ticket, tự chủ hoàn tất phần phân tích hiện trường, kiểm chứng căn nguyên, tái hiện ổn định, sửa code, kiểm chứng bằng test và gửi phần sửa — mà không cần con người can thiệp, và kỹ sư chỉ tham gia ở khâu soát cuối cùng, nhờ đó nâng mạnh hiệu suất xử lý khiếm khuyết.
 
 # Hai — Từ cảnh báo tới tự động sửa lỗi
 
@@ -134,13 +134,13 @@ Ngoài ra, chúng tôi còn gom các phương pháp chẩn đoán, phần mô t�
 
 ## 2.3 Kiểm chứng kết luận phân tích bằng việc chạy thật
 
-"Cái học trên giấy rốt cuộc vẫn nông, muốn tường tận việc này thì phải tự mình làm." Một đường code đáng ngờ có thực sự kích hoạt sự cố hay không thì phải kiểm chứng trong lúc chạy thật. Với Agent, sau khi nêu giả thuyết về nguyên nhân thì còn phải tự kiểm nghiệm và sửa lại phán đoán được. Ca rò rỉ khoá MDL dưới đây chính là điểm khởi đầu để chúng tôi bù đủ năng lực này.
+"Cái học trên giấy rốt cuộc vẫn nông, muốn tường tận việc này thì phải tự mình làm." Một đường code đáng ngờ có thực sự kích hoạt sự cố hay không thì phải kiểm chứng trong lúc chạy thật. Với Agent, sau khi nêu giả thuyết về nguyên nhân thì còn phải tự kiểm nghiệm và sửa lại nhận định được. Ca rò rỉ khoá MDL dưới đây chính là điểm khởi đầu để chúng tôi bù đủ năng lực này.
 
 ### Ca rò rỉ khoá MDL: độ lệch giữa phân tích tĩnh và đường thực thi thật
 
 Chúng tôi từng gặp một vấn đề rò rỉ MDL (metadata lock) đã xuất hiện từ năm năm trước. Vấn đề này xảy ra với xác suất thấp trong môi trường production, và khiến các thao tác sửa cấu trúc bảng về sau bị chặn kéo dài. Vì khó tái hiện, nên suốt nhiều năm vẫn chưa xác định được căn nguyên.
 
-Trong một lần truy nguyên trên production lại gặp vấn đề này, chúng tôi thử nhờ Agent kết hợp thông tin hiện trường và mã nguồn để phân tích sâu hơn. Agent nhanh chóng sinh ra báo cáo, liệt kê vị trí code, quá trình thực thi và các nguyên nhân có thể, và đưa ra lời giải thích sau về trình tự thời gian khi luồng chính (ServerExecutor) và luồng KillExecutor chạy đồng thời. Lời giải thích này sau đó bị con người kiểm chứng và bác bỏ:
+Trong một lần truy nguyên trên production lại gặp vấn đề này, chúng tôi thử nhờ Agent kết hợp thông tin hiện trường và mã nguồn để phân tích sâu hơn. Agent nhanh chóng sinh ra báo cáo, liệt kê vị trí code, quá trình thực thi và các nguyên nhân có thể, và đưa ra lời giải thích sau về trình tự thời gian khi luồng chính (ServerExecutor) và luồng KillExecutor chạy đồng thời. Lời giải thích này sau đó được con người kiểm chứng và bác bỏ:
 
 | Trình tự | Luồng chính (ServerExecutor) | Luồng KillExecutor |
 | --- | --- | --- |
@@ -160,7 +160,7 @@ _Hình 5: Các báo cáo và tài liệu test mà Agent sinh ra qua nhiều vòn
 
 Độ lệch đến từ khác biệt giữa suy diễn tĩnh và việc thực thi thật. Đường xử lý khi kết thúc kết nối chịu ảnh hưởng của trạng thái chương trình, và khoá cũng có nhiều đường giải phóng. Chỉ đọc code thì dễ bỏ sót thứ tự trước sau của các thay đổi trạng thái, và phán nhầm một đường có thể xảy ra thành đường thực sự được thực thi.
 
-Khi kỹ sư kiểm chứng những phán đoán đó, họ phải chuẩn bị môi trường, đặt breakpoint, kiểm soát thứ tự thực thi của các luồng, và khi cần thì còn phải kiểm tra trạng thái đối tượng trong bộ nhớ. Khi những biện pháp đó chỉ con người dùng được, thì mỗi lần Agent nêu một giả thuyết là kỹ sư lại phải tiếp quản để kiểm chứng.
+Khi kỹ sư kiểm chứng những nhận định đó, họ phải chuẩn bị môi trường, đặt breakpoint, kiểm soát thứ tự thực thi của các luồng, và khi cần thì còn phải kiểm tra trạng thái đối tượng trong bộ nhớ. Khi những biện pháp đó chỉ con người dùng được, thì mỗi lần Agent nêu một giả thuyết là kỹ sư lại phải tiếp quản để kiểm chứng.
 
 Vì vậy, chúng tôi bắt đầu cấp chính những năng lực debug và phân tích đó cho Agent, để nó quan sát được kết quả chạy thật, tự phát hiện chỗ sai trong giả thuyết của mình rồi truy nguyên tiếp.
 
@@ -178,7 +178,7 @@ _Hình 6: Lệnh tiền cảnh gọi độc lập, còn tiến trình nền gi�
 
 Một năng lực then chốt khác là **breakpoint theo luồng chỉ định**: chỉ luồng đích mới kích hoạt breakpoint, và khi trúng thì cũng chỉ tạm dừng luồng đó, còn các luồng khác vẫn chạy tiếp. Kết hợp với thao tác khôi phục luồng, Agent kiểm soát được thứ tự thực thi của các luồng liên quan để kiểm chứng hành vi chương trình dưới một trình tự thời gian nhất định.
 
-Việc tái hiện vấn đề đồng thời xác suất thấp của MDL nói ở trên chính là nhờ năng lực này. Agent tự kiểm soát được trình tự luồng, kiểm tra chương trình có chạy theo đúng đường mà phần phân tích dự đoán không, rồi sửa lại phán đoán theo kết quả thật.
+Việc tái hiện vấn đề đồng thời xác suất thấp của MDL nói ở trên chính là nhờ năng lực này. Agent tự kiểm soát được trình tự luồng, kiểm tra chương trình có chạy theo đúng đường mà phần phân tích dự đoán không, rồi sửa lại nhận định theo kết quả thật.
 
 ### Truy vấn hiện trường bộ nhớ bằng Heap Dump
 
@@ -239,7 +239,7 @@ Sau khi việc thu thập hiện trường, truy nguyên căn nguyên, tái hi�
 
 # Ba — Vận hành trên cloud và hiệu quả thực tiễn
 
-Để chống đỡ việc xử lý cảnh báo và đẩy phần sửa liên tục 7×24 giờ, chúng tôi xây PolarDB-X Agent dựa trên sandbox trên cloud, để gánh phần vận hành liên tục của quy trình nói trên.
+Để hỗ trợ việc xử lý cảnh báo và đẩy phần sửa liên tục 7×24 giờ, chúng tôi xây PolarDB-X Agent dựa trên sandbox trên cloud, để đảm nhiệm vận hành liên tục của quy trình nói trên.
 
 Sandbox trên cloud còn cung cấp hai mặt bảo đảm an toàn: một là **cô lập môi trường**, tách môi trường chạy của Agent khỏi máy tính cá nhân của kỹ sư, nên dù môi trường sandbox có hỏng thì cũng không ảnh hưởng tới môi trường phát triển local; hai là **tối thiểu hoá quyền hạn**, chỉ cấp cho Agent những quyền cần thiết để hoàn thành task, giới hạn phạm vi nó truy cập và thao tác được.
 
@@ -247,7 +247,7 @@ Các thành viên trong đội dùng chung được môi trường trên cloud, 
 
 ![image](../../assets/imgs/chapter-25/image-017.png)
 
-_Hình 9: Nền tảng PolarDB-X Agent trên cloud, gánh phần vận hành liên tục của Loop._
+_Hình 9: Nền tảng PolarDB-X Agent trên cloud, đảm nhiệm vận hành liên tục của Loop._
 
 Trong nửa năm thực tiễn mà bài này mô tả, mọi cảnh báo đều do Agent hoàn tất vòng xử lý và phân tích đầu tiên. Từ hàng vạn lần cảnh báo, đội đã nhận diện và ghi nhận hơn hai trăm khiếm khuyết, trong đó hơn 70% tái hiện ổn định được, và đã được Agent sửa xong rồi đưa vào khâu review code.
 
@@ -259,4 +259,4 @@ Quãng thực tiễn này hình thành ba kinh nghiệm kỹ thuật:
 
 2. **Làm cho quá trình R&D kiểm chứng được.** Hãy cung cấp môi trường tái hiện, công cụ debug và phân tích bộ nhớ, để Agent tự kiểm nghiệm được giả thuyết, rồi cố định quá trình tái hiện ổn định thành test case, và kiểm tra hiệu quả sửa qua phép kiểm chứng đối chứng trước – sau cùng test hồi quy.
 
-3. **Làm cho task chạy được liên tục.** Hãy đưa Agent và quy trình task lên cloud để chống đỡ việc xử lý cảnh báo, đẩy phần sửa liên tục 7×24 giờ, và kiểm soát phạm vi truy cập cùng thao tác bằng việc cô lập môi trường và tối thiểu hoá quyền hạn.
+3. **Làm cho task chạy được liên tục.** Hãy đưa Agent và quy trình task lên cloud để hỗ trợ việc xử lý cảnh báo, đẩy phần sửa liên tục 7×24 giờ, và kiểm soát phạm vi truy cập cùng thao tác bằng việc cô lập môi trường và tối thiểu hoá quyền hạn.

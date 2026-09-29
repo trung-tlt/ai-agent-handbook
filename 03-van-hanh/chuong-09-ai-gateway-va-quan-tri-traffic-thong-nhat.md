@@ -16,7 +16,7 @@ Những vấn đề này phù hợp để xử lý tập trung tại lối vào 
 
 ### 9.1.2 Traffic AI thêm vào những ràng buộc nào
 
-Traffic AI không phải toàn bộ là long connection hay có state. Thứ thực sự ảnh hưởng tới thiết kế gateway là: **cùng một lối vào phải đồng thời gánh các request ngắn, phản hồi stream dài, context lớn và các lời gọi nhiều bước**, rồi chọn cách xử lý phù hợp cho từng loại.
+Traffic AI không phải toàn bộ là long connection hay có state. Thứ thực sự ảnh hưởng tới thiết kế gateway là: **cùng một lối vào phải đồng thời đảm nhiệm các request ngắn, phản hồi stream dài, context lớn và các lời gọi nhiều bước**, rồi chọn cách xử lý phù hợp cho từng loại.
 
 | Đặc điểm traffic | Ảnh hưởng kỹ thuật | Năng lực gateway cần cung cấp |
 | --- | --- | --- |
@@ -37,25 +37,25 @@ Tương tự, việc tái dùng **KV cache (Key-Value Cache)** là tối ưu hi�
 
 | Ngữ nghĩa quản trị | Đối tượng quản trị trực tiếp | Vấn đề chính | Trách nhiệm KHÔNG gánh |
 | --- | --- | --- | --- |
-| LLM Gateway | Lời gọi model và các lần thử thực tế của nó | Chọn model hay endpoint nào, giới hạn tốc độ, chịu lỗi và đo đếm ra sao | Phán định output của model có thoả tiêu chí thành công nghiệp vụ hay không |
+| LLM Gateway | Lời gọi model và các lần thử thực tế của nó | Chọn model hay endpoint nào, giới hạn tốc độ, chịu lỗi và đo đếm ra sao | Đánh giá output của model có thoả tiêu chí thành công nghiệp vụ hay không |
 | MCP Gateway | Request MCP và lời gọi tool | Proxy giao thức ra sao, định danh hiện tại có được gọi tool và tham số chỉ định không | Đánh đồng "tool khám phá được" với "đã được uỷ quyền, khoẻ mạnh, thực thi được" |
 | Agent Gateway | Việc tích hợp Agent và traffic gắn với task | Làm định danh, routing, affinity, kiểm soát đồng thời và liên kết xuyên lời gọi ra sao | Định nghĩa Task, State nghiệp vụ, Checkpoint hay ngữ nghĩa khôi phục |
 
 Ba ngữ nghĩa có thể triển khai trên cùng một mặt phẳng dữ liệu, cũng có thể do các component khác nhau gánh. **Điểm then chốt của sự thống nhất không phải là mọi năng lực nằm trong cùng một process, mà là ánh xạ định danh nhất quán, ranh giới policy rõ ràng, bản ghi lời gọi liên kết được, và cùng một lời gọi thượng nguồn không bị tính phí trùng chỉ vì đi qua nhiều component.**
 
-Đặt ba ngữ nghĩa vào một lần gọi trọn vẹn sẽ dễ hình dung hơn. Lấy "Agent chăm sóc khách hàng truy vấn đơn hàng và xin hoàn tiền" làm ví dụ: task trước hết vào qua lối vào Agent, gateway kiểm chứng định danh uỷ nhiệm của task và route nó tới runtime có tool đơn hàng cùng hoàn tiền theo nhãn năng lực; các lời gọi model mà task này sinh ra thì đi qua LLM Gateway để định tuyến model và hạ cấp khi lỗi; việc truy vấn đơn hàng thuộc lời gọi tool chỉ-đọc, MCP Gateway xác thực quyền tool rồi cho qua thẳng; việc xin hoàn tiền là thao tác liên quan tiền, nên gateway treo nó lại và đưa vào phê duyệt — sau khi được duyệt thì kiểm chứng lại phạm vi uỷ nhiệm, digest tham số và phần ngân sách đã giữ theo điều kiện chấp nhận mới, rồi mới thực thi lời gọi hoàn tiền; kết quả tool và lượng dùng sau đó ghi ngược về sổ cái task, để hệ thống nghiệp vụ phán định kết quả. Cả chuỗi có thể rút gọn thành: **lối vào Agent → routing model → xác thực quyền tool → chấp nhận lại sau phê duyệt → trả kết quả về.**
+Đặt ba ngữ nghĩa vào một lần gọi trọn vẹn sẽ dễ hình dung hơn. Lấy "Agent chăm sóc khách hàng truy vấn đơn hàng và xin hoàn tiền" làm ví dụ: task trước hết vào qua lối vào Agent, gateway kiểm chứng định danh uỷ nhiệm của task và route nó tới runtime có tool đơn hàng cùng hoàn tiền theo nhãn năng lực; các lời gọi model mà task này sinh ra thì đi qua LLM Gateway để định tuyến model và hạ cấp khi lỗi; việc truy vấn đơn hàng thuộc lời gọi tool chỉ-đọc, MCP Gateway xác thực quyền tool rồi cho qua thẳng; việc xin hoàn tiền là thao tác liên quan tiền, nên gateway treo nó lại và đưa vào phê duyệt — sau khi được duyệt thì kiểm chứng lại phạm vi uỷ nhiệm, digest tham số và phần ngân sách đã giữ theo điều kiện chấp nhận mới, rồi mới thực thi lời gọi hoàn tiền; kết quả tool và lượng dùng sau đó ghi ngược về sổ cái task, để hệ thống nghiệp vụ đánh giá kết quả. Cả chuỗi có thể rút gọn thành: **lối vào Agent → routing model → xác thực quyền tool → chấp nhận lại sau phê duyệt → trả kết quả về.**
 
 ### 9.1.4 Ranh giới với hạ tầng sẵn có và hệ thống thực thi
 
 | Component | Trách nhiệm chính | Quan hệ với AI Gateway |
 | --- | --- | --- |
-| API Gateway | Lối vào request, xác thực, routing và chính sách traffic chung | Có thể gánh phần thích ứng giao thức AI và các plugin quản trị |
+| API Gateway | Lối vào request, xác thực, routing và chính sách traffic chung | Có thể đảm nhiệm thích ứng giao thức AI và các plugin quản trị |
 | Service Mesh | Định danh dịch vụ, mTLS và quản trị traffic giữa các dịch vụ | Cung cấp năng lực bảo mật và khám phá nền cho việc giao tiếp giữa các dịch vụ AI |
 | Registry | Quản lý danh mục tài nguyên, endpoint, version và năng lực đã khai báo | Được gateway hoặc mặt phẳng điều khiển truy vấn, tích hợp; không vì tích hợp mà thành trách nhiệm nghiệp vụ của gateway |
 | Harness / Orchestrator | Thực thi vòng lặp điều khiển, lập lịch bước và orchestration cộng tác | Truy cập model và tool qua gateway, và báo cáo thông tin liên kết thực thi |
 | Agent Runtime | Vòng đời thực thi, quản lý tài nguyên, bền vững hoá checkpoint và khôi phục hạ tầng | Nhận traffic được route, chạy task theo hợp đồng khôi phục nghiệp vụ |
-| Ứng dụng nghiệp vụ | Định nghĩa Task, tiêu chí thành công và sổ cái task | Giữ thẩm quyền nghiệp vụ, có thể uỷ quyền cho Verifier phán định Outcome |
-| Verifier được uỷ quyền | Phán định Outcome dựa trên tiêu chí thành công, State và Evidence | Tiêu thụ kết quả thực thi và bằng chứng; **không** tự nhiên có quyền phán định chỉ vì chấm điểm hay quan sát |
+| Ứng dụng nghiệp vụ | Định nghĩa Task, tiêu chí thành công và sổ cái task | Giữ thẩm quyền nghiệp vụ, có thể uỷ quyền cho Verifier đánh giá Outcome |
+| Verifier được uỷ quyền | Đánh giá Outcome dựa trên tiêu chí thành công, State và Evidence | Tiêu thụ kết quả thực thi và bằng chứng; **không** tự nhiên có quyền đánh giá chỉ vì chấm điểm hay quan sát |
 
 Higress tổ chức các năng lực thích ứng giao thức, giới hạn tốc độ, thống kê thành các plugin WebAssembly (Wasm) chạy trên mặt phẳng dữ liệu Envoy, và quản lý cấu hình liên quan qua một mặt phẳng điều khiển dựa trên Istio. **Đây là một hướng hiện thực tái dùng được, chứ không phải kiến trúc mà mọi AI Gateway phải theo.** Model proxy cũng có thể cung cấp năng lực tương tự qua middleware ở tầng ứng dụng; còn dịch vụ managed thì có thể gánh luôn cả việc mua model, tài khoản và tính phí.
 
@@ -92,9 +92,9 @@ Giá trị khác của một hợp đồng thống nhất là để các module 
 | Cách routing | Đối tượng quyết định | Điều kiện áp dụng | Ràng buộc chính |
 | --- | --- | --- | --- |
 | Ánh xạ tĩnh và trọng số | Alias model, version hay dịch vụ | Cần quan hệ canary và chính–phụ ổn định, giải thích được | Thay đổi ánh xạ bắt buộc phải hồi quy về năng lực và chất lượng |
-| Routing theo chi phí | Các model ứng viên thoả ngưỡng năng lực | Đã có ngưỡng chất lượng kiểm chứng được và chuẩn đo giá | Không chỉ nhìn giá một lần gọi, còn phải tính chi phí retry và làm lại |
+| Routing theo chi phí | Các model ứng viên thoả ngưỡng năng lực | Đã có ngưỡng chất lượng kiểm chứng được và thước đo giá | Không chỉ nhìn giá một lần gọi, còn phải tính chi phí retry và làm lại |
 | Routing ngữ nghĩa | Các model năng lực khác nhau | Bộ phân loại request đã qua đánh giá và có đường lui rõ ràng | Phân loại sai sẽ đổi chất lượng output; bản thân việc phân loại cũng tốn chi phí |
-| Chọn endpoint suy luận | Các instance của cùng model hay dịch vụ tương thích | Lấy được tín hiệu về hàng đợi, request đang bay hoặc cache | Cần cân nhắc tính thời sự của tín hiệu, tính cục bộ của cache và cân bằng tải |
+| Chọn endpoint suy luận | Các instance của cùng model hay dịch vụ tương thích | Lấy được tín hiệu về hàng đợi, request đang bay hoặc cache | Cần cân nhắc tính cập nhật của tín hiệu, tính cục bộ của cache và cân bằng tải |
 
 `InferencePool` của Gateway API Inference Extension đã có API v1 ổn định, dùng để mô tả các tài nguyên lối vào như tập backend suy luận; còn **EPP (Endpoint Picker)** thì lập lịch theo cách hiện thực cụ thể của nó. Độ dài hàng đợi, mức chiếm KV cache và nhận biết prefix cache thuộc về tín hiệu lập lịch do bản hiện thực hay plugin cung cấp — **không phải thuật toán bắt buộc của mọi bản v1, và cũng không đồng nghĩa với việc tự động chọn model theo ngữ nghĩa task.**
 
@@ -102,7 +102,7 @@ Giá trị khác của một hợp đồng thống nhất là để các module 
 
 Bản hiện thực tham chiếu `ai-load-balancer` của Higress cung cấp thông tin request đang bay toàn cục, liên kết prefix và cách chọn dựa trên chỉ số vận hành. Điểm đáng học ở nó là kết hợp thông tin dùng chung xuyên instance gateway với việc chọn đích ở mặt phẳng dữ liệu. Nhưng **liên kết prefix mà gateway ghi lại chỉ là tín hiệu cho thấy cache có thể dùng được, không chứng minh được engine suy luận vẫn còn giữ cache đó**; sau khi cache bị đuổi, instance restart hay version model đổi thì đều phải cho phép lệch khớp và chọn lại.
 
-### 9.2.4 Độ tin cậy: phán định có retry được không trước, rồi mới chọn đích retry
+### 9.2.4 Độ tin cậy: đánh giá có retry được không trước, rồi mới chọn đích retry
 
 **Phân loại lỗi phải đi trước retry.** Phản hồi rate limit cần xử lý kết hợp thời điểm reset, quota tài khoản và chính sách endpoint thay thế; lỗi server chỉ phù hợp retry khi ngữ nghĩa lời gọi cho phép; lỗi xác thực thì thường nên chấm dứt và sửa credential. Việc vượt quá context cũng **không nên** được "giải quyết" đơn giản bằng cắt bớt lịch sử, vì điều đó làm thay đổi input của task — hãy để ứng dụng hoặc Harness quyết định là nén context, chuyển sang một model long-context tương thích, hay báo lỗi rõ ràng.
 
@@ -112,7 +112,7 @@ Mỗi lần thử thực tế đều nên có một định danh `attempt` độ
 
 Việc loại bỏ credential hay endpoint là một cơ chế khác. Sau khi thất bại liên tiếp chạm ngưỡng, có thể tạm dừng chọn đích đó và khôi phục qua thời gian nguội hoặc health check; **việc thăm dò model thật có thể phát sinh phí, nên phải giới hạn tần suất và tránh để đa bản sao khuếch đại trùng lặp.**
 
-**Việc chồng nhiều tầng khôi phục là chỗ dễ mất kiểm soát nhất của loại cơ chế này.** Nếu client SDK thử tối đa 3 lần cho một lời gọi logic, và gateway lại retry tối đa 3 lần cho mỗi lần chuyển tiếp, thì một lời gọi mà người dùng nhìn thấy có thể tới thượng nguồn tối đa **9 lần**; còn phía nhà cung cấp có gửi lại nữa hay không thì không kiểm soát được. Mỗi tầng đều nghĩ giới hạn của mình là 3, nhưng đầu-cuối lại không có ràng buộc 3 nào cả — số lần retry, áp lực đồng thời và chi phí sẽ khuếch đại theo kiểu **tích số.**
+**Việc chồng nhiều tầng khôi phục là chỗ dễ mất kiểm soát nhất của loại cơ chế này.** Nếu client SDK thử tối đa 3 lần cho một lời gọi logic, và gateway lại retry tối đa 3 lần cho mỗi lần chuyển tiếp, thì một lời gọi mà người dùng nhìn thấy có thể tới thượng nguồn tối đa **9 lần**; còn phía nhà cung cấp có gửi lại nữa hay không thì không kiểm soát được. Mỗi tầng đều nghĩ giới hạn của mình là 3, nhưng đầu cuối lại không có ràng buộc 3 nào cả — số lần retry, áp lực đồng thời và chi phí sẽ khuếch đại theo kiểu **tích số.**
 
 | Tầng | Điều kiện được phép retry | Ngân sách phải giữ hoặc truyền đi |
 | --- | --- | --- |
@@ -168,7 +168,7 @@ Khi triển khai, hãy ánh xạ những yêu cầu trên vào Schema thật và
 
 Cache ngữ nghĩa có thể giảm phần sinh ở thượng nguồn do các câu hỏi lặp lại kích hoạt, nhưng **cache hit không có nghĩa cả request tốn 0 chi phí** — việc tính vector, truy hồi và duy trì cache vẫn tốn kém. Khoá cache còn **bắt buộc phải phân biệt tenant, phạm vi quyền, version model, system prompt và version tri thức**, không được để sự tương tự ngữ nghĩa vòng qua việc cô lập dữ liệu. Với các lời gọi tool có tác dụng phụ thì **không nên** phát lại đơn giản kết quả cache; với các task nhạy thời gian hoặc mang tính sáng tạo thì phải làm rõ ranh giới áp dụng và chính sách hết hiệu lực.
 
-Các hướng model proxy, dịch vụ tổng hợp managed và plugin gateway có trọng tâm khác nhau. Hướng proxy mà LiteLLM là đại diện thuận cho việc tích hợp trong hệ sinh thái ứng dụng; các dịch vụ như Portkey cung cấp mức kiểm soát và quan sát managed khác nhau; OpenRouter tổng hợp việc truy cập model; còn Higress thì nhấn mạnh việc kết hợp với quản trị lối vào sẵn có và khả năng mở rộng ở mặt phẳng dữ liệu. **Lựa chọn phải kiểm chứng độ phủ giao thức thực tế, việc dữ liệu ra khỏi biên, chuẩn đo chi phí, dung lượng và hành vi khi sự cố — không suy từ hình thái triển khai ra "năng lực đầy đủ" hay "hiệu năng cao hơn".**
+Các hướng model proxy, dịch vụ tổng hợp managed và plugin gateway có trọng tâm khác nhau. Hướng proxy mà LiteLLM là đại diện thuận cho việc tích hợp trong hệ sinh thái ứng dụng; các dịch vụ như Portkey cung cấp mức kiểm soát và quan sát managed khác nhau; OpenRouter tổng hợp việc truy cập model; còn Higress thì nhấn mạnh việc kết hợp với quản trị lối vào sẵn có và khả năng mở rộng ở mặt phẳng dữ liệu. **Lựa chọn phải kiểm chứng độ phủ giao thức thực tế, việc dữ liệu ra khỏi biên, thước đo chi phí, dung lượng và hành vi khi sự cố — không suy từ hình thái triển khai ra "năng lực đầy đủ" hay "hiệu năng cao hơn".**
 
 Độ ổn định routing, tỉ lệ cache hit, khả năng khôi phục sau lỗi và lượng làm lại task cần được đánh giá cùng nhau. **Một chiến lược đơn giản, giải thích được và lui được thường dễ tạo ra một baseline production đáng tin hơn một cơ chế tự động chuyển đổi thiếu căn cứ đo đạc.**
 
@@ -178,7 +178,7 @@ Các hướng model proxy, dịch vụ tổng hợp managed và plugin gateway c
 
 MCP dùng JSON-RPC (JSON Remote Procedure Call) để biểu đạt tương tác giữa client và server, cung cấp các năng lực tool, resource và prompt. Nó hạ chi phí tích hợp, **nhưng không tự động giải quyết các vấn đề uỷ quyền doanh nghiệp, quản lý credential, sức khoẻ của tool hay tác dụng phụ nghiệp vụ.**
 
-Một tool xuất hiện trong danh sách chỉ nói lên rằng server đã thông báo nó; còn bên gọi có quyền thực thi không, hệ thống phụ thuộc có khả dụng không, lời gọi này có thành công không — vẫn phải phán định độc lập. Vì vậy MCP Gateway nên quản trị **tách bạch** phần proxy giao thức, tích hợp danh mục tài nguyên, uỷ quyền và kết quả thực thi thực tế.
+Một tool xuất hiện trong danh sách chỉ nói lên rằng server đã thông báo nó; còn bên gọi có quyền thực thi không, hệ thống phụ thuộc có khả dụng không, lời gọi này có thành công không — vẫn phải đánh giá độc lập. Vì vậy MCP Gateway nên quản trị **tách bạch** phần proxy giao thức, tích hợp danh mục tài nguyên, uỷ quyền và kết quả thực thi thực tế.
 
 ![image](../assets/imgs/chapter-09/image-003.svg)
 
@@ -192,7 +192,7 @@ Endpoint Legacy dùng handshake `initialize` và endpoint Modern dùng metadata 
 
 ### 9.3.3 Metadata theo từng request: mô tả giao thức không phải chứng minh định danh của bên gọi
 
-Việc chấp nhận một request MCP có thể hiểu theo bốn bước: **xác thực — kiểm tra giao thức — uỷ quyền — chuyển tiếp.** Xác thực trả lời "ai đang gọi", do credential độc lập với giao thức hoàn tất việc ánh xạ chủ thể; kiểm tra giao thức thì theo version mà kiểm tra header mirror, method và ràng buộc gói tin; uỷ quyền thì quyết định cho qua hay không dựa trên chủ thể, tool và tham số; chuyển tiếp thì dựng lại request thượng nguồn theo policy đã khai báo. **Metadata theo từng request của giao thức Modern chỉ phục vụ bước hai và bốn** — chúng mô tả hình thái giao thức và năng lực của request, **không thay thế được việc phán định định danh và quyền hạn ở bước một và ba.**
+Việc chấp nhận một request MCP có thể hiểu theo bốn bước: **xác thực — kiểm tra giao thức — uỷ quyền — chuyển tiếp.** Xác thực trả lời "ai đang gọi", do credential độc lập với giao thức hoàn tất việc ánh xạ chủ thể; kiểm tra giao thức thì theo version mà kiểm tra header mirror, method và ràng buộc gói tin; uỷ quyền thì quyết định cho qua hay không dựa trên chủ thể, tool và tham số; chuyển tiếp thì dựng lại request thượng nguồn theo policy đã khai báo. **Metadata theo từng request của giao thức Modern chỉ phục vụ bước hai và bốn** — chúng mô tả hình thái giao thức và năng lực của request, **không thay thế được việc đánh giá định danh và quyền hạn ở bước một và ba.**
 
 | Năng lực hoặc phần tử | Phạm vi gateway hỗ trợ | Giải thích và ràng buộc |
 | --- | --- | --- |
@@ -243,7 +243,7 @@ Request outbound phải được dựng lại theo RPC thượng nguồn; mặc 
 
 Khi phơi một REST API sẵn có thành tool MCP, tầng adapter phải định nghĩa mô tả tool, Schema input, cách dựng request và cách cắt gọt kết quả. Lấy truy vấn địa chỉ làm ví dụ: bên gọi chỉ cần cung cấp địa chỉ có cấu trúc và thành phố tuỳ chọn; credential phía server thì được tiêm từ cấu hình có kiểm soát; còn phản hồi có thể cắt gọn còn kinh độ – vĩ độ và thông tin hành chính cần thiết, để giảm context không liên quan.
 
-Template request **bắt buộc phải encode tham số đúng cách**, và giới hạn host, path cùng đích outbound có thể biến đổi, tránh biến một tool dạng template thành lối vào cho **SSRF (Server-Side Request Forgery)**. Với tool database, việc dùng tiền tố chuỗi để phán định "SQL chỉ-đọc" là **không đáng tin**; hãy kết hợp tài khoản database bị giới hạn, interface truy vấn được hỗ trợ và quyền hạn ở phía tài nguyên.
+Template request **bắt buộc phải encode tham số đúng cách**, và giới hạn host, path cùng đích outbound có thể biến đổi, tránh biến một tool dạng template thành lối vào cho **SSRF (Server-Side Request Forgery)**. Với tool database, việc dùng tiền tố chuỗi để đánh giá "SQL chỉ-đọc" là **không đáng tin**; hãy kết hợp tài khoản database bị giới hạn, interface truy vấn được hỗ trợ và quyền hạn ở phía tài nguyên.
 
 | Bối cảnh tool | Kiểm tra Schema | Policy nghiệp vụ còn phải ràng buộc thêm |
 | --- | --- | --- |
@@ -252,7 +252,7 @@ Template request **bắt buộc phải encode tham số đúng cách**, và gi�
 | Quản lý cụm | Tham số cluster, namespace, tài nguyên | Môi trường được phép, loại tài nguyên, động từ thao tác và uỷ quyền tạm thời |
 | Đọc file | Định dạng path hay định danh file | Thư mục được phép, quy thuộc tenant, symlink và phân cấp dữ liệu |
 
-Ngôn ngữ tự nhiên có thể giúp quản trị viên biểu đạt ý định quản trị, ví dụ "môi trường production chỉ cho phép truy vấn"; nhưng **nó phải được chuyển thành policy có cấu trúc trước**, rồi qua kiểm tra xung đột, xem trước ảnh hưởng, kiểm chứng hồi quy và phát hành có uỷ quyền mới được thực thi. Lúc chạy **không nên** phụ thuộc tạm thời vào việc model tự do diễn giải quyền hạn; cùng một định danh, tài nguyên và tham số phải cho ra một phán định nhất quán, giải thích được.
+Ngôn ngữ tự nhiên có thể giúp quản trị viên biểu đạt ý định quản trị, ví dụ "môi trường production chỉ cho phép truy vấn"; nhưng **nó phải được chuyển thành policy có cấu trúc trước**, rồi qua kiểm tra xung đột, xem trước ảnh hưởng, kiểm chứng hồi quy và phát hành có uỷ quyền mới được thực thi. Lúc chạy **không nên** phụ thuộc tạm thời vào việc model tự do diễn giải quyền hạn; cùng một định danh, tài nguyên và tham số phải cho ra một đánh giá nhất quán, giải thích được.
 
 Output của tool vẫn thuộc loại dữ liệu phải xử lý theo nguồn và rủi ro, **không được vì đã đi qua gateway mà tự động nâng thành chỉ dẫn có độ tin cậy cao.** Kiểm tra nội dung có thể cung cấp tín hiệu rủi ro, nhưng việc phòng chống prompt injection còn dựa vào cô lập quyền hạn, ràng buộc tham số, cách Harness xử lý kết quả tool và quyền tối thiểu ở phía tài nguyên — **một plugin kiểm tra đơn lẻ không bao sân được.**
 
@@ -286,13 +286,13 @@ Theo cách dùng task, state và đối tượng thực thi của phần Xây d�
 | Call / Attempt | Lời gọi logic nào, lần thực thi thực tế nào đã sinh ra lượng dùng | Hệ thống gọi và điểm thực thi thực tế cung cấp bản ghi liên kết |
 | State | Các sự thật nghiệp vụ đã hoàn thành, việc chờ xử lý và luật chuyển trạng thái | Mô hình Task / State nghiệp vụ |
 | Checkpoint | Khi khôi phục thì cần state, version và tham chiếu nào | Mô hình nghiệp vụ định nghĩa nội dung và hợp đồng khôi phục; Runtime lo phần bền vững hoá và khôi phục hạ tầng tương ứng |
-| Outcome | Có đạt tiêu chí thành công nghiệp vụ hay không | Ứng dụng nghiệp vụ hoặc Verifier được uỷ quyền phán định dựa trên State và Evidence |
+| Outcome | Có đạt tiêu chí thành công nghiệp vụ hay không | Ứng dụng nghiệp vụ hoặc Verifier được uỷ quyền đánh giá dựa trên State và Evidence |
 
 Việc bền vững hoá state, checkpoint và đối chiếu tác dụng phụ do mô hình nghiệp vụ, Harness và Runtime cùng hoàn tất; cơ chế cụ thể xem các chương về lưu trữ trạng thái và môi trường vận hành. Gateway cần giữ lại thông tin liên kết, để sự cố ở lối vào và việc retry không làm mất quan hệ giữa lời gọi với task.
 
 Gateway có thể lưu khoá affinity routing, ánh xạ định danh task, số đếm đang bay, phần ngân sách giữ chỗ và thông tin liên kết quan sát. Ngay cả khi một bản hiện thực nào đó vì nhu cầu routing mà cache một tham chiếu thực thi mờ, **nó cũng không được diễn giải State nghiệp vụ, định nghĩa cấu trúc Checkpoint hay quyết định khôi phục từ bước nghiệp vụ nào.** Việc instance lối vào restart **không được** trở thành nguyên nhân làm mất sự thật về task.
 
-### 9.4.3 Routing Agent: chọn năng lực lối vào, chứ không phán định kết quả thực thi
+### 9.4.3 Routing Agent: chọn năng lực lối vào, chứ không đánh giá kết quả thực thi
 
 Routing Agent có thể chọn đích dựa trên tenant, loại workload, nhãn năng lực, tool khả dụng, yêu cầu môi trường và sức khoẻ runtime. Nhãn năng lực trong danh mục chỉ cung cấp tập ứng viên; vẫn phải kiểm chứng tính tương thích version, uỷ quyền và môi trường đích. Affinity có thể hiện thực bằng consistent hashing hay tra bảng theo khoá liên kết Session/Runtime đáng tin, **nhưng hành vi sau khi affinity thất bại thì phải do hệ thống thực thi đưa ra hợp đồng.**
 
@@ -319,7 +319,7 @@ Gateway có thể hiểu các trường định danh, routing và liên kết c�
 
 Quota nên gắn với **chủ thể đã được xác thực** và **quy thuộc tài chính rõ ràng**, chứ không phải IP client hay số kết nối. Người, workload, instance Agent và Task mô tả các định danh hoặc quan hệ thực thi khác nhau; còn tổ chức, team, dự án thì mô tả quy thuộc tài chính — hai thứ là **hai chiều trực giao.** Một Agent có thể phục vụ nhiều dự án, một dự án cũng có thể dùng nhiều Agent; **không được gộp chúng thành một phân cấp đơn nhất cố định.**
 
-Cô lập đồng thời cũng phải phân biệt **request đang bay ở lối vào** với **task đang hoạt động trong Runtime.** Sau khi request HTTP kết thúc, task bất đồng bộ có thể vẫn đang chạy; chỉ Runtime hay hệ lập lịch tương ứng mới phán định chính xác được khe thực thi đã giải phóng chưa. Gateway có thể giới hạn mức đồng thời và tốc độ phát ở lối vào; còn mức đồng thời của task thì phải phối hợp với sổ cái của hệ thống thực thi.
+Cô lập đồng thời cũng phải phân biệt **request đang bay ở lối vào** với **task đang hoạt động trong Runtime.** Sau khi request HTTP kết thúc, task bất đồng bộ có thể vẫn đang chạy; chỉ Runtime hay hệ lập lịch tương ứng mới đánh giá chính xác được khe thực thi đã giải phóng chưa. Gateway có thể giới hạn mức đồng thời và tốc độ phát ở lối vào; còn mức đồng thời của task thì phải phối hợp với sổ cái của hệ thống thực thi.
 
 Hàng đợi công bằng có trọng số, khe theo tenant và độ ưu tiên có thể kìm việc task dài chiếm hết tài nguyên. **Mượn dung lượng rảnh không có nghĩa thu hồi ngay được các thao tác đã thực thi hay chi phí đã phát sinh;** chính sách preempt phải nói rõ hành vi huỷ, checkpoint và bù trừ. Khi ngân sách gần chạm ngưỡng, nền tảng có thể phát tín hiệu để Harness — theo mô hình task — dừng thêm bước mới, lưu tiến độ hoặc xin uỷ quyền thêm.
 
@@ -348,13 +348,13 @@ Việc tính chi phí còn phải phân biệt usage gốc của nhà cung cấp
 
 ### 9.4.6 Vị trí của Higress: cung cấp nền đo đếm và log
 
-`ai-quota` và `ai-statistics` của Higress có thể lần lượt cung cấp kiểm soát hạn mức theo consumer, lượng dùng model và log liên kết phiên. Chúng giúp thiết lập một chuẩn đo lời gọi thống nhất, nhưng **không thể chỉ dựa vào một header Session mà có được sổ cái Task xuyên khôi phục, và cũng không tự nhiên sở hữu Outcome nghiệp vụ.**
+`ai-quota` và `ai-statistics` của Higress có thể lần lượt cung cấp kiểm soát hạn mức theo consumer, lượng dùng model và log liên kết phiên. Chúng giúp thiết lập một thước đo lời gọi thống nhất, nhưng **không thể chỉ dựa vào một header Session mà có được sổ cái Task xuyên khôi phục, và cũng không tự nhiên sở hữu Outcome nghiệp vụ.**
 
 Log production nên mặc định ghi tham chiếu định danh, liên kết Task / Session / Turn, định danh Call / Attempt, model thực tế, nguồn lượng dùng, trạng thái, độ trễ và version policy. Các trường nội dung như câu hỏi, câu trả lời và tham số tool thì bật theo rủi ro và nhu cầu, kèm giới hạn độ dài, lấy mẫu, ẩn danh, kiểm soát truy cập và chu kỳ lưu giữ. **Việc ghi `tool_calls` mà model sinh ra và việc ghi kết quả thực thi thật của tool phải dùng hai loại event phân biệt được.**
 
 Dịch vụ phân tích có thể phơi năng lực liệt kê Task, xem chi tiết Session và drill-down lời gọi qua API, CLI (Command-Line Interface) hay Skill. Những interface truy vấn này thuộc về dịch vụ quan sát và phân tích, **không nhất thiết vì thế mà trở thành trách nhiệm dựng sẵn của mặt phẳng điều khiển gateway.** Agent phân tích có thể định vị thay đổi chi phí và hình thành giả thuyết tối ưu, nhưng **kết luận phải quay về bản ghi gốc để rà soát**, và phải phân biệt tương quan với nguyên nhân đã kiểm chứng.
 
-### 9.4.7 Phán định kết quả và các đánh đổi thiết kế
+### 9.4.7 Đánh giá kết quả và các đánh đổi thiết kế
 
 **Tỉ lệ request thành công của gateway và tỉ lệ hoàn thành task nghiệp vụ được thống kê riêng.** Ứng dụng nghiệp vụ hoặc component nghiệm thu được uỷ quyền cung cấp Outcome dựa trên tiêu chí thành công, Task State và Evidence; gateway chỉ liên kết tới kết quả đó. Các task thiếu Outcome hoặc chưa quyết toán chi phí thì phải giữ trạng thái tương ứng. Quy trình nghiệm thu được nói ở phần Xây dựng và chương cộng tác; trọng tâm phía gateway là **tránh tính HTTP thành công, phiên kết thúc hay lời model tự nhận là đã xong vào thành công nghiệp vụ.**
 
@@ -375,7 +375,7 @@ Mô hình chung về định danh thống nhất và phê duyệt xem phần Qu�
 | Ánh xạ chủ thể | Kết quả xác thực (OAuth, mTLS, API Key…) | Ánh xạ thành chủ thể policy ổn định cùng quy thuộc tài chính; xoá các header định danh nội bộ mà client nguỵ tạo |
 | Kiểm chứng uỷ nhiệm | Phạm vi, thời hạn và audience của phần uỷ nhiệm task | Lấy giao với quyền vốn có của bên gọi; **không** mở rộng theo lời tự khai của giao thức hay client |
 | Xử lý credential | Tham chiếu và mục đích của credential thượng nguồn | Chỉ sinh hoặc uỷ nhiệm theo policy tường minh; mặc định **không** chuyển tiếp credential hạ nguồn |
-| Ghi nhận | Chủ thể, uỷ nhiệm và căn cứ phán định | Ghi vào audit và sổ cái, hỗ trợ thu hồi, đối soát và truy nguyên |
+| Ghi nhận | Chủ thể, uỷ nhiệm và căn cứ đánh giá | Ghi vào audit và sổ cái, hỗ trợ thu hồi, đối soát và truy nguyên |
 
 Thiết kế chung về loại định danh, vòng đời credential và mô hình uỷ nhiệm xem phần Quản trị; với việc chuyển tiếp thì chỉ có một ràng buộc cứng: **phần uỷ nhiệm Task phải kiểm chứng được, thu hồi được, phạm vi rõ ràng, và không được vượt quá quyền vốn có của bên uỷ nhiệm** — nhưng cũng không đòi hỏi mỗi Task phải phát một token riêng.
 
@@ -383,9 +383,9 @@ Thiết kế chung về loại định danh, vòng đời credential và mô hì
 
 ### 9.5.3 Thực thi policy: nhánh từ chối và nhánh kết quả quan trọng ngang nhau
 
-Cách mô hình hoá quyền hạn (RBAC, ABAC…) xem phần Quản trị; với việc chuyển tiếp, gateway **bắt buộc phải hoàn tất xác thực, phân quyền và chấp nhận ngân sách trước khi cho qua**, và ghi lại rule đã trúng, version cùng lý do từ chối cho mỗi lần phán định, tránh biến ma trận quyền hạn thành một hộp đen không giải thích được.
+Cách mô hình hoá quyền hạn (RBAC, ABAC…) xem phần Quản trị; với việc chuyển tiếp, gateway **bắt buộc phải hoàn tất xác thực, phân quyền và chấp nhận ngân sách trước khi cho qua**, và ghi lại rule đã trúng, version cùng lý do từ chối cho mỗi lần đánh giá, tránh biến ma trận quyền hạn thành một hộp đen không giải thích được.
 
-Các request không qua được xác thực, uỷ quyền hay chấp nhận ngân sách thì phải chấm dứt và ghi lại phán định. Request cần phê duyệt thì đi vào một workflow phê duyệt chuyên biệt; request không cần phê duyệt thì có thể thực thi sau khi hoàn tất phần giữ chỗ ngân sách cần thiết. **Audit vừa ghi căn cứ chấp nhận, vừa ghi kết quả thực thi thực tế — không được lấy "log cho qua" thay cho "log thực thi thành công".**
+Các request không qua được xác thực, uỷ quyền hay chấp nhận ngân sách thì phải chấm dứt và ghi lại đánh giá. Request cần phê duyệt thì đi vào một workflow phê duyệt chuyên biệt; request không cần phê duyệt thì có thể thực thi sau khi hoàn tất phần giữ chỗ ngân sách cần thiết. **Audit vừa ghi căn cứ chấp nhận, vừa ghi kết quả thực thi thực tế — không được lấy "log cho qua" thay cho "log thực thi thành công".**
 
 Ngân sách dùng theo ngữ nghĩa phân tầng ở mục 9.2. Ngưỡng mềm có thể kích hoạt cảnh báo; trần nghiêm ngặt thì cần giữ chỗ nguyên tử và mức tiêu hao tối đa kiểm chứng được. Phê duyệt có thể uỷ quyền thêm hạn mức hoặc thay đổi ngân sách, **nhưng bản thân thay đổi đó phải chịu quản trị và đi vào sổ cái;** không được chỉ gắn một nhãn whitelist cho lời gọi rồi bỏ qua quyết toán hay giấu đi chi phí.
 
@@ -407,7 +407,7 @@ Cũng **không được** diễn giải "phê duyệt timeout" thành "đổi sa
 
 ### 9.5.5 Phân biệt tài liệu audit với Evidence nghiệp vụ
 
-Audit có cấu trúc có thể ghi lại ai, lúc nào, đã xin thao tác gì, trúng rule nào, phê duyệt quyết định ra sao, kết quả thực thi thực tế là gì. Nó cung cấp tài liệu truy nguyên cho việc hậu kiểm, **nhưng không tự nhiên tạo thành Evidence mà việc phán định nghiệp vụ cần.** Nguồn nào, mức bảo đảm toàn vẹn nào và nội dung nào được dùng để phán định task thành công thì phải do tiêu chí thành công và Verifier làm rõ.
+Audit có cấu trúc có thể ghi lại ai, lúc nào, đã xin thao tác gì, trúng rule nào, phê duyệt quyết định ra sao, kết quả thực thi thực tế là gì. Nó cung cấp tài liệu truy nguyên cho việc hậu kiểm, **nhưng không tự nhiên tạo thành Evidence mà việc đánh giá nghiệp vụ cần.** Nguồn nào, mức bảo đảm toàn vẹn nào và nội dung nào được dùng để đánh giá task thành công thì phải do tiêu chí thành công và Verifier làm rõ.
 
 Một event audit tổng quát có thể dùng cấu trúc logic sau. **Các trường ở đây là ví dụ minh hoạ của chương này, không phải Schema output cố định của một plugin nào.**
 
@@ -466,7 +466,7 @@ Các chỉ số truyền thống về tốc độ request, tỉ lệ lỗi và t
 | --- | --- | --- |
 | Lượng dùng và chi phí | Token input, output, cache; nguồn ước lượng hay thực tế, version giá và trạng thái quyết toán | Coi thiếu usage là bằng 0, hoặc coi credits như một đơn vị tiền tệ thống nhất |
 | Độ trễ | Thiết lập kết nối, byte đầu, TTFT, nghỉ trong stream, tổng thời lượng | Lấy gói đầu HTTP thay cho token hữu ích đầu tiên |
-| Độ tin cậy | Trạng thái HTTP, lỗi trong stream, huỷ, retry, kết quả chưa rõ | Chỉ dùng HTTP 200 để phán định thành công |
+| Độ tin cậy | Trạng thái HTTP, lỗi trong stream, huỷ, retry, kết quả chưa rõ | Chỉ dùng HTTP 200 để đánh giá thành công |
 | Quản trị | Policy đã trúng, từ chối, phê duyệt, giữ chỗ và quyết toán ngân sách | Chỉ ghi phần cho qua, không ghi kết quả cuối cùng |
 | Liên kết | Task, Session, Turn, Call, Attempt và tham chiếu Trace | Coi một Trace hay một Session là một Task trọn vẹn |
 
@@ -486,7 +486,7 @@ Việc dựng dataset, phương pháp đánh giá và hiệu chỉnh sai số đ
 
 | Giai đoạn | Sản phẩm | Điều kiện để sang giai đoạn kế tiếp |
 | --- | --- | --- |
-| Quan sát và chẩn đoán | Vấn đề về chi phí, chất lượng hay độ tin cậy cùng bản ghi rà soát được | Nguồn dữ liệu, chuẩn đo thống kê và phần bất định đã rõ |
+| Quan sát và chẩn đoán | Vấn đề về chi phí, chất lượng hay độ tin cậy cùng bản ghi rà soát được | Nguồn dữ liệu, thước đo thống kê và phần bất định đã rõ |
 | Đề xuất ứng viên | Thay đổi về ánh xạ model, route, prompt, tool hay ngân sách | Phạm vi thay đổi, lợi ích kỳ vọng và ràng buộc đã rõ |
 | Xây dựng và kiểm chứng | Cấu hình hay artifact đã cố định version, kết quả hồi quy và bảo mật | Test về giao thức, chất lượng, uỷ quyền, chi phí và sự cố đều đạt |
 | Uỷ quyền quản trị và cổng phát hành | Bản ghi phát hành được duyệt cùng người chịu trách nhiệm hoặc rule uỷ quyền trước | Có đủ quyền, kiểm tra phụ thuộc đạt, phương án rollback hiệu lực |
@@ -503,9 +503,9 @@ AdaptiveScore của `ai-load-balancer` trong Higress, ở commit tham chiếu, d
 
 **Đây là việc chọn endpoint online BÊN TRONG một policy routing đã được phát hành, không phải việc Evaluation trực tiếp có quyền phát hành lên production.** Thuật toán chỉ làm việc trong tập ứng viên và các ràng buộc đã được uỷ quyền, **không được tự mở rộng phạm vi model, vùng dữ liệu, quyền tool hay ngân sách.** Hiệu quả của nó phải đo dưới workload mục tiêu; **không thể từ việc "có chấm điểm tự thích ứng" mà suy ra chất lượng hay chi phí nhất định cải thiện.**
 
-### 9.6.7 Để vòng khép kín kiểm chứng được, dừng được, rollback được
+### 9.6.7 Để vòng lặp khép kín kiểm chứng được, dừng được, rollback được
 
-Một vòng khép kín đáng tin vừa phải thu thập lợi ích, vừa phải ghi lại thất bại và các trạng thái chưa rõ. Khi hệ quan sát không khả dụng, việc có tiếp tục thực thi hay không phụ thuộc vào rủi ro và yêu cầu audit; khi hệ ngân sách hay uỷ quyền không khả dụng, hành vi phải do một policy đã định nghĩa quyết định. **Các phụ thuộc khác nhau không được dùng chung một khẩu hiệu hạ cấp chưa kiểm chứng.**
+Một vòng lặp khép kín đáng tin vừa phải thu thập lợi ích, vừa phải ghi lại thất bại và các trạng thái chưa rõ. Khi hệ quan sát không khả dụng, việc có tiếp tục thực thi hay không phụ thuộc vào rủi ro và yêu cầu audit; khi hệ ngân sách hay uỷ quyền không khả dụng, hành vi phải do một policy đã định nghĩa quyết định. **Các phụ thuộc khác nhau không được dùng chung một khẩu hiệu hạ cấp chưa kiểm chứng.**
 
 Mặt phẳng điều khiển cần phơi tiến độ lan truyền cấu hình; mặt phẳng dữ liệu cần báo cáo version thực tế; còn đánh giá thì cần nhận diện được mẫu nào đã dùng nhóm policy nào. **Rollback không chỉ là khôi phục văn bản cấu hình**, mà còn phải tính tới các tác dụng phụ tool đã thực thi, hạn mức chưa quyết toán và các task vẫn đang chạy. Gateway có thể rollback policy lối vào; còn hệ thống nghiệp vụ vẫn phải xử lý những kết quả nghiệp vụ mà thay đổi đó đã gây ra.
 
@@ -517,11 +517,11 @@ AI Gateway cung cấp một lối vào quản trị thống nhất cho traffic c
 
 Quản trị chi phí đáng tin cần phân biệt giới hạn theo cửa sổ thời gian, quota số dư và ngân sách nghiêm ngặt — cái sau phụ thuộc vào mức tiêu hao tối đa chứng minh được, giữ chỗ nguyên tử và quyết toán idempotent. Phân tích task đáng tin cần mở rộng từ Session sang chuỗi quy kết Task — Session — Turn — Call — Attempt, và thừa nhận rằng **log gateway cùng Trace chỉ là một trong các nguồn dữ liệu của sổ cái task.** Quản trị bảo mật đáng tin cần giữ các kiểm tra độc lập giữa khám phá, uỷ quyền, phê duyệt và thực thi thực tế, và lấy việc kiểm soát credential cùng mạng làm tiền đề để lối vào không vòng qua được.
 
-Tối ưu liên tục thì dựa vào một chuỗi thay đổi có kiểm soát: Evaluation sinh ra điểm số, chẩn đoán và đề xuất ứng viên; xây dựng và kiểm chứng xác nhận hiệu quả; uỷ quyền quản trị cùng cổng phát hành quyết định có vào production hay không; còn mặt phẳng điều khiển và mặt phẳng dữ liệu lo việc phân phối và thực thi. Ứng dụng nghiệp vụ hoặc Verifier được uỷ quyền phán định Outcome dựa trên tiêu chí thành công, State và Evidence. **Thiết kế rõ những ranh giới đó quan trọng hơn việc dồn thêm nhiều tính năng vào gateway.**
+Tối ưu liên tục thì dựa vào một chuỗi thay đổi có kiểm soát: Evaluation sinh ra điểm số, chẩn đoán và đề xuất ứng viên; xây dựng và kiểm chứng xác nhận hiệu quả; uỷ quyền quản trị cùng cổng phát hành quyết định có vào production hay không; còn mặt phẳng điều khiển và mặt phẳng dữ liệu lo việc phân phối và thực thi. Ứng dụng nghiệp vụ hoặc Verifier được uỷ quyền đánh giá Outcome dựa trên tiêu chí thành công, State và Evidence. **Thiết kế rõ những ranh giới đó quan trọng hơn việc dồn thêm nhiều tính năng vào gateway.**
 
 ## 9.8 Ghi chú hiện thực của chương
 
-Mục này thu thập các chi tiết nhạy version, đối chiếu thẳng được với bản hiện thực, dùng để chống đỡ các kết luận ở phần chính; nó **không** thuộc mạch kiến trúc chính. Ví dụ trường lấy MCP 2026-07-28 làm chuẩn; hành vi plugin lấy commit `f053bb08360d432a1226d4b61eb69871c74b9021` làm baseline kiểm chứng; **trước khi triển khai phải kiểm chứng lại theo artifact thực tế.**
+Mục này thu thập các chi tiết nhạy version, đối chiếu thẳng được với bản hiện thực, dùng để hỗ trợ các kết luận ở phần chính; nó **không** thuộc mạch kiến trúc chính. Ví dụ trường lấy MCP 2026-07-28 làm chuẩn; hành vi plugin lấy commit `f053bb08360d432a1226d4b61eb69871c74b9021` làm baseline kiểm chứng; **trước khi triển khai phải kiểm chứng lại theo artifact thực tế.**
 
 ### 9.8.1 Metadata theo từng request của MCP
 

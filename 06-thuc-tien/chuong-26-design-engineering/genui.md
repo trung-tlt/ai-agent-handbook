@@ -2,13 +2,13 @@
 
 # Một — Bối cảnh và động lực vấn đề
 
-> Thứ thực sự chặn trải nghiệm không phải model trả lời hay hay dở, mà là "một dặm cuối" của việc bàn giao kết quả: thứ người dùng nhận được là một đoạn chữ, trong khi việc họ cần làm là so sánh bằng chứng, phán định rủi ro, rồi bắt tay thao tác.
+> Thứ thực sự chặn trải nghiệm không phải model trả lời hay hay dở, mà là "một dặm cuối" của việc bàn giao kết quả: thứ người dùng nhận được là một đoạn chữ, trong khi việc họ cần làm là so sánh bằng chứng, đánh giá rủi ro, rồi bắt tay thao tác.
 
-Trong các kịch bản dùng cloud và quản cloud theo kiểu Agentic, yêu cầu của người dùng với kết quả không chỉ dừng ở "đọc hiểu": người dùng cần so sánh ngang vài nhóm bằng chứng, phán định rủi ro của một thao tác, rồi thực thi thẳng hành động ngay trong context hiện tại. Hai cách biểu đạt hiện có đều có hạn chế:
+Trong các kịch bản dùng cloud và quản cloud theo kiểu Agentic, yêu cầu của người dùng với kết quả không chỉ dừng ở "đọc hiểu": người dùng cần so sánh ngang vài nhóm bằng chứng, đánh giá rủi ro của một thao tác, rồi thực thi thẳng hành động ngay trong context hiện tại. Hai cách biểu đạt hiện có đều có hạn chế:
 
 * **Văn bản thuần** giỏi giải thích và biểu đạt mở, nhưng hễ cần so sánh nhiều nhóm chỉ số, định vị thời điểm bất thường, hay phát một thao tác kèm xác nhận, thì năng lực tổ chức và năng lực thao tác của nó đều không đủ.
 
-* **Trang cố định** giỏi gánh các quy trình ổn định, tần suất cao, nhưng nó bắt buộc phải được thiết kế từ trước; trong khi hình thái kết quả mà Agent cho ra lúc chạy lại thuộc phần đuôi dài, không thể liệt kê hết thành các trang tương ứng từ trước.
+* **Trang cố định** giỏi đảm nhiệm các quy trình ổn định, tần suất cao, nhưng nó bắt buộc phải được thiết kế từ trước; trong khi hình thái kết quả mà Agent cho ra lúc chạy lại thuộc phần đuôi dài, không thể liệt kê hết thành các trang tương ứng từ trước.
 
 GenUI bù đúng đoạn "một dặm cuối" đó: Agent dựa trên kết quả thật của task lần này mà tổ chức động phần kết luận, bằng chứng và các thao tác thực thi được, để người dùng hiểu được chuyện gì đã xảy ra ngay trong hội thoại, và tiếp tục hoàn thành task luôn.
 
@@ -261,7 +261,7 @@ Hiệu quả render
 
 # Bốn — Cơ chế vận hành và luồng dữ liệu
 
-Với các task cần người dùng thao tác tiếp, lúc chạy có hai kênh dữ liệu ngược chiều nhau cùng tạo thành vòng khép kín: **Server → Client** lo bàn giao dữ liệu giao diện, còn **Client → Server** lo gửi ngược các sự kiện tương tác. Cái trước làm cho kết quả hiểu được, cái sau làm cho thao tác của người dùng tiếp tục dẫn dắt việc thực thi nghiệp vụ và cập nhật giao diện.
+Với các task cần người dùng thao tác tiếp, lúc chạy có hai kênh dữ liệu ngược chiều nhau cùng tạo thành vòng lặp khép kín: **Server → Client** lo bàn giao dữ liệu giao diện, còn **Client → Server** lo gửi ngược các sự kiện tương tác. Cái trước làm cho kết quả hiểu được, cái sau làm cho thao tác của người dùng tiếp tục dẫn dắt việc thực thi nghiệp vụ và cập nhật giao diện.
 
 **Kênh A**
 
@@ -297,7 +297,7 @@ sequenceDiagram
         User->>Client: Chọn, điền hay xác nhận
         Note over Client,Server: Xác nhận trên giao diện biểu đạt ý định người dùng<br/>không thay được sự uỷ quyền ở phía server
         Client->>Server: Kênh B: sự kiện tương tác<br/>Action Event + trạng thái cần thiết
-        Server->>System: Kiểm danh tính, phán định quyền hạn, thực thi và kiểm toán
+        Server->>System: Kiểm danh tính, đánh giá quyền hạn, thực thi và kiểm toán
         System-->>Server: Trả kết quả thực thi
 
         opt Kết quả thực thi cần cập nhật giao diện
@@ -354,7 +354,7 @@ Hoàn tất trọn quy trình làm rõ nhu cầu, chọn phương án, chỉnh t
 
 * **Không hoán đổi thẳng được giữa các giao thức:** thứ dùng chung là ngữ nghĩa thiết kế và luật sử dụng; còn hợp đồng dữ liệu của từng giao thức thì do tầng adapter sinh riêng.
 
-* **Bản thân các giao thức phụ thuộc vẫn đang tiến hoá:** A2UI hiện vẫn ở giai đoạn tiến hoá tích cực (dòng ổn định là loạt v0.9, còn v1.0 là bản ứng viên), và hệ sinh thái OpenUI cũng đang lặp. Vì vậy GenUI dùng chiến lược "tài sản giữ ổn định, tầng adapter gánh phần thay đổi", để cô lập phần biến động của giao thức ra ngoài ngữ nghĩa nghiệp vụ.
+* **Bản thân các giao thức phụ thuộc vẫn đang tiến hoá:** A2UI hiện vẫn ở giai đoạn tiến hoá tích cực (dòng ổn định là loạt v0.9, còn v1.0 là bản ứng viên), và hệ sinh thái OpenUI cũng đang lặp. Vì vậy GenUI dùng chiến lược "tài sản giữ ổn định, tầng adapter đảm nhiệm thay đổi", để cô lập phần biến động của giao thức ra ngoài ngữ nghĩa nghiệp vụ.
 
 # Bảy — Lộ trình kỹ thuật và tiến hoá về sau
 

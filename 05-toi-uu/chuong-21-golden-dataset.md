@@ -2,13 +2,13 @@
 
 Đội chăm sóc khách hàng phát hiện Agent bỏ sót một bước then chốt; phía kỹ thuật bổ sung Prompt rồi hỏi lại, và câu trả lời đã đầy đủ. Tiếp theo còn phải biết: đổi cách hỏi thì còn hữu hiệu không, các câu hỏi khác có bị trả lời tệ đi không, và sau này đổi model thì có bỏ sót bước đó lần nữa không.
 
-Nếu lần nào cũng đi tìm vấn đề tạm thời rồi phán đoán theo cảm tính, thì công việc này sẽ ngày càng khó. **Golden dataset** giúp đội lưu lại những câu hỏi đó cùng chuẩn phán định, hình thành một bộ đề nghiệp vụ dùng đi dùng lại được. Khi sửa Prompt, bổ sung Skill, chỉnh kho tri thức hay đổi model, đều lấy cùng một bộ đề ra kiểm nghiệm được.
+Nếu lần nào cũng đi tìm vấn đề tạm thời rồi nhận định theo cảm tính, thì công việc này sẽ ngày càng khó. **Golden dataset** giúp đội lưu lại những câu hỏi đó cùng chuẩn đánh giá, hình thành một bộ đề nghiệp vụ dùng đi dùng lại được. Khi sửa Prompt, bổ sung Skill, chỉnh kho tri thức hay đổi model, đều lấy cùng một bộ đề ra kiểm nghiệm được.
 
 Trong phần quan sát và tối ưu Agent, **Dataset** là nơi quản lý bộ đề đó. Chương trước đã liên tục đưa dữ liệu vận hành vào; chương này nói tiếp cách chọn đề, xác nhận chuẩn, dựng thành golden set, rồi dùng nó vào việc tối ưu hằng ngày.
 
 ## 21.1 Golden dataset có tác dụng gì
 
-**Golden dataset là một nhóm task đã được nghiệp vụ xác nhận: vừa có đề bài, vừa có căn cứ để phán định task đã hoàn thành chưa.** Với hỏi đáp tri thức, căn cứ có thể là đáp án tham chiếu cùng các điểm bắt buộc phải phủ; với các task thao tác như hoàn tiền, đặt vé, còn phải nói rõ trạng thái mà nghiệp vụ phải đạt tới; còn với task code thì có thể gồm yêu cầu test và điều kiện nghiệm thu.
+**Golden dataset là một nhóm task đã được nghiệp vụ xác nhận: vừa có đề bài, vừa có căn cứ để đánh giá task đã hoàn thành chưa.** Với hỏi đáp tri thức, căn cứ có thể là đáp án tham chiếu cùng các điểm bắt buộc phải phủ; với các task thao tác như hoàn tiền, đặt vé, còn phải nói rõ trạng thái mà nghiệp vụ phải đạt tới; còn với task code thì có thể gồm yêu cầu test và điều kiện nghiệm thu.
 
 Chữ "golden" nghĩa là đề bài và chuẩn đáng tin. Một task mà Agent từng trả lời sai, chỉ cần bổ sung đủ yêu cầu đúng, thì vẫn thành mẫu golden được. Giữ những đề kiểu đó thường giúp đội cải thiện sản phẩm nhiều hơn là chỉ gom các câu trả lời thành công đẹp đẽ.
 
@@ -18,7 +18,7 @@ Chữ "golden" nghĩa là đề bài và chuẩn đáng tin. Một task mà Agen
 | Chọn model hay phương án Agent | Cho các phương án ứng viên làm cùng một bộ đề, so sánh kết quả, chi phí và thời lượng | Chọn theo nghiệp vụ của chính mình, không chỉ nhìn bảng xếp hạng đa dụng |
 | Kiểm chứng một lần sửa | Giữ lại câu trả lời và điểm từng câu trước và sau khi sửa | Thấy rõ đã sửa được gì, và có ảnh hưởng tới năng lực khác không |
 | Ngăn vấn đề cũ tái xuất | Đưa các vấn đề quan trọng vào bộ đề hồi quy lâu dài, chạy lại trước mỗi lần nâng cấp | Các khiếu nại và sự cố đã xử lý trở thành mục kiểm tra lâu dài |
-| Hiệu chỉnh evaluator | Dùng các mẫu con người đã xác nhận để kiểm phần chấm điểm bằng máy | Giúp đánh giá liên tục sát với phán định nghiệp vụ hơn, giảm Badcase vô nghĩa |
+| Hiệu chỉnh evaluator | Dùng các mẫu con người đã xác nhận để kiểm phần chấm điểm bằng máy | Giúp đánh giá liên tục sát với đánh giá nghiệp vụ hơn, giảm Badcase vô nghĩa |
 
 Chẳng hạn, Agent chăm sóc khách hàng sản phẩm thường trả lời "có những chức năng gì" và "cấu hình đánh giá ra sao". Hai loại câu hỏi cần đáp án khác nhau: cái trước nhấn vào độ phủ năng lực, cái sau nhấn vào các bước thao tác. Lưu lại đề bài cùng yêu cầu riêng của mỗi loại, thì sau khi sản phẩm nâng cấp chỉ cần cập nhật các mục tương ứng là tiếp tục kiểm chứng được rằng phần chăm sóc khách hàng có đưa ra trợ giúp chính xác, thực thi được không.
 
@@ -39,11 +39,11 @@ Vào AgentSpace tương ứng, quản lý mẫu trong **Trung tâm dữ liệu �
 | Dùng bộ đề | "Khởi động đánh giá", "Khởi động thí nghiệm", và xem bản ghi thí nghiệm | Soát các câu trả lời sẵn có, hoặc cho Agent làm lại đề |
 | Giao mẫu cho công cụ khác | Export kết quả truy vấn hiện tại, hoặc tải offline | Phân tích bên ngoài, chuẩn bị huấn luyện, lưu trữ và bàn giao |
 
-Bộ đề bản đầu tiên có thể rất đơn giản. Hãy đưa vào trước những task mà đội quan tâm nhất, bổ sung rõ cách phán định, rồi tăng dần nhãn và quy tắc quản lý.
+Bộ đề bản đầu tiên có thể rất đơn giản. Hãy đưa vào trước những task mà đội quan tâm nhất, bổ sung rõ cách đánh giá, rồi tăng dần nhãn và quy tắc quản lý.
 
 ## 21.3 Bắt tay dựng một golden set cho Agent chăm sóc khách hàng sản phẩm
 
-Dưới đây dùng tiếp hai đề trong bản demo thao tác: "Phần quan sát và tối ưu Agent có những chức năng gì" và "Phần quan sát và tối ưu Agent làm đánh giá ra sao". Mục tiêu là kiểm chứng phần chăm sóc khách hàng có giới thiệu trọn vẹn được sản phẩm không, và có đưa ra được các bước đánh giá mà người dùng làm theo được không. Hai đề này dùng để chạy thông quá trình xây dựng và sử dụng; còn bộ đề chính thức thì sẽ mở rộng ra nhiều kịch bản hơn.
+Dưới đây dùng tiếp hai đề trong bản demo thao tác: "Phần quan sát và tối ưu Agent có những chức năng gì" và "Phần quan sát và tối ưu Agent làm đánh giá ra sao". Mục tiêu là kiểm chứng phần chăm sóc khách hàng có giới thiệu trọn vẹn được sản phẩm không, và có đưa ra được các bước đánh giá mà người dùng làm theo được không. Hai đề này dùng để vận hành thông suốt quá trình xây dựng và sử dụng; còn bộ đề chính thức thì sẽ mở rộng ra nhiều kịch bản hơn.
 
 ### 21.3.1 Lập tập ứng viên, tập trung thu các vấn đề đáng kiểm tra
 
@@ -93,7 +93,7 @@ Chỉ muốn bù các nhãn còn thiếu thì chọn bỏ qua kết quả sẵn 
 
 ### 21.3.4 Soát xong thì chọn các đề đã xác nhận vào golden set
 
-Khi nhiều người soát liên tục, hãy vào **Quản lý gán nhãn**, chọn hay cấu hình template gán nhãn, ánh xạ đề bài, câu trả lời gốc và tài liệu tham chiếu vào vùng hiển thị, rồi đặt các mục phán định cần điền, ví dụ "đáp án có đúng không", "thiếu loại thông tin nào", "có cần bổ sung bằng chứng không". Lưu cấu hình xong thì bắt đầu gán nhãn từng bản ghi, gửi xong thì sang bản tiếp theo; khi có bất đồng thì xem nội dung gốc và lịch sử gán nhãn rồi điều chỉnh phán định.
+Khi nhiều người soát liên tục, hãy vào **Quản lý gán nhãn**, chọn hay cấu hình template gán nhãn, ánh xạ đề bài, câu trả lời gốc và tài liệu tham chiếu vào vùng hiển thị, rồi đặt các mục đánh giá cần điền, ví dụ "đáp án có đúng không", "thiếu loại thông tin nào", "có cần bổ sung bằng chứng không". Lưu cấu hình xong thì bắt đầu gán nhãn từng bản ghi, gửi xong thì sang bản tiếp theo; khi có bất đồng thì xem nội dung gốc và lịch sử gán nhãn rồi điều chỉnh đánh giá.
 
 Đáp án tham chiếu và `rubric` cần đi vào thí nghiệm thì phải điền vào đúng các trường đã giao ước, để evaluator đọc thẳng được. Chỉ để lại một câu "đề này nên trả lời thế này" trong phần thảo luận thì thí nghiệm không tự dùng được nó.
 
@@ -117,7 +117,7 @@ Sau khi lọc hay tổng hợp theo cột kịch bản, đội sẽ thấy loạ
 
 Khi liên quan tới thao tác thật, còn phải viết rõ điều kiện khởi đầu của task. Chẳng hạn "đơn hàng thoả điều kiện hoàn tiền" dùng được làm input của task mới; còn lỗi tool trong lần chạy cũ là tài liệu để phân tích lần thực thi gốc. Khi làm lại đề thì phải xuất phát từ trạng thái ban đầu đã giao ước; còn khi test riêng phần khôi phục sau thất bại thì mới đặt đúng checkpoint thất bại đó.
 
-Lô đề golden đầu tiên không cần nhiều, nhưng phải có người giải thích được vì sao giữ từng đề và phán định ra sao. Về sau, mỗi lần xử lý một loại vấn đề mới trên production thì bổ sung mẫu tương ứng, đồng thời xem lại bộ đề hiện có còn áp dụng được không.
+Lô đề golden đầu tiên không cần nhiều, nhưng phải có người giải thích được vì sao giữ từng đề và đánh giá ra sao. Về sau, mỗi lần xử lý một loại vấn đề mới trên production thì bổ sung mẫu tương ứng, đồng thời xem lại bộ đề hiện có còn áp dụng được không.
 
 ## 21.5 Dựng xong rồi thì dùng thật ra sao
 
@@ -151,4 +151,4 @@ Khi luật nghiệp vụ thay đổi, hãy sửa các đề và yêu cầu bị 
 
 Còn một sắp xếp đơn giản nhưng quan trọng: **các đề đã tham gia vào việc viết lại Prompt, sinh Skill hay chắt kinh nghiệm thì phải tách khỏi các đề dùng để kiểm tra hiệu quả một cách độc lập ở cuối.** Hãy để phần chưa tham gia tối ưu làm phần kiểm chứng độc lập. Một khi đã xem đi xem lại những đề đó và dựa vào chúng mà sửa Agent, thì chúng đã tham gia vào việc tối ưu, nên phải chừa ra những đề kiểm chứng mới.
 
-Người phụ trách nghiệp vụ liên tục bổ sung nhu cầu thật và yêu cầu đúng, phía kỹ thuật dùng bộ đề để kiểm chứng phần sửa, còn test và vận hành thì theo dõi kết quả hồi quy. Nhờ vậy, một lần tư vấn, khiếu nại hay thất bại để lại không chỉ là bản ghi gỡ lỗi, mà còn trở thành đề bài và chuẩn dùng thẳng được cho vòng cải tiến tiếp theo.
+Người phụ trách nghiệp vụ liên tục bổ sung nhu cầu thật và yêu cầu đúng, phía kỹ thuật dùng bộ đề để kiểm chứng phần sửa, còn test và vận hành thì theo dõi kết quả hồi quy. Nhờ vậy, một lần tư vấn, khiếu nại hay thất bại để lại không chỉ là bản ghi gỡ lỗi, mà còn trở thành đề bài và chuẩn dùng trực tiếp được cho vòng cải tiến tiếp theo.

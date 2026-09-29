@@ -12,7 +12,7 @@ Về cách đọc, nên đọc chương này trước để có nhận thức t�
 
 Agent giao một phần các quyết định đó cho model. Người phát triển đưa ra mục tiêu, tool và ràng buộc; model lúc chạy thì hiểu ý định, lập kế hoạch các bước, chọn tool, rồi điều chỉnh hành động theo kết quả trung gian. Cùng một task có thể đi ra những đường khác nhau vì context, phản hồi tool hay kết quả sinh khác nhau.
 
-Lấy việc hoàn tiền làm ví dụ: interface có thể phán định đơn hàng có được hoàn tiền không theo trạng thái và luật; còn Agent thì phải xác nhận từ hội thoại rằng người dùng đang nói tới đơn nào, nhận diện luật áp dụng, chọn thao tác, và kiểm chứng việc hoàn tiền đã xong chưa. Hội thoại kết thúc êm đẹp hay interface không báo lỗi đều không đủ để nói rằng việc đó đã làm đúng.
+Lấy việc hoàn tiền làm ví dụ: interface có thể đánh giá đơn hàng có được hoàn tiền không theo trạng thái và luật; còn Agent thì phải xác nhận từ hội thoại rằng người dùng đang nói tới đơn nào, nhận diện luật áp dụng, chọn thao tác, và kiểm chứng việc hoàn tiền đã xong chưa. Hội thoại kết thúc êm đẹp hay interface không báo lỗi đều không đủ để nói rằng việc đó đã làm đúng.
 
 | Điểm quan tâm | Logic nghiệp vụ xác định trong ứng dụng truyền thống | Yêu cầu mới mà ứng dụng Agent thêm vào |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ Các bài test công khai một mặt cho thấy tiến bộ của Agent, mặt 
 
 | Kịch bản test | Snapshot thí nghiệm công khai | Vấn đề cần lưu ý |
 | --- | --- | --- |
-| SWE-Bench Pro (Public), task kỹ thuật phần mềm | Báo cáo của OpenAI ngày 2026-03-05: GPT-5.4 đạt **57,7%**, trong môi trường nghiên cứu với thiết lập suy luận xhigh mặc định. [Báo cáo gốc](https://openai.com/index/introducing-gpt-5-4/) | Với task và cấu hình đó, việc hoàn thành đầu-cuối vẫn còn khoảng cải thiện. |
+| SWE-Bench Pro (Public), task kỹ thuật phần mềm | Báo cáo của OpenAI ngày 2026-03-05: GPT-5.4 đạt **57,7%**, trong môi trường nghiên cứu với thiết lập suy luận xhigh mặc định. [Báo cáo gốc](https://openai.com/index/introducing-gpt-5-4/) | Với task và cấu hình đó, việc hoàn thành đầu cuối vẫn còn khoảng cải thiện. |
 | OSWorld-Verified, thao tác desktop | Cùng báo cáo trên, GPT-5.4 đạt **75,0%**, GPT-5.2 đạt **47,3%**; thành tích con người mà báo cáo trích dẫn là **72,4%**. [Báo cáo gốc](https://openai.com/index/introducing-gpt-5-4/) | Năng lực tiến bộ rất nhanh, nhưng việc bàn giao nghiệp vụ vẫn phải xác nhận từng mục đã hoàn thành chưa. |
 | OSWorld 2.0, task quy trình dài | Bài báo v2 ngày 2026-07-13, 108 task, ngân sách 500 bước, mức suy nghĩ cao nhất và cấu hình hành động theo lô: Claude Opus 4.8 có **tỉ lệ hoàn thành nghiêm ngặt 20,6%**, còn điểm từng phần là **54,8%**. [Bảng 3 của bài báo](https://arxiv.org/html/2606.29537v2) | Hoàn thành nhiều bước trung gian không đồng nghĩa với việc đã bàn giao kết quả trọn vẹn. |
 | τ-bench, tương tác tool và người dùng dưới luật nghiệp vụ | Bài báo gốc ngày 2024-06-17: GPT-4o với native tool calling đạt **pass¹ 61,2%** trên task bán lẻ, còn **pass⁸ dưới 25%**. [Bài báo gốc](https://arxiv.org/html/2406.12045v1) | Làm đúng một lần rồi thì vẫn phải kiểm tra độ tin cậy khi thực thi lặp. |
@@ -48,11 +48,11 @@ Thứ mà data flywheel giải quyết chính là sự đứt gãy đó. Nó gom
 
 Ở đây có hai tuyến phản hồi cần đẩy song song.
 
-**Một tuyến cải thiện dữ liệu và phương pháp phán định.** Chẳng hạn, một Agent chăm sóc khách hàng cần phủ những nội dung khác nhau cho hai loại câu hỏi "có những chức năng gì" và "cấu hình đánh giá ra sao". Bản demo thao tác ban đầu viết luật của cả hai câu vào cùng một evaluator, và chỉ sau khi chạy thí nghiệm mới phát hiện chuẩn đó không phù hợp. Đội ngũ vì thế thêm Rubric ở mức từng câu vào Dataset, điền theo từng câu, rồi sửa phần ánh xạ biến và chạy lại thí nghiệm. Kết quả vận hành đã giúp đội cải thiện chính cái chuẩn dùng để phán định kết quả.
+**Một tuyến cải thiện dữ liệu và phương pháp đánh giá.** Chẳng hạn, một Agent chăm sóc khách hàng cần phủ những nội dung khác nhau cho hai loại câu hỏi "có những chức năng gì" và "cấu hình đánh giá ra sao". Bản demo thao tác ban đầu viết luật của cả hai câu vào cùng một evaluator, và chỉ sau khi chạy thí nghiệm mới phát hiện chuẩn đó không phù hợp. Đội ngũ vì thế thêm Rubric ở mức từng câu vào Dataset, điền theo từng câu, rồi sửa phần ánh xạ biến và chạy lại thí nghiệm. Kết quả vận hành đã giúp đội cải thiện chính cái chuẩn dùng để đánh giá kết quả.
 
 **Tuyến kia cải thiện hành vi của Agent.** Sau khi đánh giá xác nhận là thiếu bước cấu hình, đội có thể bổ sung Skill; phát hiện dùng sai tool thì sửa mô tả tool; phát hiện gửi lại nhiều lần sau timeout thì kiểm tra logic retry và logic kiểm chứng kết quả. Những sửa đổi này trước hết thành ứng viên, rồi qua thí nghiệm cùng điều kiện và hồi quy, mới quyết định có áp dụng không.
 
-Vì vậy, dữ liệu trong việc tối ưu đảm nhận hai vai: giúp phán định nên sửa ở đâu, và giúp bác bỏ những sửa đổi không có tác dụng hay gây thụt lùi. Số mẫu tăng lên, kinh nghiệm được nhập kho, ứng viên được sinh ra — tất cả vẫn chỉ là sản phẩm trung gian. Chỉ sau khi thay đổi hữu hiệu đi vào vận hành, thì kết quả của các task mới mới cung cấp được phản hồi cho vòng kế tiếp.
+Vì vậy, dữ liệu trong việc tối ưu đảm nhận hai vai: giúp đánh giá nên sửa ở đâu, và giúp bác bỏ những sửa đổi không có tác dụng hay gây thụt lùi. Số mẫu tăng lên, kinh nghiệm được nhập kho, ứng viên được sinh ra — tất cả vẫn chỉ là sản phẩm trung gian. Chỉ sau khi thay đổi hữu hiệu đi vào vận hành, thì kết quả của các task mới mới cung cấp được phản hồi cho vòng kế tiếp.
 
 ## 18.3 Nối các module quanh cùng một task
 
@@ -62,14 +62,14 @@ Hình dưới trình bày quan hệ giữa những phần việc này trong bứ
 
 ![image](../assets/imgs/chapter-18/image-001.png)
 
-**Pipeline là tầng sản xuất dữ liệu trong kiến trúc này.** Trace gốc lấy lời gọi và event làm đơn vị; việc đánh giá có thể phải soát trọn một task; thí nghiệm có thể chỉ cần input task và hành vi kỳ vọng; còn phân tích chi phí lại cần giữ số lời gọi và thời lượng. Pipeline tổ chức dữ liệu theo những mục tiêu đó, trích trường, lọc và khử trùng lặp, biến một bộ luật gia công thành một công việc chạy được theo phạm vi hay theo chu kỳ. Các mục đích khác nhau cấu hình được những pipeline khác nhau; còn những mẫu đã vào Dataset thì bổ sung nhãn được qua các task gán nhãn bằng AI độc lập.
+**Pipeline là tầng sản xuất dữ liệu trong kiến trúc này.** Trace gốc lấy lời gọi và event làm đơn vị; việc đánh giá có thể phải soát trọn một task; thí nghiệm có thể chỉ cần input task và hành vi kỳ vọng; còn phân tích chi phí lại cần giữ số lời gọi và thời lượng. Pipeline tổ chức dữ liệu theo những mục tiêu đó, trích trường, lọc và loại bỏ trùng lặp, biến một bộ luật gia công thành một công việc chạy được theo phạm vi hay theo chu kỳ. Các mục đích khác nhau cấu hình được những pipeline khác nhau; còn những mẫu đã vào Dataset thì bổ sung nhãn được qua các task gán nhãn bằng AI độc lập.
 
 Các module này cuối cùng phải giúp đội ngũ ra được quyết định nghiệp vụ. Có thể chọn lối vào từ chính vấn đề mình đang gặp:
 
 | Module | Người dùng dùng ra sao | Giúp nghiệp vụ hoàn thành cái gì |
 | --- | --- | --- |
 | Trace và Trajectory | Tìm task theo ứng dụng, câu hỏi, tool hay thời lượng; mở từng bước ra; chọn vào dataset | Tìm ra nguyên nhân trả lời sai, thao tác lặp hay tốn quá nhiều thời gian |
-| Pipeline | Chọn nguồn dữ liệu và template, cấu hình trường nghiệp vụ, bộ lọc và phần gán nhãn, xem trước rồi chạy liên tục | Biến bản ghi vận hành mỗi ngày thành mẫu mà nhân viên kiểm định và evaluator dùng thẳng được |
+| Pipeline | Chọn nguồn dữ liệu và template, cấu hình trường nghiệp vụ, bộ lọc và phần gán nhãn, xem trước rồi chạy liên tục | Biến bản ghi vận hành mỗi ngày thành mẫu mà nhân viên kiểm định và evaluator dùng trực tiếp được |
 | Dataset và soát thủ công | Nhập câu hỏi thật, điền đáp án tham chiếu và yêu cầu chấm điểm, xác nhận rồi lưu version bộ đề | Tích luỹ đề nghiệm thu nghiệp vụ tái dùng được, giảm việc phải chuẩn bị lại test mỗi lần nâng cấp |
 | Evaluator và đánh giá liên tục | Cấu hình chuẩn, chấm thử bằng mẫu thật, rồi kiểm tra liên tục trên phạm vi chỉ định | Phát hiện kịch bản nào cần cải thiện, dồn công sức đọc của con người vào những vấn đề đáng xử lý |
 | Experiment | Cho phương án hiện tại và phương án ứng viên làm cùng một bộ đề, so sánh kết quả từng câu, chi phí và thời lượng | Quyết định có đổi model, dùng Prompt mới hay đưa thay đổi lên production không |

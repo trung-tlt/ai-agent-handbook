@@ -1,6 +1,6 @@
 # Chương 22 — Tối ưu Agent: Badcase
 
-Chương trước đã chuẩn bị xong vấn đề nghiệp vụ và căn cứ phán định. Việc tiếp theo mà đội nghiệp vụ cần làm là: để việc đánh giá liên tục phát hiện ra các vấn đề trong câu trả lời và quá trình thực thi, rồi dùng chính bộ đề đó để kiểm chứng phần sửa có hữu hiệu không.
+Chương trước đã chuẩn bị xong vấn đề nghiệp vụ và căn cứ đánh giá. Việc tiếp theo mà đội nghiệp vụ cần làm là: để việc đánh giá liên tục phát hiện ra các vấn đề trong câu trả lời và quá trình thực thi, rồi dùng chính bộ đề đó để kiểm chứng phần sửa có hữu hiệu không.
 
 Chương này dùng tiếp thực tiễn của Agent chăm sóc khách hàng sản phẩm: người dùng sẽ hỏi "phần quan sát và tối ưu Agent có những chức năng gì", "làm đánh giá ra sao", và đội muốn câu trả lời vừa chính xác vừa hướng dẫn được người dùng hoàn thành thao tác. **Đánh giá** kiểm tra những lần thực thi đã xảy ra; còn **thí nghiệm** thì cho Agent sau khi sửa trả lời lại, sinh ra output và trajectory mới.
 
@@ -12,13 +12,13 @@ Lần đầu dựng phần đánh giá thì không cần phủ hết mọi nghi�
 
 Chẳng hạn, "có những chức năng gì" cần phủ các năng lực chính và nói rõ công dụng; còn "làm đánh giá ra sao" cần nói rõ quá trình chuẩn bị dữ liệu, cấu hình chuẩn, chạy đánh giá và xem kết quả. Cả hai đều đòi hỏi chính xác, nhưng yêu cầu về tính đầy đủ thì khác nhau. Đội hãy viết chuẩn chung trước, rồi bổ sung Rubric riêng cho những đề đã vào tập thí nghiệm; cách nhập cụ thể xem ở chương trước.
 
-Một bộ chuẩn chung dùng thử được có thể yêu cầu evaluator kiểm ba điều: có đáp lại đúng vấn đề thực tế của người dùng không; các phát biểu then chốt có tài liệu chống đỡ không; và với các task cần thao tác thì có cung cấp đủ các bước để người dùng làm tiếp không. Mỗi mục viết rõ điều kiện thoả, thoả một phần và không thoả, đồng thời yêu cầu nêu lý do trừ điểm. Khi liên quan tới các thao tác như hoàn tiền hay đổi quyền hạn thì thêm phần kiểm kết quả nghiệp vụ, tránh việc chỉ đánh giá câu trả lời có lịch sự không.
+Một bộ chuẩn chung dùng thử được có thể yêu cầu evaluator kiểm ba điều: có đáp lại đúng vấn đề thực tế của người dùng không; các phát biểu then chốt có tài liệu hỗ trợ không; và với các task cần thao tác thì có cung cấp đủ các bước để người dùng làm tiếp không. Mỗi mục viết rõ điều kiện thoả, thoả một phần và không thoả, đồng thời yêu cầu nêu lý do trừ điểm. Khi liên quan tới các thao tác như hoàn tiền hay đổi quyền hạn thì thêm phần kiểm kết quả nghiệp vụ, tránh việc chỉ đánh giá câu trả lời có lịch sự không.
 
-Vào "Đánh giá → Evaluator" trên khung điều khiển, trước hết xem các evaluator dựng sẵn có phủ mục tiêu không. Khi những chỉ số như mức hoàn thành task đã đáp ứng được nhu cầu thì tái dùng trước; còn khi cần tri thức sản phẩm hay chuẩn dịch vụ riêng thì mới tạo evaluator tuỳ chỉnh. Hãy viết tiêu chí phán định vào Prompt, khai báo các biến input người dùng, output của Agent và trajectory cần thiết, rồi cấu hình điểm, phán định và phần diễn giải trong phần định nghĩa output. Các trường như phân loại kịch bản, điểm từng mục thì thêm theo nhu cầu phân tích thực tế, không cần điền hết mọi trường có thể dùng ngay từ đầu.
+Vào "Đánh giá → Evaluator" trên khung điều khiển, trước hết xem các evaluator dựng sẵn có phủ mục tiêu không. Khi những chỉ số như mức hoàn thành task đã đáp ứng được nhu cầu thì tái dùng trước; còn khi cần tri thức sản phẩm hay chuẩn dịch vụ riêng thì mới tạo evaluator tuỳ chỉnh. Hãy viết tiêu chí đánh giá vào Prompt, khai báo các biến input người dùng, output của Agent và trajectory cần thiết, rồi cấu hình điểm, đánh giá và phần diễn giải trong phần định nghĩa output. Các trường như phân loại kịch bản, điểm từng mục thì thêm theo nhu cầu phân tích thực tế, không cần điền hết mọi trường có thể dùng ngay từ đầu.
 
 Cách đánh giá cũng chọn theo nghiệp vụ:
 
-| Vấn đề cần phán định | Có thể chọn ra sao |
+| Vấn đề cần đánh giá | Có thể chọn ra sao |
 | --- | --- |
 | Output có đúng định dạng JSON không, trường bắt buộc có tồn tại không | Dùng luật Code, giải quyết trước phần kiểm các điều kiện xác định |
 | Câu trả lời có đúng trọng tâm không, có sót thông tin cần thiết không | Dùng đánh giá bằng LLM, cấp đủ tài liệu tham chiếu và chi tiết chấm điểm |
@@ -30,23 +30,23 @@ Một task có thể chọn nhiều evaluator. Ví dụ, tách riêng "chất l�
 
 Sau khi lưu evaluator, hãy vào "Đánh giá → Task đánh giá" và bấm "Tạo task đánh giá". Bước này là nối tiêu chí chấm điểm vào dữ liệu thật, và phần kiểm tra giá trị nhất là xác nhận evaluator đã nhìn thấy trọn vẹn câu hỏi, câu trả lời và quá trình thực thi.
 
-**Trước hết chọn đúng dữ liệu và phạm vi.** Muốn đánh giá biểu hiện của một Agent mới kết nối thì chọn "Trajectory Agent"; còn khi dữ liệu đã qua Pipeline làm sạch, tổng hợp và bù đủ trường nghiệp vụ thì chọn dataset tương ứng. Khi dùng nguồn trajectory hay Trace thì chọn "hội thoại một lượt" hay "hội thoại nhiều lượt" theo lối vào tương ứng; hội thoại nhiều lượt còn phải cấu hình "phán định kết thúc hội thoại" để đánh giá sau khi task hoàn thành. Khi dùng Dataset thì chọn thẳng tập rồi ánh xạ trường — một dòng đại diện cho cái gì đã được khâu gia công dữ liệu phía trước quyết định, nên không cần đi tìm công tắc một lượt hay nhiều lượt nữa.
+**Trước hết chọn đúng dữ liệu và phạm vi.** Muốn đánh giá biểu hiện của một Agent mới kết nối thì chọn "Trajectory Agent"; còn khi dữ liệu đã qua Pipeline làm sạch, tổng hợp và bù đủ trường nghiệp vụ thì chọn dataset tương ứng. Khi dùng nguồn trajectory hay Trace thì chọn "hội thoại một lượt" hay "hội thoại nhiều lượt" theo lối vào tương ứng; hội thoại nhiều lượt còn phải cấu hình "đánh giá kết thúc hội thoại" để đánh giá sau khi task hoàn thành. Khi dùng Dataset thì chọn thẳng tập rồi ánh xạ trường — một dòng đại diện cho cái gì đã được khâu xử lý dữ liệu phía trước quyết định, nên không cần đi tìm công tắc một lượt hay nhiều lượt nữa.
 
 Lần chạy đầu có thể bật "Đánh giá dựa trên dữ liệu lịch sử", chọn một khoảng thời gian mà ta biết có chứa nghiệp vụ mục tiêu, ví dụ bốn giờ gần nhất, rồi bấm "Xem trước dữ liệu". Hãy xác nhận trong đó thực sự có vấn đề cần điều tra, chứ không phải là Agent khác hay những lời gọi không liên quan. Nếu phần xem trước của hội thoại nhiều lượt rỗng thì kiểm tra xem các phiên trong khoảng thời gian đó đã đạt điều kiện kết thúc đã đặt chưa.
 
 **Hãy giữ quy mô chạy thử ở mức đọc hết được từng bản ghi.** Trong "Cấu hình lấy mẫu", hãy đặt tỉ lệ lấy mẫu và số mẫu tối đa. Bản demo dùng lấy mẫu 100% và tối đa 100 bản ghi: cái nó giới hạn là lượng dữ liệu ứng viên, chứ không bảo đảm sẽ có 100 Badcase. Lúc mới bắt đầu cũng có thể lấy một lô nhỏ hơn, để người phụ trách nghiệp vụ đọc hết phần diễn giải trước rồi mới mở rộng phạm vi.
 
-**Đấu đúng trường rồi mới chạy test.** Sau khi chọn evaluator, giao diện sẽ hiển thị mẫu xem trước và phần "Ánh xạ trường". Hãy cấu hình theo đúng những trường thực sự có trong mẫu: câu hỏi người dùng ánh xạ sang biến input, câu trả lời cuối ánh xạ sang biến output, còn khi cần phán định quá trình thì ánh xạ thêm trọn trajectory. Tên biến thì tuỳ chỉnh được, nhưng nội dung bắt buộc phải ứng đúng. Ví dụ, chỗ cần "câu trả lời cuối" thì không được đấu nhầm vào output của một lời gọi tool nào đó.
+**Đấu đúng trường rồi mới chạy test.** Sau khi chọn evaluator, giao diện sẽ hiển thị mẫu xem trước và phần "Ánh xạ trường". Hãy cấu hình theo đúng những trường thực sự có trong mẫu: câu hỏi người dùng ánh xạ sang biến input, câu trả lời cuối ánh xạ sang biến output, còn khi cần đánh giá quá trình thì ánh xạ thêm trọn trajectory. Tên biến thì tuỳ chỉnh được, nhưng nội dung bắt buộc phải ứng đúng. Ví dụ, chỗ cần "câu trả lời cuối" thì không được đấu nhầm vào output của một lời gọi tool nào đó.
 
 ![image](../assets/imgs/chapter-22/image-002.png)
 
 _Demo thao tác: đấu `input`, `output`, `agent_trajectory` của evaluator lần lượt vào câu hỏi, câu trả lời và trajectory trong dữ liệu xem trước, rồi chạy test._
 
-Bấm "Chạy test", đọc điểm và phần diễn giải, rồi dùng "Đổi bản ghi khác" để kiểm chứng tiếp. Ít nhất hãy phủ một câu trả lời tốt đã biết, một câu trả lời xấu đã biết, và một mẫu có thông tin không đầy đủ. Khi kiểm tra, có thể hỏi thẳng: căn cứ trừ điểm có thực sự xuất hiện trong câu trả lời này không? Evaluator có trích đúng kết quả tool không? Khi thiếu bằng chứng, nó có nói rõ là không phán định được không?
+Bấm "Chạy test", đọc điểm và phần diễn giải, rồi dùng "Đổi bản ghi khác" để kiểm chứng tiếp. Ít nhất hãy phủ một câu trả lời tốt đã biết, một câu trả lời xấu đã biết, và một mẫu có thông tin không đầy đủ. Khi kiểm tra, có thể hỏi thẳng: căn cứ trừ điểm có thực sự xuất hiện trong câu trả lời này không? Evaluator có trích đúng kết quả tool không? Khi thiếu bằng chứng, nó có nói rõ là không đánh giá được không?
 
 Nếu câu trả lời xấu bị chấm điểm cao, trước hết hãy xem input nó nhận được, rồi mới xem các điều khoản chấm điểm. Chẳng hạn, evaluator chỉ kiểm xem có nhắc tới chữ "evaluator" không, thì có thể coi một đoạn giới thiệu chung chung là hướng dẫn thao tác — lúc đó cần bổ sung chuẩn "có giúp người dùng làm được bước tiếp theo không". Chỉnh xong thì chấm lại đúng lô mẫu đó, xác nhận các câu trả lời tốt ban đầu không bị phán nhầm theo.
 
-Các task ảnh, âm thanh hay tài liệu cũng chấm thử theo thứ tự này. Trước hết xác nhận evaluator đọc được tài liệu tương ứng, rồi đối chiếu số trang, đoạn hay trường mà nó trích dẫn. Chẳng hạn, phán định số tiền hoàn ứng có đúng không thì phải thấy được chứng từ và kết quả kê khai; chỉ nhận một link file hay một câu "đã xong" thì không đủ để phán định.
+Các task ảnh, âm thanh hay tài liệu cũng chấm thử theo thứ tự này. Trước hết xác nhận evaluator đọc được tài liệu tương ứng, rồi đối chiếu số trang, đoạn hay trường mà nó trích dẫn. Chẳng hạn, đánh giá số tiền hoàn ứng có đúng không thì phải thấy được chứng từ và kết quả kê khai; chỉ nhận một link file hay một câu "đã xong" thì không đủ để đánh giá.
 
 ![image](../assets/imgs/chapter-22/image-003.png)
 
@@ -58,24 +58,24 @@ Cuối cùng bấm "Lưu và chạy". Task xong thì hãy kiểm tra số lượ
 
 Vào phần kết quả của task đánh giá, hãy xem phân bố tổng thể trước rồi mới mở từng mẫu. Khi cần phân tích xuyên task thì vào "Phân tích và nhận định", lọc theo evaluator, nguồn dữ liệu và khoảng điểm. Khi xem phần điểm thấp thì còn phải kèm theo task và khoảng thời gian, tránh trộn dữ liệu của những chuẩn khác nhau, nghiệp vụ khác nhau vào cùng một phép so sánh.
 
-Một bản kết quả ít nhất phải để câu hỏi gốc, câu trả lời của Agent, phần phán định từng mục và phần diễn giải cạnh nhau mà đọc. Tổng điểm nói cho đội biết nên xem chỗ nào trước; phần diễn giải giúp phán định vấn đề có thành lập không; còn trajectory thì dùng để xác nhận vì sao vấn đề đó xuất hiện. Đừng vừa thấy điểm thấp là lập tức sửa Prompt.
+Một bản kết quả ít nhất phải để câu hỏi gốc, câu trả lời của Agent, phần đánh giá từng mục và phần diễn giải cạnh nhau mà đọc. Tổng điểm nói cho đội biết nên xem chỗ nào trước; phần diễn giải giúp đánh giá vấn đề có thành lập không; còn trajectory thì dùng để xác nhận vì sao vấn đề đó xuất hiện. Đừng vừa thấy điểm thấp là lập tức sửa Prompt.
 
-Lấy đề "làm đánh giá ra sao" làm ví dụ, có thể xử lý theo thứ tự dưới đây. Cách phán định ở đây cũng áp dụng được cho các task chăm sóc khách hàng, phân tích dữ liệu và code.
+Lấy đề "làm đánh giá ra sao" làm ví dụ, có thể xử lý theo thứ tự dưới đây. Cách đánh giá ở đây cũng áp dụng được cho các task chăm sóc khách hàng, phân tích dữ liệu và code.
 
 | Hiện tượng đọc được | Xem tiếp cái gì | Hành động nên làm trong vòng này |
 | --- | --- | --- |
 | Câu trả lời giới thiệu khái niệm nhưng thiếu bước chạy và phân tích kết quả | Điều khoản chấm điểm có đòi hướng dẫn thao tác không, câu trả lời có thực sự bỏ sót không | Xác nhận là vấn đề về tính đầy đủ của câu trả lời, đưa vào mẫu tối ưu |
 | Câu trả lời đã có các bước then chốt, mà phần diễn giải lại nói là không có | Output sau khi ánh xạ có đầy đủ không, có dùng nhầm chuẩn của đề khác không | Sửa evaluator hay phần ánh xạ, rồi chấm lại các mẫu bị ảnh hưởng |
 | Agent tuyên bố thao tác đã xong, mà trajectory cho thấy tool thất bại | Cách xử lý sau khi thất bại và trạng thái nghiệp vụ cuối cùng | Giữ lại như một vấn đề về thực thi task, giao cho đội chịu trách nhiệm hành vi đó |
-| Kết quả cho thấy thực thi bất thường hay thiếu tài liệu | Lỗi task, phạm vi thu thập, tính đọc được của file đính kèm | Bổ sung đủ điều kiện thực thi hay tài liệu trước, rồi mới phán định chất lượng Agent |
+| Kết quả cho thấy thực thi bất thường hay thiếu tài liệu | Lỗi task, phạm vi thu thập, tính đọc được của file đính kèm | Bổ sung đủ điều kiện thực thi hay tài liệu trước, rồi mới đánh giá chất lượng Agent |
 
 Trong một lần chạy hồi kiểm ở bản demo, câu "có những chức năng gì" và "làm đánh giá ra sao" lần lượt được 0,25 và 0,5. Hai con số đó ứng với câu trả lời lần ấy và Rubric lúc ấy; thứ thực sự hữu ích là phần diễn giải từng mục đã chỉ ra những điểm năng lực nào chưa được phủ. Nhờ vậy đội mới kiểm tra được là thiếu tri thức, thiếu cách tổ chức câu trả lời hay thiếu chuẩn của đề bài, thay vì kết luận chung chung rằng model chưa đủ mạnh.
 
-Sau khi kết quả ghi vào Dataset, có thể lọc ứng viên theo trường điểm hay trường phán định thực sự được xuất ra, rồi để người phụ trách nghiệp vụ soát lại. Hãy giữ lại vấn đề đã xác nhận, hành vi kỳ vọng và căn cứ, tạo thành đề cho thí nghiệm về sau. Lúc đầu không cần thu hết mọi mẫu điểm thấp: với cùng một kiểu bỏ sót thì chọn vài bản tiêu biểu, đồng thời giữ các kịch bản biên và một phần task vốn bình thường, thì mới kiểm chứng được phần sửa có gây thụt lùi không.
+Sau khi kết quả ghi vào Dataset, có thể lọc ứng viên theo trường điểm hay trường đánh giá thực sự được xuất ra, rồi để người phụ trách nghiệp vụ soát lại. Hãy giữ lại vấn đề đã xác nhận, hành vi kỳ vọng và căn cứ, tạo thành đề cho thí nghiệm về sau. Lúc đầu không cần thu hết mọi mẫu điểm thấp: với cùng một kiểu bỏ sót thì chọn vài bản tiêu biểu, đồng thời giữ các kịch bản biên và một phần task vốn bình thường, thì mới kiểm chứng được phần sửa có gây thụt lùi không.
 
 Những mẫu mà con người phát hiện là evaluator phán sai cũng rất có giá trị, nên giữ lại làm tài liệu hiệu chỉnh. Nhờ vậy, vòng sau vừa kiểm được Agent có cải thiện không, vừa kiểm được evaluator có còn mắc đúng lỗi đó không. Các mẫu điểm cao thì cũng nên lấy mẫu kiểm tra vừa phải, tránh việc chỉ nhìn điểm thấp mà bỏ lọt những vấn đề nghiêm trọng mà evaluator chưa nhận ra.
 
-Khi việc đánh giá lịch sử đã cho phán định ổn định, hãy bật "Đánh giá liên tục trên dữ liệu mới", rồi cấu hình khoảng thời gian và phần lấy mẫu. Hằng ngày thì ưu tiên xem các chỉ số then chốt đi xuống, các vấn đề lặp lại và kịch bản mới; mỗi lần chọn một nhóm nhỏ vấn đề rõ ràng để đưa vào thí nghiệm. Khi traffic lớn thì giảm tỉ lệ lấy mẫu, rồi bù bằng các lần đánh giá lịch sử chuyên đề cho những kịch bản trọng điểm.
+Khi việc đánh giá lịch sử đã cho đánh giá ổn định, hãy bật "Đánh giá liên tục trên dữ liệu mới", rồi cấu hình khoảng thời gian và phần lấy mẫu. Hằng ngày thì ưu tiên xem các chỉ số then chốt đi xuống, các vấn đề lặp lại và kịch bản mới; mỗi lần chọn một nhóm nhỏ vấn đề rõ ràng để đưa vào thí nghiệm. Khi traffic lớn thì giảm tỉ lệ lấy mẫu, rồi bù bằng các lần đánh giá lịch sử chuyên đề cho những kịch bản trọng điểm.
 
 ## 22.4 Cấu hình các vấn đề đã xác nhận thành thí nghiệm, và đánh giá chính đáp án mới sinh lần này
 
@@ -99,7 +99,7 @@ Kế hoạch thí nghiệm cũng chọn được Pipeline. Khi việc chấm đi
 
 Phép so sánh chính thức thì dùng dữ liệu mới nhất của golden Dataset độc lập đã xác nhận cho vòng này; trong kỳ thí nghiệm thì không ghi thêm hay sửa nữa, còn version dữ liệu đã tạo thì dùng để lưu hồ sơ; giao diện hiện tại không hỗ trợ khởi động thí nghiệm thẳng từ một version lịch sử. Hãy đồng thời ghi lại tiêu chí chấm điểm, version Agent hay model, Prompt và các tham số then chốt, để hai version phương án đối diện cùng đề bài và cùng điều kiện khởi đầu.
 
-## 22.5 Kết nối Agent của chính doanh nghiệp vào, chạy thông một đề trước
+## 22.5 Kết nối Agent của chính doanh nghiệp vào, vận hành thông suốt một đề trước
 
 Không ít Agent nghiệp vụ cần truy cập kho tri thức nội bộ hay hệ thống nghiệp vụ; có thể thực thi đề bài trong một môi trường gọi được các dịch vụ đó, rồi gửi kết quả theo giao ước ngược về phần quan sát và tối ưu Agent. Điểm xuất phát là kế hoạch thí nghiệm local vừa tạo: sau khi lưu cấu hình dataset và evaluator, bấm **Lấy cấu hình thí nghiệm local**, làm theo hướng dẫn ở thanh bên để cài phụ thuộc, cấu hình biến môi trường, và chọn "Chạy qua HTTP", "Chạy lệnh local" hay "Chạy tuỳ chỉnh".
 
@@ -107,7 +107,7 @@ Kỹ sư sao chép đoạn code ứng với kế hoạch hiện tại, rồi tha
 
 Video thao tác còn trình bày một nền tảng thí nghiệm phía khách hàng đóng gói quá trình thực thi này thành trang giao diện, hợp với những đội cần quản lý nhiều kết nối và task định kỳ. Khi dùng một đầu thực thi kiểu đó đã triển khai sẵn, hãy cấu hình AgentSpace, region và thông tin truy cập trước, test kết nối, rồi thêm kết nối tới Agent đích. Lần đầu tích hợp thì bắt đầu thẳng từ phần hướng dẫn SDK ở trên là được, không cần dựng trang quản lý này trước.
 
-Agent trong bản demo có trạng thái phiên, nên cách gọi mặc định "gửi một request, lấy một response" không dùng thẳng được. Thực tế đã thích ứng thành "tạo Session → gửi câu hỏi tới Session đó → lấy phản hồi cuối". Nếu API trả về thông tin tiếp nhận task trước, thì còn phải chờ tiếp câu trả lời cuối, không được coi việc tiếp nhận thành công là đề đã xong. Các mẫu độc lập với nhau thì nên dùng phiên riêng, tránh để ngữ cảnh của đề trước ảnh hưởng tới đề sau.
+Agent trong bản demo có trạng thái phiên, nên cách gọi mặc định "gửi một request, lấy một response" không dùng trực tiếp được. Thực tế đã thích ứng thành "tạo Session → gửi câu hỏi tới Session đó → lấy phản hồi cuối". Nếu API trả về thông tin tiếp nhận task trước, thì còn phải chờ tiếp câu trả lời cuối, không được coi việc tiếp nhận thành công là đề đã xong. Các mẫu độc lập với nhau thì nên dùng phiên riêng, tránh để ngữ cảnh của đề trước ảnh hưởng tới đề sau.
 
 Sau khi hoàn tất phần thích ứng lời gọi, hãy test một đề trước, kiểm tra câu hỏi thực sự được gửi đi, câu trả lời cuối trả về đầy đủ, và bản ghi thí nghiệm ứng đúng về đề đó; khi cần chấm điểm quá trình thì xác nhận thêm rằng trajectory mới đã được liên kết. Khi dùng nền tảng thí nghiệm phía khách hàng thì làm chính các kiểm tra đó qua phần test một đề trên trang kết nối. Sau đó mới chạy lô dữ liệu nhỏ ở trên. Thứ tự này giúp tách riêng việc định vị vấn đề thích ứng kết nối với vấn đề chất lượng câu trả lời.
 
@@ -123,9 +123,9 @@ Trong phần chi tiết từng đề, hãy đọc kết hợp kết quả từng
 
 ![image](../assets/imgs/chapter-22/image-004.png)
 
-Chạy lặp giúp xác nhận phần cải thiện có ổn định không. Khi cần kiểm evaluator thì chấm lặp trên cùng một câu trả lời cố định; khi cần kiểm độ ổn định của Agent thì cho nó chạy lại cùng bộ đề. Cái trước chủ yếu quan sát dao động phán định, còn cái sau thì gồm cả biến động của câu trả lời, tool và môi trường. Khi thấy điểm nhấp nhô, hãy mở câu trả lời và bản ghi vận hành tương ứng trước, chứ đừng quy hết về Rubric.
+Chạy lặp giúp xác nhận phần cải thiện có ổn định không. Khi cần kiểm evaluator thì chấm lặp trên cùng một câu trả lời cố định; khi cần kiểm độ ổn định của Agent thì cho nó chạy lại cùng bộ đề. Cái trước chủ yếu quan sát dao động đánh giá, còn cái sau thì gồm cả biến động của câu trả lời, tool và môi trường. Khi thấy điểm nhấp nhô, hãy mở câu trả lời và bản ghi vận hành tương ứng trước, chứ đừng quy hết về Rubric.
 
-Khi quyết định dùng ứng viên, ngoài điểm trung bình thì ít nhất còn phải xem ba điều: lỗi nghiêm trọng có biến mất không, các kịch bản vốn bình thường có thụt lùi không, và thời lượng cùng mức tiêu có chấp nhận được không. Chẳng hạn, bù thêm phần truy vấn trạng thái có thể làm tăng một lời gọi tool, nhưng lại tránh được tình huống "thao tác thất bại mà vẫn báo thành công"; loại chi phí này phải phán định kèm giá trị nghiệp vụ. Ngược lại, thời lượng thấp có được nhờ bỏ qua các bước cần thiết thì không thể lấy làm lý do nâng cấp.
+Khi quyết định dùng ứng viên, ngoài điểm trung bình thì ít nhất còn phải xem ba điều: lỗi nghiêm trọng có biến mất không, các kịch bản vốn bình thường có thụt lùi không, và thời lượng cùng mức tiêu có chấp nhận được không. Chẳng hạn, bù thêm phần truy vấn trạng thái có thể làm tăng một lời gọi tool, nhưng lại tránh được tình huống "thao tác thất bại mà vẫn báo thành công"; loại chi phí này phải đánh giá kèm giá trị nghiệp vụ. Ngược lại, thời lượng thấp có được nhờ bỏ qua các bước cần thiết thì không thể lấy làm lý do nâng cấp.
 
 Với các đề gọi thất bại, thiếu hạn mức hay không lấy được đáp án cuối, trước hết phải nói rõ nguyên nhân. Nếu vòng này so sánh chất lượng câu trả lời thì có thể sửa điều kiện thực thi rồi chạy lại; còn nếu so sánh năng lực bàn giao của cả stack dịch vụ, thì những thất bại đó cũng thuộc phần biểu hiện cần cải thiện. Đừng đợi có kết quả rồi mới đổi cách thống kê.
 
@@ -135,7 +135,7 @@ Sau khi lô thí nghiệm nhỏ đã qua, hãy mở rộng ra tập hồi quy l�
 
 Giá trị của một vòng thí nghiệm không chỉ là chọn ra một version, mà còn ở phần kiểm tra lặp lại được mà nó để lại. Các đề đã xác nhận hữu hiệu thì vào tập hồi quy, các trường hợp evaluator phán sai thì vào tập hiệu chỉnh, còn các vấn đề chưa giải quyết thì để dành cho vòng sau. Về sau đội bổ sung tri thức, sửa Prompt, đổi model hay chỉnh Skill đều chạy lại được từ bộ tài liệu này.
 
-Khi cần kiểm tra định kỳ một Agent nội bộ, các đội dùng nền tảng thí nghiệm phía khách hàng có thể chọn kế hoạch thí nghiệm, Agent đích và chu kỳ lập lịch, xem bản ghi kích hoạt qua Launch History, rồi vào phần quan sát và tối ưu Agent để xem kết quả thí nghiệm. Còn các đội dùng thẳng SDK thì đưa script thực thi đã kiểm chứng vào task định kỳ hay phần kiểm tra phát hành của mình. Bản demo trình bày việc chạy liên tục với khoảng cách năm phút; còn nghiệp vụ thực tế thì sắp lịch hồi quy theo ngày hay sau mỗi lần thay đổi, tuỳ tần suất phát hành và ngân sách.
+Khi cần kiểm tra định kỳ một Agent nội bộ, các đội dùng nền tảng thí nghiệm phía khách hàng có thể chọn kế hoạch thí nghiệm, Agent đích và chu kỳ lập lịch, xem bản ghi kích hoạt qua Launch History, rồi vào phần quan sát và tối ưu Agent để xem kết quả thí nghiệm. Còn các đội dùng trực tiếp SDK thì đưa script thực thi đã kiểm chứng vào task định kỳ hay phần kiểm tra phát hành của mình. Bản demo trình bày việc chạy liên tục với khoảng cách năm phút; còn nghiệp vụ thực tế thì sắp lịch hồi quy theo ngày hay sau mỗi lần thay đổi, tuỳ tần suất phát hành và ngân sách.
 
 Khi xem xu thế hằng ngày, trước hết hãy để ý phần đi xuống liên tục hay các đề then chốt thụt lùi, rồi mới khoan xuống từng lần thực thi. Một lần nâng cấp mà hiệu quả không tốt thì lần theo bản ghi thí nghiệm để tìm lại version và thay đổi tương ứng, rồi quyết định sửa tiếp hay lùi lại theo quy trình sẵn có. Các trajectory thật sau khi phát hành lại tiếp tục vào phần đánh giá, và những Badcase mới lại trở thành đề thí nghiệm cho vòng sau.
 

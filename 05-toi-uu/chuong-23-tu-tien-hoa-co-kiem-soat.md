@@ -14,7 +14,7 @@ Khi chọn hướng, hãy kiểm tra xem Agent đang thiếu phương pháp, đa
 | --- | --- | --- |
 | Sự cố tương tự lúc nào cũng phải khám phá lại, phương pháp chỉ áp dụng được trong điều kiện riêng | Dựng kho kinh nghiệm, gợi lại khi task bắt đầu hay khi gặp vấn đề liên quan | Tìm ra đường hữu hiệu nhanh hơn, giảm các lần thử vô ích |
 | Thường bỏ sót phần kiểm tra tiền đề, test hay xác nhận kết quả | Bổ sung hay sửa Skill | Task cùng loại hoàn thành các bước cần thiết ổn định hơn |
-| Viết đi viết lại các truy vấn thống kê, phân trang hay script làm sạch gần giống nhau | Gom thành template SQL, Script hay tool | Giảm việc sinh lặp và debug lặp, thống nhất chuẩn đo nghiệp vụ |
+| Viết đi viết lại các truy vấn thống kê, phân trang hay script làm sạch gần giống nhau | Gom thành template SQL, Script hay tool | Giảm việc sinh lặp và debug lặp, thống nhất thước đo nghiệp vụ |
 | Quy trình cố định lúc nào cũng phải có người ngồi canh mới chạy tiếp | Đưa các bước ổn định vào Workflow | Để phần kiểm tra tiền đề, thực thi và nghiệm thu chạy theo giao ước |
 | Gửi trùng, trạng thái không rõ sau khi khôi phục, task dài quên mất ràng buộc | Sửa Harness, tức cơ chế quản lý thực thi và context của Agent | Giảm các thao tác nghiệp vụ lặp và lỗi do gián đoạn khi chạy |
 
@@ -22,15 +22,15 @@ Chẳng hạn, Agent gỡ sự cố truy vấn với phạm vi quá rộng thì 
 
 ## 23.2 Dựng kho kinh nghiệm cho tốt, để đội kiểm tra được đã khai thác ra những gì
 
-Kho kinh nghiệm hợp để lưu "gặp tình huống nào thì xử lý ra sao". Nó giúp các task khác nhau tái dùng phương pháp, và cũng giúp người duy trì phán định từ nguồn gốc rằng phương pháp có đáng tin không. Trong việc gỡ sự cố qua log, cách làm "tìm bất thường đầu tiên trước, rồi mới phân tích chuỗi retry" có giá trị tái dùng hơn nhiều so với đáp án cuối của một sự cố cụ thể.
+Kho kinh nghiệm hợp để lưu "gặp tình huống nào thì xử lý ra sao". Nó giúp các task khác nhau tái dùng phương pháp, và cũng giúp người duy trì đánh giá từ nguồn gốc rằng phương pháp có đáng tin không. Trong việc gỡ sự cố qua log, cách làm "tìm bất thường đầu tiên trước, rồi mới phân tích chuỗi retry" có giá trị tái dùng hơn nhiều so với đáp án cuối của một sự cố cụ thể.
 
 **Trước hết xác nhận có trajectory dùng được.** Trong phần quan sát và tối ưu Agent, hãy chọn AgentSpace và ứng dụng, mở một task thật, kiểm tra mục tiêu người dùng, các lời gọi tool then chốt và kết quả có nhìn thấy được không. Nếu chỉ có đáp án cuối thì hãy bù phần tích hợp trước; kinh nghiệm cần biết phương pháp được thực thi ra sao và kết quả dựa vào căn cứ nào.
 
 **Rồi tạo kho kinh nghiệm và chọn nguồn.** Ở lối vào kho kinh nghiệm, điền tên, mô tả, chọn ứng dụng và thời điểm bắt đầu khai thác. Lần đầu có thể chọn dữ liệu gần đây quanh một nhóm task tương đồng, để phương pháp task và điều kiện tool khá nhất quán. Khoảng thời gian cần phủ cả quá trình thành công, thất bại và khôi phục sau thất bại; không cần vì tăng số bản ghi mà đưa hết phần lịch sử có luật đã lỗi thời vào. Nguồn hiện tại được tổ chức theo AgentSpace đang ở; còn ứng dụng và thời điểm bắt đầu thì chốt lúc tạo, nên trước khi gửi phải đối chiếu cho rõ.
 
-**Tạo xong thì xem tiến độ khai thác, rồi mở các kinh nghiệm tiêu biểu ra.** Có thể chọn trước vài mục liên quan nhất tới nghiệp vụ tần suất cao, rồi kiểm tra ba điều: nó giải quyết vấn đề gì, đề nghị làm hành động gì, và áp dụng trong điều kiện nào. Sau đó quay lại Trace nguồn, xác nhận hành động đó có thực sự xuất hiện không và kết quả có chống đỡ được đề nghị này không.
+**Tạo xong thì xem tiến độ khai thác, rồi mở các kinh nghiệm tiêu biểu ra.** Có thể chọn trước vài mục liên quan nhất tới nghiệp vụ tần suất cao, rồi kiểm tra ba điều: nó giải quyết vấn đề gì, đề nghị làm hành động gì, và áp dụng trong điều kiện nào. Sau đó quay lại Trace nguồn, xác nhận hành động đó có thực sự xuất hiện không và kết quả có hỗ trợ được đề nghị này không.
 
-Chẳng hạn, một mục kinh nghiệm đề nghị "khi không truy vấn ra log thì mở rộng cửa sổ thời gian". Người gỡ sự cố phải phán định thêm: lúc đó là do cửa sổ quá ngắn, hay dữ liệu vốn chưa được thu thập? Trường hợp đầu thì tái dùng được phương pháp truy vấn, còn trường hợp sau thì phải xử lý phần tích hợp trước. Nguồn gốc và điều kiện không áp dụng của kinh nghiệm giúp đội tránh biến một lần xử lý tại hiện trường thành yêu cầu cố định cho mọi task.
+Chẳng hạn, một mục kinh nghiệm đề nghị "khi không truy vấn ra log thì mở rộng cửa sổ thời gian". Người gỡ sự cố phải đánh giá thêm: lúc đó là do cửa sổ quá ngắn, hay dữ liệu vốn chưa được thu thập? Trường hợp đầu thì tái dùng được phương pháp truy vấn, còn trường hợp sau thì phải xử lý phần tích hợp trước. Nguồn gốc và điều kiện không áp dụng của kinh nghiệm giúp đội tránh biến một lần xử lý tại hiện trường thành yêu cầu cố định cho mọi task.
 
 Ở giai đoạn này, người quen nghiệp vụ lấy mẫu kiểm tra nội dung, còn người duy trì Agent thì đối chiếu điều kiện tool và phạm vi tích hợp. Nếu kết quả chỉ toàn những yêu cầu chung chung kiểu "phân tích kỹ, gọi tool cho đúng", thì hãy bổ sung trajectory tiêu biểu và thông tin vấn đề trước; còn nếu chọn sai ứng dụng hay khoảng thời gian thì hãy tạo kho dùng thử theo phạm vi đúng.
 
@@ -54,7 +54,7 @@ Chẳng hạn, kho kinh nghiệm đã có phương pháp "khi log chỉ chứa p
 
 ![image](../assets/imgs/chapter-23/image-002.png)
 
-_Hình: Agent mục tiêu lấy được kinh nghiệm liên quan qua năng lực gợi lại, rồi kết hợp task hiện tại mà phán định có dùng không._
+_Hình: Agent mục tiêu lấy được kinh nghiệm liên quan qua năng lực gợi lại, rồi kết hợp task hiện tại mà đánh giá có dùng không._
 
 Khi tích hợp gặp vấn đề, có thể định vị theo hiện tượng: không phát truy vấn thì kiểm tra Skill đã bật chưa, phần mô tả kích hoạt và quyền hạn tool; truy vấn thất bại thì kiểm tra địa chỉ, không gian, tên kho và thông tin xác thực; truy vấn thành công nhưng rỗng thì trước hết xác nhận trong kho có nội dung liên quan không, cách diễn đạt truy vấn và phạm vi lọc có phù hợp không; trúng kinh nghiệm mà không dùng thì kiểm tra nội dung trả về có vào được context không, tiền đề có áp dụng được không. Tách các trường hợp này ra sẽ tránh việc cứ chỉnh ngưỡng đi chỉnh lại mà không giải quyết được vấn đề tích hợp.
 
@@ -68,7 +68,7 @@ Trước hết hãy giữ một nhóm lần chạy không dùng kinh nghiệm l�
 
 Vòng đầu có thể bắt đầu từ một ít kinh nghiệm liên quan rõ ràng, rồi chỉnh từng mục:
 
-| Yếu tố chỉnh được | Dùng thử ra sao | Phán định có phù hợp không ra sao |
+| Yếu tố chỉnh được | Dùng thử ra sao | Đánh giá có phù hợp không ra sao |
 | --- | --- | --- |
 | Ngưỡng gợi lại | So sánh yêu cầu về độ liên quan chặt hơn và lỏng hơn | Có giảm nội dung không liên quan không, có bỏ sót phương pháp lẽ ra hữu ích không |
 | Số lượng trả về | So sánh giữa một mục và vài mục kinh nghiệm | Nội dung thêm vào có bổ sung điều kiện hữu hiệu không, hay chỉ tăng gánh nặng đọc |
@@ -78,29 +78,29 @@ Vòng đầu có thể bắt đầu từ một ít kinh nghiệm liên quan rõ 
 
 Người duy trì chỉnh các yếu tố này trong phần cấu hình gợi lại hay trong code tích hợp của Agent. Các tham số trên trang hay trong bản demo dùng để bắt đầu test; còn kết luận cuối thì lấy thí nghiệm trên nghiệp vụ của chính mình làm chuẩn.
 
-Việc nghiệm thu cũng phải quay về nghiệp vụ. Task gỡ sự cố thì xem căn nguyên có đúng không, bằng chứng có đầy đủ không, truy vấn vô ích có giảm không; task code thì xem phần sửa có thoả nhu cầu không, test có hữu hiệu không; task báo cáo thì xem số liệu và chuẩn đo có đúng không. Rồi so sánh thời lượng, Token, số lời gọi tool và chi phí của trọn task, tính cả chi phí gợi lại vào. Khi việc chạy có dao động thì test lặp lại, đồng thời giữ cả những task không cần kinh nghiệm để kiểm tra xem có làm phát sinh thao tác vô ích không. Trước khi quyết định áp dụng, hãy kiểm tra hiệu quả thêm bằng những task cùng loại chưa tham gia vào vòng khai thác này.
+Việc nghiệm thu cũng phải quay về nghiệp vụ. Task gỡ sự cố thì xem căn nguyên có đúng không, bằng chứng có đầy đủ không, truy vấn vô ích có giảm không; task code thì xem phần sửa có thoả nhu cầu không, test có hữu hiệu không; task báo cáo thì xem số liệu và thước đo có đúng không. Rồi so sánh thời lượng, Token, số lời gọi tool và chi phí của trọn task, tính cả chi phí gợi lại vào. Khi việc chạy có dao động thì test lặp lại, đồng thời giữ cả những task không cần kinh nghiệm để kiểm tra xem có làm phát sinh thao tác vô ích không. Trước khi quyết định áp dụng, hãy kiểm tra hiệu quả thêm bằng những task cùng loại chưa tham gia vào vòng khai thác này.
 
-Nếu một mục kinh nghiệm khiến Agent cứ mở rộng phạm vi hay bê nguyên tham số lịch sử, thì trước hết hãy thu hẹp phạm vi sử dụng của nó hoặc dừng áp dụng ở phía tích hợp, và giữ lại task bị lỗi làm phản ví dụ. Vòng sau, sau khi sửa nội dung hay chiến lược gợi lại, hãy dùng chính task đó để kiểm chứng. Nhờ vậy, thứ đội điều chỉnh là cách sử dụng cụ thể, chứ không phải một phán đoán chung chung rằng "kinh nghiệm có ích hay không".
+Nếu một mục kinh nghiệm khiến Agent cứ mở rộng phạm vi hay bê nguyên tham số lịch sử, thì trước hết hãy thu hẹp phạm vi sử dụng của nó hoặc dừng áp dụng ở phía tích hợp, và giữ lại task bị lỗi làm phản ví dụ. Vòng sau, sau khi sửa nội dung hay chiến lược gợi lại, hãy dùng chính task đó để kiểm chứng. Nhờ vậy, thứ đội điều chỉnh là cách sử dụng cụ thể, chứ không phải một nhận định chung chung rằng "kinh nghiệm có ích hay không".
 
 ## 23.5 Biến các phương pháp ổn định thành Skill, SQL, Script và Workflow
 
-Khi một cách làm đã đủ ổn định, đội có thể sắp xếp nó thẳng thành tài sản dùng được. Kinh nghiệm thì tiện để bổ sung phần tham chiếu theo kịch bản; Skill hợp để diễn đạt phương pháp làm task; SQL và Script hợp để gánh phần tính toán lặp; còn Workflow thì hợp để đẩy các bước cố định. Chúng kết hợp với nhau được.
+Khi một cách làm đã đủ ổn định, đội có thể sắp xếp nó thẳng thành tài sản dùng được. Kinh nghiệm thì tiện để bổ sung phần tham chiếu theo kịch bản; Skill hợp để diễn đạt phương pháp làm task; SQL và Script hợp để đảm nhiệm tính toán lặp; còn Workflow thì hợp để đẩy các bước cố định. Chúng kết hợp với nhau được.
 
-Lấy việc thống kê định kỳ tỉ lệ thất bại của Agent làm ví dụ: người phụ trách nghiệp vụ xác nhận chuẩn đo của "task" và "thất bại" trước, rồi người duy trì lấy phần truy vấn và quá trình kiểm tra từ các trajectory thành công đã đối chiếu, gom dần thành các sản phẩm sau:
+Lấy việc thống kê định kỳ tỉ lệ thất bại của Agent làm ví dụ: người phụ trách nghiệp vụ xác nhận thước đo của "task" và "thất bại" trước, rồi người duy trì lấy phần truy vấn và quá trình kiểm tra từ các trajectory thành công đã đối chiếu, gom dần thành các sản phẩm sau:
 
-* **Template SQL** giữ lại logic khử trùng lặp, đếm và gom nhóm, và đổi các giá trị hiện trường như ứng dụng, khoảng thời gian thành tham số; kèm theo phần ý nghĩa trường, múi giờ, cách giải thích kết quả rỗng và cách đối chiếu chi tiết. Lần thống kê sau, Agent chọn template rồi điền tham số.
+* **Template SQL** giữ lại logic loại bỏ trùng lặp, đếm và gom nhóm, và đổi các giá trị hiện trường như ứng dụng, khoảng thời gian thành tham số; kèm theo phần ý nghĩa trường, múi giờ, cách giải thích kết quả rỗng và cách đối chiếu chi tiết. Lần thống kê sau, Agent chọn template rồi điền tham số.
 
-* **Script hay tool** đóng gói các phần việc lặp như đọc phân trang, phân giải kết quả, khử trùng lặp và tổng hợp, nhận tham số ngắn và trả về kết quả có cấu trúc. Người duy trì bổ sung đủ phụ thuộc, thông báo lỗi và ví dụ gọi, thì Agent tái dùng được phần hiện thực đã qua kiểm tra.
+* **Script hay tool** đóng gói các phần việc lặp như đọc phân trang, phân giải kết quả, loại bỏ trùng lặp và tổng hợp, nhận tham số ngắn và trả về kết quả có cấu trúc. Người duy trì bổ sung đủ phụ thuộc, thông báo lỗi và ví dụ gọi, thì Agent tái dùng được phần hiện thực đã qua kiểm tra.
 
-* **Skill** nói rõ khi nào dùng bộ phương pháp thống kê này, trước hết phải xác nhận chuẩn đo nào, chọn template ra sao, gặp thay đổi trường thì xử lý thế nào, và xong rồi thì đối chiếu báo cáo ra sao.
+* **Skill** nói rõ khi nào dùng bộ phương pháp thống kê này, trước hết phải xác nhận thước đo nào, chọn template ra sao, gặp thay đổi trường thì xử lý thế nào, và xong rồi thì đối chiếu báo cáo ra sao.
 
-* **Workflow** nối "xác nhận phạm vi — chạy thống kê — đối chiếu chi tiết — sinh báo cáo" thành các bước cố định, và sắp sẵn cách xử lý rõ ràng cho dữ liệu rỗng, truy vấn thất bại và chuẩn đo không khớp.
+* **Workflow** nối "xác nhận phạm vi — chạy thống kê — đối chiếu chi tiết — sinh báo cáo" thành các bước cố định, và sắp sẵn cách xử lý rõ ràng cho dữ liệu rỗng, truy vấn thất bại và thước đo không khớp.
 
 Lúc đầu không cần giao đủ cả bốn loại tài sản cùng lúc. Nếu chi phí lớn nhất đến từ việc sinh lặp truy vấn thì bàn giao template SQL trước; nếu vấn đề là hay bỏ sót nghiệm thu thì sửa Skill trước; còn chỉ khi các bước và nhánh ngoại lệ đã ổn định thì mới đưa vào Workflow. Đội có thể để Agent dựa trên trajectory mà soạn nháp những nội dung này, rồi người quen nghiệp vụ và tool kiểm tra xong mới đưa vào repo của project hay hệ quản lý tài sản sẵn có.
 
 Trước khi áp dụng, hãy đổi một bộ tham số thời gian và ứng dụng khác rồi chạy, kiểm tra kết quả còn đúng không; thêm các mẫu dữ liệu rỗng, bản ghi trùng và trường thay đổi để xác nhận các bất thường phát hiện được. Sau đó phát một request trọn vẹn từ một task mới, kiểm tra Agent có tìm được tài sản, chọn đúng lối vào và gọi đúng không. File đã sinh ra rồi thì vẫn phải hoàn thành bước kiểm chứng sử dụng này.
 
-Kiểu tối ưu này giúp phần ổn định bớt phụ thuộc vào việc sinh tại chỗ, và chia sẻ chuẩn đo cùng cách nghiệm thu cho cả đội. Còn việc thực thi và phát hành tài sản thì chỉ cần nối vào cách phát triển và bàn giao sẵn có.
+Kiểu tối ưu này giúp phần ổn định bớt phụ thuộc vào việc sinh tại chỗ, và chia sẻ thước đo cùng cách nghiệm thu cho cả đội. Còn việc thực thi và phát hành tài sản thì chỉ cần nối vào cách phát triển và bàn giao sẵn có.
 
 ## 23.6 Dùng mẫu thất bại để thúc đẩy cải tiến Skill, thậm chí cả kỹ thuật Harness
 
@@ -138,6 +138,6 @@ Mỗi lần quyết định áp dụng, người phụ trách xác nhận bốn 
 
 ![image](../assets/imgs/chapter-23/image-005.png)
 
-_Hình: vấn đề, phần sửa, thí nghiệm và việc áp dụng thực tế liên kết với nhau, giúp đội phán định hiệu quả và định vị, khôi phục khi có thụt lùi._
+_Hình: vấn đề, phần sửa, thí nghiệm và việc áp dụng thực tế liên kết với nhau, giúp đội đánh giá hiệu quả và định vị, khôi phục khi có thụt lùi._
 
 Sau khi áp dụng thì tiếp tục kiểm tra các task mới, để lại phương pháp hữu hiệu cho lần thực thi sau, và trả các phản ví dụ về cho phần Dataset ở chương 21 cùng phần đánh giá — thí nghiệm ở chương 22. Giá trị của data flywheel, rốt cuộc thể hiện ở chỗ task hoàn thành ổn định hơn, và ở chỗ đội nói được vì sao từng cải tiến đáng được giữ lại.

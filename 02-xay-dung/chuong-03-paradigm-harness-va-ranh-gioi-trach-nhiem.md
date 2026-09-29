@@ -24,7 +24,7 @@ Chương này lần lượt lấy AgentScope, QwenPaw, Qoder Cloud Agents và Al
 
 Cuốn sách trắng này định nghĩa Agent Harness là:
 
-> **Phần code, cấu hình và logic thực thi nằm ngoài model, tổ chức context, năng lực, state, môi trường và cơ chế kiểm soát xoay quanh Agent Loop, và chuyển những phán đoán của model thành một quá trình task thực thi được, khôi phục được, kiểm chứng được.**
+> **Phần code, cấu hình và logic thực thi nằm ngoài model, tổ chức context, năng lực, state, môi trường và cơ chế kiểm soát xoay quanh Agent Loop, và chuyển những nhận định của model thành một quá trình task thực thi được, khôi phục được, kiểm chứng được.**
 
 Định nghĩa này gồm ba tầng ý nghĩa.
 
@@ -54,17 +54,17 @@ flowchart LR
 
 Một lần gọi model không có state đáng tin cậy xuyên các lượt, và cũng không biết task đã được đẩy tiến ở node khác hay chưa; cửa sổ context hữu hạn, không thể tự nhiên giữ lại toàn bộ sự thật trong một task dài; lời gọi tool chỉ biểu đạt **ý định hành động**, không đồng nghĩa với việc người dùng hiện tại đã được uỷ quyền thực thi; model có thể tuyên bố task đã xong, nhưng không chứng minh được rằng file đã được sinh ra, test đã pass, đơn hàng đã được gửi hay phê duyệt đã có hiệu lực.
 
-Vì vậy Harness phải nhúng những phán đoán mang tính xác suất của model vào các ranh giới hệ thống có tính xác định. Model quyết định Agent hiểu và suy luận được tới đâu; Harness quyết định những năng lực đó chuyển hoá liên tục thành kết quả task ra sao; còn Runtime và Sandbox quyết định quá trình này được gánh và bị giới hạn thế nào.
+Vì vậy Harness phải nhúng những nhận định mang tính xác suất của model vào các ranh giới hệ thống có tính xác định. Model quyết định Agent hiểu và suy luận được tới đâu; Harness quyết định những năng lực đó chuyển hoá liên tục thành kết quả task ra sao; còn Runtime và Sandbox quyết định quá trình này được gánh và bị giới hạn thế nào.
 
 | Tầng | Câu hỏi cốt lõi | Trách nhiệm chính |
 | --- | --- | --- |
-| Model | Agent hiểu và suy luận được tới đâu | Hiểu ngữ nghĩa, phán đoán khi lập kế hoạch, tạo sinh và chọn tool |
+| Model | Agent hiểu và suy luận được tới đâu | Hiểu ngữ nghĩa, nhận định khi lập kế hoạch, tạo sinh và chọn tool |
 | Orchestration Harness | Agent làm việc ra sao | Loop, Context, State, Plan, Tool, Skill, Subagent, Permission và Verification |
 | Runtime | Agent chạy liên tục ra sao | Gánh process, lập lịch task, đồng thời, chờ đợi và khôi phục sự cố |
 | Sandbox / Environment | Agent hành động ở đâu, phạm vi ảnh hưởng tới đâu | File, process, mạng, Secret, tài nguyên và cô lập môi trường |
 | Agent Platform | Bàn giao và quản trị ở quy mô ra sao | Multi-tenant, phát hành, gateway, quota, quan sát, đánh giá, bảo mật và vận hành |
 
-Những ranh giới logic này không nhất thiết ứng với năm sản phẩm hay năm đơn vị triển khai độc lập. Một SDK có thể chứa đồng thời Harness và Runtime cục bộ; một dịch vụ managed cũng có thể cung cấp cùng lúc Harness, Runtime và Sandbox. Nhưng trong thiết kế kiến trúc vẫn phải giữ ranh giới, nếu không doanh nghiệp sẽ không phán định được sự cố thuộc về ai, dữ liệu nằm ở đâu, chi phí di trú ra sao và trách nhiệm cuối cùng thuộc về bên nào.
+Những ranh giới logic này không nhất thiết ứng với năm sản phẩm hay năm đơn vị triển khai độc lập. Một SDK có thể chứa đồng thời Harness và Runtime cục bộ; một dịch vụ managed cũng có thể cung cấp cùng lúc Harness, Runtime và Sandbox. Nhưng trong thiết kế kiến trúc vẫn phải giữ ranh giới, nếu không doanh nghiệp sẽ không đánh giá được sự cố thuộc về ai, dữ liệu nằm ở đâu, chi phí di trú ra sao và trách nhiệm cuối cùng thuộc về bên nào.
 
 ### 3.1.2 Phát triển Harness cần hiện thực những đối tượng nào
 
@@ -79,13 +79,13 @@ Từ góc nhìn lập trình viên, xây Harness không phải liệt kê tính 
 | Environment | File, lệnh, trình duyệt hay hệ thống doanh nghiệp chạy ở đâu | Environment Contract, Sandbox và ranh giới Artifact |
 | Control | Hành động dưới danh nghĩa ai, thao tác nào phải từ chối hoặc phê duyệt | Permission Policy, HITL và credential ngắn hạn |
 | Interaction | Người dùng và ứng dụng cấp trên xem tiến độ, can thiệp và khôi phục ra sao | Event Schema, Streaming, Channel và con trỏ khôi phục |
-| Quality | Chứng minh một task đã hoàn thành ra sao, và phán định version mới có tốt hơn không | Trace, Outcome, test case và baseline đánh giá |
+| Quality | Chứng minh một task đã hoàn thành ra sao, và đánh giá version mới có tốt hơn không | Trace, Outcome, test case và baseline đánh giá |
 
 Một Agent tối thiểu có thể chỉ hiện thực một phần trong số đó, nhưng khi bước vào môi trường production của doanh nghiệp, mọi vấn đề trên đều phải có người chịu trách nhiệm rõ ràng. Chọn con đường xây Harness, về bản chất, chính là quyết định **đối tượng nào do doanh nghiệp tự phát triển, đối tượng nào tái sử dụng sản phẩm sẵn có, đối tượng nào giao cho nền tảng managed gánh.**
 
 Những đối tượng này có thể quy tiếp thành ba miền năng lực: thực thi và orchestration, context và state, hành động và phản hồi. Ở đây chúng chỉ được dùng như một checklist xây dựng; các chương 4–6 sẽ lần lượt triển khai nguyên lý bên trong, cách hiện thực và phương pháp tối ưu của chúng.
 
-*Hình 3-1 — Quan hệ giữa việc xây dựng và việc gánh vác Agent trong doanh nghiệp*
+*Hình 3-1 — Quan hệ giữa việc xây dựng và việc đảm nhiệm Agent trong doanh nghiệp*
 
 ![Chương 3 - 1.svg](../assets/imgs/chapter-03/image-001.svg)
 
@@ -93,7 +93,7 @@ Xây Agent không nên bắt đầu từ việc chọn framework hay mở công 
 
 ### 3.1.3 Bốn lối vào xây dựng giải quyết những vấn đề trách nhiệm khác nhau
 
-Trước khi chọn cách hiện thực cụ thể, doanh nghiệp còn phải phán định **ai kiểm soát đường đi của task**. Task mà các bước, nhánh rẽ và ngoại lệ đã rõ ngay khi thiết kế thì phù hợp dùng Workflow; khi đường đi thực thi bắt buộc phải quyết định động theo kết quả trung gian và phản hồi môi trường thì có thể để Agent nắm một phần quyền quyết định; còn với task mà luồng chính rủi ro cao vốn ổn định nhưng phán đoán cục bộ lại phức tạp thì có thể dùng Hybrid: Workflow cố định ranh giới phê duyệt, giao dịch và phát hành, còn Agent lo truy hồi, phân tích và sinh phương án. Workflow, Agent chủ đạo và Hybrid mô tả **cách kiểm soát đường đi**, chúng không phải các hình thái ứng dụng đặt song song với Single-Agent, Long-Horizon Agent và Multi-Agent.
+Trước khi chọn cách hiện thực cụ thể, doanh nghiệp còn phải đánh giá **ai kiểm soát đường đi của task**. Task mà các bước, nhánh rẽ và ngoại lệ đã rõ ngay khi thiết kế thì phù hợp dùng Workflow; khi đường đi thực thi bắt buộc phải quyết định động theo kết quả trung gian và phản hồi môi trường thì có thể để Agent nắm một phần quyền quyết định; còn với task mà luồng chính rủi ro cao vốn ổn định nhưng nhận định cục bộ lại phức tạp thì có thể dùng Hybrid: Workflow cố định ranh giới phê duyệt, giao dịch và phát hành, còn Agent lo truy hồi, phân tích và sinh phương án. Workflow, Agent chủ đạo và Hybrid mô tả **cách kiểm soát đường đi**, chúng không phải các hình thái ứng dụng đặt song song với Single-Agent, Long-Horizon Agent và Multi-Agent.
 
 Trên nền đó, bốn lối vào xây dựng phổ biến là: tự xây Harness bằng framework high-code, Harness đóng gói sản phẩm, dịch vụ Managed Agents, và sản phẩm Agent trên cloud. Khác biệt nổi bật nhất giữa chúng **không phải năng lực model, cũng không phải hình thái ứng dụng**, mà là: hành vi chung của Harness do ai hiện thực, Runtime và Sandbox do ai cung cấp, và ứng dụng doanh nghiệp còn phải bù thêm những trách nhiệm kiểm soát và nghiệm thu nào. Single-Agent, Long-Horizon Agent và Multi-Agent đều có thể xây từ bất kỳ lối vào nào trong số đó; **hình thái ứng dụng quyết định cần cách tổ chức task, state bền vững và hợp đồng cộng tác ra sao, còn lối vào xây dựng quyết định những năng lực đó chủ yếu do doanh nghiệp, do sản phẩm hay do nền tảng hiện thực.** AgentScope, QwenPaw, Qoder Cloud Agents và Alibaba Cloud AgentCore lần lượt là các case tiêu biểu của chương này. Bảng 3-2 so sánh trọng tâm kiểm soát, năng lực tái sử dụng được, trách nhiệm doanh nghiệp và điều kiện áp dụng của bốn lối vào.
 
@@ -106,7 +106,7 @@ Trên nền đó, bốn lối vào xây dựng phổ biến là: tự xây Harne
 
 *Bảng 3-2 — Khác biệt chính giữa bốn lối vào xây dựng Agent*
 
-Bốn lối vào không phải một phân loại kỹ thuật loại trừ nhau nghiêm ngặt. Agent xây bằng framework high-code vẫn có thể dùng Runtime managed; Harness đóng gói sản phẩm có thể chạy trên cụm của doanh nghiệp, cũng có thể do nền tảng lập lịch; Agent xây dựa trên model vẫn phải tích hợp tool, định danh và hệ thống nghiệp vụ của doanh nghiệp; còn Agent xây trên sản phẩm cloud vừa có thể cung cấp lối vào xây dựng native trong nền tảng, vừa có thể gánh thêm năng lực danh mục, vận hành và quản trị cho các Agent đa nguồn. Khi lựa chọn, nên phán định riêng rẽ: hiệu quả task có phụ thuộc vào việc sửa Loop hay Context không, dữ liệu và môi trường thực thi có được phép host bên ngoài không, đội ngũ có sẵn lòng bảo trì việc khôi phục state và Sandbox không, và đối tượng bàn giao cuối cùng là workspace cá nhân, ứng dụng nhúng, dịch vụ task bất đồng bộ hay Agent nghiệp vụ trong nền tảng.
+Bốn lối vào không phải một phân loại kỹ thuật loại trừ nhau nghiêm ngặt. Agent xây bằng framework high-code vẫn có thể dùng Runtime managed; Harness đóng gói sản phẩm có thể chạy trên cụm của doanh nghiệp, cũng có thể do nền tảng lập lịch; Agent xây dựa trên model vẫn phải tích hợp tool, định danh và hệ thống nghiệp vụ của doanh nghiệp; còn Agent xây trên sản phẩm cloud vừa có thể cung cấp lối vào xây dựng native trong nền tảng, vừa có thể gánh thêm năng lực danh mục, vận hành và quản trị cho các Agent đa nguồn. Khi lựa chọn, nên đánh giá riêng rẽ: hiệu quả task có phụ thuộc vào việc sửa Loop hay Context không, dữ liệu và môi trường thực thi có được phép host bên ngoài không, đội ngũ có sẵn lòng bảo trì việc khôi phục state và Sandbox không, và đối tượng bàn giao cuối cùng là workspace cá nhân, ứng dụng nhúng, dịch vụ task bất đồng bộ hay Agent nghiệp vụ trong nền tảng.
 
 ## 3.2 Tự xây Harness bằng framework high-code
 
@@ -217,7 +217,7 @@ Coding Agent CLI phù hợp để lập trình viên thao tác trực tiếp tro
 
 Qoder CLI và Qoder Agent SDK là case tiêu biểu của Coding Agent. Agent SDK là interface lập trình phía ứng dụng, lo việc gửi mục tiêu và tuỳ chọn, tiêu thụ event, xử lý yêu cầu quyền hạn và nối tiếp Session; còn thành phần CLI đi kèm lo việc chạy Harness do sản phẩm Qoder cung cấp, lập kế hoạch task trong workspace mục tiêu, gọi model và thực thi tool.
 
-Trợ lý workspace thì mở rộng cùng loại Harness ấy sang phạm vi rộng hơn: tri thức cá nhân, cộng tác văn phòng, xử lý tin nhắn và task tự động hoá; OpenClaw, Hermes Agent và QwenPaw có thể xem là đại diện. Hai thứ này có thể kết hợp với nhau, và **cả hai đều không thể dùng Session hay kết quả chạy ở phía sản phẩm để thay thế Task doanh nghiệp, phán định quyền hạn và nghiệm thu Outcome.**
+Trợ lý workspace thì mở rộng cùng loại Harness ấy sang phạm vi rộng hơn: tri thức cá nhân, cộng tác văn phòng, xử lý tin nhắn và task tự động hoá; OpenClaw, Hermes Agent và QwenPaw có thể xem là đại diện. Hai thứ này có thể kết hợp với nhau, và **cả hai đều không thể dùng Session hay kết quả chạy ở phía sản phẩm để thay thế Task doanh nghiệp, đánh giá quyền hạn và nghiệm thu Outcome.**
 
 ### 3.3.2 Coding Agent CLI và SDK
 
@@ -302,7 +302,7 @@ Session Store dùng chung còn bắt buộc phải bảo đảm cô lập theo k
 
 ### 3.3.3 Trợ lý workspace
 
-QwenPaw được nhà cung cấp định vị chính thức là một trợ lý AI cá nhân có thể triển khai trong môi trường cục bộ hoặc trên cloud, và cung cấp các lối vào như Web Console, ứng dụng desktop, giao diện dòng lệnh dạng TUI (Terminal User Interface), CLI và Channel tin nhắn. Kiến trúc của nó lấy **Agent Workspace** làm ranh giới liên tục: mỗi Agent ứng với một workspace, và workspace gánh các state như cấu hình, Memory, Skill và lịch sử; còn MCP, Subagent, Cron và Sandbox thì mở rộng việc gọi năng lực, chạy task song song, thực thi theo lịch và chạy có kiểm soát. Chữ "môi trường cloud" ở đây có nghĩa là **phần mềm có thể triển khai lên cloud**, không đồng nghĩa với việc nhà cung cấp có dịch vụ Agent managed cấp doanh nghiệp.
+QwenPaw được nhà cung cấp định vị chính thức là một trợ lý AI cá nhân có thể triển khai trong môi trường cục bộ hoặc trên cloud, và cung cấp các lối vào như Web Console, ứng dụng desktop, giao diện dòng lệnh dạng TUI (Terminal User Interface), CLI và Channel tin nhắn. Kiến trúc của nó lấy **Agent Workspace** làm ranh giới liên tục: mỗi Agent ứng với một workspace, và workspace đảm nhiệm các state như cấu hình, Memory, Skill và lịch sử; còn MCP, Subagent, Cron và Sandbox thì mở rộng việc gọi năng lực, chạy task song song, thực thi theo lịch và chạy có kiểm soát. Chữ "môi trường cloud" ở đây có nghĩa là **phần mềm có thể triển khai lên cloud**, không đồng nghĩa với việc nhà cung cấp có dịch vụ Agent managed cấp doanh nghiệp.
 
 Các lệnh dưới đây chỉ dùng để minh hoạ lối vào cơ bản của QwenPaw từ khởi tạo workspace đến mở ứng dụng hoặc vào chế độ Coding; điều kiện cài đặt và lệnh cụ thể nên theo tài liệu chính thức của version đang dùng.
 
@@ -327,7 +327,7 @@ Phần lối vào multi-tenant, hàng đợi task và lập lịch instance tron
 
 **Ranh giới áp dụng và sản phẩm xây dựng**
 
-Con đường này phù hợp với các đội muốn tái sử dụng Harness đóng gói sản phẩm, workspace và năng lực đa Channel, đồng thời đưa Agent vào tri thức cá nhân, cộng tác R&D, tự động hoá văn phòng hoặc quy trình doanh nghiệp. Coding Agent CLI và SDK phù hợp hơn cho việc thao tác trực tiếp hoặc tích hợp lập trình xoay quanh workspace phát triển; trợ lý workspace phù hợp hơn cho các bối cảnh cần Memory liên tục, tương tác xuyên nhiều lối vào, task định kỳ và tổ hợp tool đa dụng. Khi lựa chọn, nên ưu tiên phán định: hiệu quả task có phụ thuộc vào việc sửa Loop hay Context ở mức code không, state có cần kéo dài xuyên Channel không, và dữ liệu, credential cùng môi trường thực thi có được phép đi vào workspace đó không.
+Con đường này phù hợp với các đội muốn tái sử dụng Harness đóng gói sản phẩm, workspace và năng lực đa Channel, đồng thời đưa Agent vào tri thức cá nhân, cộng tác R&D, tự động hoá văn phòng hoặc quy trình doanh nghiệp. Coding Agent CLI và SDK phù hợp hơn cho việc thao tác trực tiếp hoặc tích hợp lập trình xoay quanh workspace phát triển; trợ lý workspace phù hợp hơn cho các bối cảnh cần Memory liên tục, tương tác xuyên nhiều lối vào, task định kỳ và tổ hợp tool đa dụng. Khi lựa chọn, nên ưu tiên đánh giá: hiệu quả task có phụ thuộc vào việc sửa Loop hay Context ở mức code không, state có cần kéo dài xuyên Channel không, và dữ liệu, credential cùng môi trường thực thi có được phép đi vào workspace đó không.
 
 Giai đoạn xây dựng ít nhất phải tạo ra: danh mục sản phẩm và version, chính sách Workspace và Memory, danh mục Tool, MCP và Skill, phần tích hợp Channel, ranh giới định danh và Credential, chính sách Sandbox, ánh xạ Task và Session, cách xử lý Event và Artifact, Verifier nghiệp vụ và cơ chế thoát. Nếu hiệu quả task phụ thuộc vào việc sửa thuật toán lập kế hoạch ở tầng dưới, thứ tự biên dịch Context hay các chuyển trạng thái đặc biệt mà sản phẩm không có điểm mở rộng tương ứng, thì con đường Framework high-code có thể phù hợp hơn; còn nếu task cần multi-tenant mạnh, lập lịch co giãn và khôi phục sau thời gian dài, thì cũng không thể chỉ dựa vào một workspace cá nhân hay một process trợ lý đơn lẻ.
 
@@ -335,9 +335,9 @@ Giai đoạn xây dựng ít nhất phải tạo ra: danh mục sản phẩm và
 
 Qoder Cloud Agents dịch vụ hoá thêm một bước cả Harness chung lẫn nền tảng vận hành. So với SDK vốn thiên về nhúng năng lực thực thi của một Harness đã chín vào ứng dụng, Qoder Cloud Agents tổ chức quá trình task xoay quanh **mục tiêu, thực thi, bàn giao thành quả và phản hồi kết quả**, trong đó phần host trên cloud cung cấp nền tảng vận hành cho quá trình này.
 
-Vẫn với case vá lỗ hổng ở trên: khi doanh nghiệp xây dịch vụ bằng SDK, họ còn phải triển khai và lập lịch Worker cùng Workspace gánh SDK, chuẩn bị môi trường thực thi cho task, và xây một dịch vụ phiên hướng nghiệp vụ. Khi dùng Qoder Cloud Agents, nền tảng gánh phần Agent Loop cơ bản, việc đẩy Session tiến triển, việc chạy tool và môi trường cô lập Serverless; nó liên tục chạy phân tích lỗ hổng, sửa code và test, rồi bàn giao cho ứng dụng các file đã thay đổi cùng kết quả thực thi. Trọng tâm tích hợp của doanh nghiệp chuyển **từ việc tổ chức từng lần thực thi sang việc định nghĩa mục tiêu task, xử lý các can thiệp cần thiết và nghiệm thu thành quả cuối cùng.**
+Vẫn với case vá lỗ hổng ở trên: khi doanh nghiệp xây dịch vụ bằng SDK, họ còn phải triển khai và lập lịch Worker cùng Workspace gánh SDK, chuẩn bị môi trường thực thi cho task, và xây một dịch vụ phiên hướng nghiệp vụ. Khi dùng Qoder Cloud Agents, nền tảng đảm nhiệm Agent Loop cơ bản, việc đẩy Session tiến triển, việc chạy tool và môi trường cô lập Serverless; nó liên tục chạy phân tích lỗ hổng, sửa code và test, rồi bàn giao cho ứng dụng các file đã thay đổi cùng kết quả thực thi. Trọng tâm tích hợp của doanh nghiệp chuyển **từ việc tổ chức từng lần thực thi sang việc định nghĩa mục tiêu task, xử lý các can thiệp cần thiết và nghiệm thu thành quả cuối cùng.**
 
-Doanh nghiệp vẫn chịu trách nhiệm tích hợp repository và tool nghiệp vụ, ánh xạ định danh và quyền hạn người dùng, quản lý trạng thái task nghiệp vụ, và định nghĩa quy trình phê duyệt cùng nghiệm thu. Phía ứng dụng cũng phải xử lý việc tiêu thụ event và nối tiếp sau khi rớt kết nối. Task có đạt tiêu chí thành công hay không phải phán định dựa trên file đã thay đổi, test, quét bảo mật và trạng thái nghiệp vụ thật; còn việc commit hay phát hành lên production vẫn do policy của doanh nghiệp quyết định.
+Doanh nghiệp vẫn chịu trách nhiệm tích hợp repository và tool nghiệp vụ, ánh xạ định danh và quyền hạn người dùng, quản lý trạng thái task nghiệp vụ, và định nghĩa quy trình phê duyệt cùng nghiệm thu. Phía ứng dụng cũng phải xử lý việc tiêu thụ event và nối tiếp sau khi rớt kết nối. Task có đạt tiêu chí thành công hay không phải đánh giá dựa trên file đã thay đổi, test, quét bảo mật và trạng thái nghiệp vụ thật; còn việc commit hay phát hành lên production vẫn do policy của doanh nghiệp quyết định.
 
 ### 3.4.1 Định nghĩa task managed bằng bốn đối tượng
 
@@ -406,9 +406,9 @@ curl -sS -X POST "$QODER_API_BASE_URL/api/v1/cloud/sessions/$SESSION_ID/events" 
   -d '{"events":[{"type":"user.message","content":[{"type":"text","text":"Vá các lỗ hổng phụ thuộc rủi ro cao của payment-service và chạy test"}]}]}'
 ```
 
-Ứng dụng có thể nhận từ luồng event các sự kiện như `session.status_running`, `agent.message`, `agent.tool_use`, `agent.tool_result` và `session.status_idle`, rồi ánh xạ chúng sang trạng thái task, giao diện tiến độ, hệ thống phê duyệt và Trace của riêng mình. `session.status_idle` chỉ có nghĩa là lượt hiện tại đã kết thúc; **task có hoàn thành thành công hay không còn phải phán định dựa trên thành quả bàn giao và tiêu chí nghiệm thu.** Một định nghĩa Agent có thể được nhiều Session tái sử dụng, còn mỗi Session thì gánh một task độc lập cùng môi trường thực thi cô lập.
+Ứng dụng có thể nhận từ luồng event các sự kiện như `session.status_running`, `agent.message`, `agent.tool_use`, `agent.tool_result` và `session.status_idle`, rồi ánh xạ chúng sang trạng thái task, giao diện tiến độ, hệ thống phê duyệt và Trace của riêng mình. `session.status_idle` chỉ có nghĩa là lượt hiện tại đã kết thúc; **task có hoàn thành thành công hay không còn phải đánh giá dựa trên thành quả bàn giao và tiêu chí nghiệm thu.** Một định nghĩa Agent có thể được nhiều Session tái sử dụng, còn mỗi Session thì gánh một task độc lập cùng môi trường thực thi cô lập.
 
-Từ ngày 24 tháng 8 năm 2026, một kết nối SSE mới không kèm `Last-Event-ID` sẽ chỉ nhận các event phát sinh **sau** thời điểm kết nối, vì vậy phải xác nhận đăng ký đã thiết lập rồi mới gửi task. Ứng dụng nên lưu event ID sau khi xử lý event thành công, dùng `Last-Event-ID` để nối tiếp khi rớt kết nối, và khử trùng lặp theo event ID; những event đã có hoặc bị bỏ sót thì đọc theo trang qua List Events. Nếu gửi task bị timeout, phải đối chiếu trạng thái phía server trước rồi mới quyết định có retry hay không, để tránh thực thi trùng.
+Từ ngày 24 tháng 8 năm 2026, một kết nối SSE mới không kèm `Last-Event-ID` sẽ chỉ nhận các event phát sinh **sau** thời điểm kết nối, vì vậy phải xác nhận đăng ký đã thiết lập rồi mới gửi task. Ứng dụng nên lưu event ID sau khi xử lý event thành công, dùng `Last-Event-ID` để nối tiếp khi rớt kết nối, và loại bỏ trùng lặp theo event ID; những event đã có hoặc bị bỏ sót thì đọc theo trang qua List Events. Nếu gửi task bị timeout, phải đối chiếu trạng thái phía server trước rồi mới quyết định có retry hay không, để tránh thực thi trùng.
 
 Nhìn từ góc độ tích hợp ứng dụng: Qoder Agent SDK chủ yếu cung cấp interface lập trình để gọi và mở rộng một Harness đã chín; còn QCA thì lấy mục tiêu nghiệp vụ làm điểm xuất phát, tổ chức việc thực thi task liên tục, bàn giao thành quả và phản hồi kết quả. Ứng dụng uỷ nhiệm task cho nền tảng qua Agent, Environment, Session và Event, rồi nghiệm thu xoay quanh thành quả bàn giao. Doanh nghiệp vẫn phải lưu ánh xạ giữa `task_id` nghiệp vụ và `session_id` trên cloud, liên kết Artifact, kết quả test và quét, bản ghi phê duyệt cùng Outcome nghiệp vụ, để quá trình thực thi và kết quả hoàn thành task truy nguyên được lẫn nhau.
 
@@ -468,7 +468,7 @@ Khi xây Agent trong sản phẩm cloud, doanh nghiệp nên suy ngược từ h
 | Tool, MCP và Skill | Kết nối năng lực có tính xác định, hệ thống bên ngoài và phương pháp task tái sử dụng được | Hợp đồng năng lực, kiểm tra tham số, phân cấp rủi ro, điểm phê duyệt và xử lý lỗi |
 | Credential và Identity | Ràng buộc Agent thay mặt ai để truy cập tài nguyên nào | Ánh xạ định danh, quyền tối thiểu, credential ngắn hạn, ranh giới tenant và yêu cầu audit |
 | Runtime, Sandbox và Channel | Gánh việc thực thi, cô lập môi trường và kết nối tới người dùng hoặc lối vào nghiệp vụ | Quy cách tài nguyên, ranh giới mạng, Workspace, timeout và khôi phục, cách tương tác |
-| Event, Trace và Evaluation | Ghi lại sự thật quá trình và tạo thành phản hồi chất lượng | Liên kết Task, nơi đến của Artifact, bộ đánh giá, ngưỡng chấp nhận và phán định Outcome |
+| Event, Trace và Evaluation | Ghi lại sự thật quá trình và tạo thành phản hồi chất lượng | Liên kết Task, nơi đến của Artifact, bộ đánh giá, ngưỡng chấp nhận và đánh giá Outcome |
 
 *Bảng 3-6 — Đối tượng và trách nhiệm khi xây Agent nhanh bằng sản phẩm cloud*
 
@@ -494,7 +494,7 @@ Vì vậy, doanh nghiệp cần hình thành một **Agent Platform** chung nằ
 
 Cuốn sách trắng này định nghĩa **Agent Platform cấp doanh nghiệp** là một hệ thống nền tảng hướng tới nhiều team, nhiều Agent và nhiều hình thái thực thi. Nó dùng các đối tượng và interface thống nhất để hỗ trợ việc tạo, tích hợp, bàn giao, vận hành, quản trị, cộng tác, quan sát và tối ưu Agent; cung cấp tài nguyên năng lực dùng chung, chính sách định danh và dữ liệu chất lượng; đồng thời kết nối model, Runtime, Sandbox, Tool và Agent từ xa thông qua một nền tảng thực thi phân tán.
 
-Harness quyết định *một Agent đơn lẻ hiểu mục tiêu và hành động ra sao*; Agent Platform quyết định *một nhóm Agent trong doanh nghiệp được tạo, khám phá, tái sử dụng, tổ hợp, bàn giao, vận hành và quản trị ra sao*. Nền tảng có thể cung cấp hoặc host năng lực orchestration Harness, nhưng không vì thế mà được thay ứng dụng nghiệp vụ định nghĩa mục đích task, phạm vi uỷ quyền và tiêu chí Outcome; **nền tảng lo việc tụ họp bằng chứng thực thi, còn ứng dụng nghiệp vụ hoặc Verifier được nó uỷ quyền lo phán định nghiệp vụ cuối cùng.** Bảng 3-7 khái quát năng lực nền tảng theo các mặt: tạo, tiếp nhận, bàn giao, vận hành, quản trị, cộng tác, quan sát và tối ưu.
+Harness quyết định *một Agent đơn lẻ hiểu mục tiêu và hành động ra sao*; Agent Platform quyết định *một nhóm Agent trong doanh nghiệp được tạo, khám phá, tái sử dụng, tổ hợp, bàn giao, vận hành và quản trị ra sao*. Nền tảng có thể cung cấp hoặc host năng lực orchestration Harness, nhưng không vì thế mà được thay ứng dụng nghiệp vụ định nghĩa mục đích task, phạm vi uỷ quyền và tiêu chí Outcome; **nền tảng lo việc tụ họp bằng chứng thực thi, còn ứng dụng nghiệp vụ hoặc Verifier được nó uỷ quyền lo đánh giá nghiệp vụ cuối cùng.** Bảng 3-7 khái quát năng lực nền tảng theo các mặt: tạo, tiếp nhận, bàn giao, vận hành, quản trị, cộng tác, quan sát và tối ưu.
 
 *Bảng 3-7 — Các năng lực chính của Agent Platform cấp doanh nghiệp*
 
@@ -522,7 +522,7 @@ Hình 3-5 trình bày hai mặt tác dụng của cùng một Agent Platform dư
 
 Lối vào native trong nền tảng và ba loại lối vào bên ngoài trong hình cần đi vào hệ đối tượng chung theo những cách khác nhau, và trách nhiệm bên trong với bên ngoài nền tảng cũng không được lẫn lộn chỉ vì đã quản lý thống nhất.
 
-Việc nền tảng quản lý thống nhất các Agent đa nguồn ít nhất phải thoả ba điều kiện. **Thứ nhất**, version và quyền sở hữu phải truy nguyên được — không thể chỉ ghi lại một cái tên Agent mà không biết model, cấu hình Harness, năng lực và version môi trường thực tế là gì. **Thứ hai**, Event, Artifact và Trace phải được liên kết với Task, Identity và Tenant, thì mới hỗ trợ được audit xuyên hệ thống và quy kết chi phí. **Thứ ba**, Agent từ xa không được chỉ trả về một kết luận bằng ngôn ngữ tự nhiên, mà phải cung cấp Artifact, event hoặc sự thật môi trường nghiệm thu được — nếu không, nền tảng không thể đưa nó vào vòng khép kín chất lượng thống nhất.
+Việc nền tảng quản lý thống nhất các Agent đa nguồn ít nhất phải thoả ba điều kiện. **Thứ nhất**, version và quyền sở hữu phải truy nguyên được — không thể chỉ ghi lại một cái tên Agent mà không biết model, cấu hình Harness, năng lực và version môi trường thực tế là gì. **Thứ hai**, Event, Artifact và Trace phải được liên kết với Task, Identity và Tenant, thì mới hỗ trợ được audit xuyên hệ thống và quy kết chi phí. **Thứ ba**, Agent từ xa không được chỉ trả về một kết luận bằng ngôn ngữ tự nhiên, mà phải cung cấp Artifact, event hoặc sự thật môi trường nghiệm thu được — nếu không, nền tảng không thể đưa nó vào vòng lặp khép kín chất lượng thống nhất.
 
 ### 3.6.3 Từ vận hành ở quy mô tới cộng tác, quản trị và tối ưu
 
@@ -530,7 +530,7 @@ Lập lịch tài nguyên là năng lực quan trọng phân biệt Agent Platfo
 
 Nền tảng còn cần coi **Agent Team** là một nhóm chủ thể task có mục tiêu, định danh, quyền hạn và quan hệ phụ thuộc, chứ không phải coi mỗi lần gọi Agent là một request API rời rạc. Quan hệ cộng tác phải nói rõ quy tắc uỷ nhiệm, bàn giao, chia sẻ state, tụ họp kết quả và lan truyền lỗi; nền tảng lo việc cung cấp cơ chế giao tiếp, đăng ký, lập lịch và quản trị, còn phân công nghiệp vụ cụ thể thì vẫn do ứng dụng và Harness định nghĩa. Như vậy vừa hỗ trợ được việc tổ hợp subtask của AgentScope, Worker dạng SDK và Agent managed từ xa, vừa tránh được việc nhiều Agent kích hoạt lẫn nhau trong một mớ credential dùng chung và context không ranh giới.
 
-Quan sát và đánh giá thì kéo dài việc bàn giao sang tối ưu liên tục. Nền tảng cần liên kết lời gọi model, thực thi tool, chuyển trạng thái, Artifact, phản hồi của con người, Outcome, chi phí và sự kiện bảo mật về cùng một Task và cùng một version, thì mới phán định được vấn đề đến từ model, Context, Tool, môi trường, quyền hạn hay từ chính thiết kế task. Những thay đổi về Prompt, model, routing, Skill, Tool hay Harness do khâu tối ưu sinh ra **không được ảnh hưởng trực tiếp tới môi trường chạy**, mà phải quay về giai đoạn xây dựng, đi qua đánh giá hồi quy, kiểm tra bảo mật, canary và cổng rollback rồi mới vào production.
+Quan sát và đánh giá thì kéo dài việc bàn giao sang tối ưu liên tục. Nền tảng cần liên kết lời gọi model, thực thi tool, chuyển trạng thái, Artifact, phản hồi của con người, Outcome, chi phí và sự kiện bảo mật về cùng một Task và cùng một version, thì mới đánh giá được vấn đề đến từ model, Context, Tool, môi trường, quyền hạn hay từ chính thiết kế task. Những thay đổi về Prompt, model, routing, Skill, Tool hay Harness do khâu tối ưu sinh ra **không được ảnh hưởng trực tiếp tới môi trường chạy**, mà phải quay về giai đoạn xây dựng, đi qua đánh giá hồi quy, kiểm tra bảo mật, canary và cổng rollback rồi mới vào production.
 
 Nhìn từ giai đoạn xây dựng, sản phẩm tối thiểu của Agent Platform gồm: quy chuẩn định nghĩa và version Agent thống nhất, danh mục tài nguyên năng lực, adapter tiếp nhận dị chủng, mô hình định danh và tenant, Runtime Profile cùng quota tài nguyên, các hợp đồng Task, Session, Event, Artifact, Trace và Outcome, cùng baseline đánh giá trước khi phát hành.
 

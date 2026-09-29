@@ -46,9 +46,9 @@ Kết luận của mục trên là "cần một môi trường thất bại an t
 
 **1. Agent Simulation dùng phần mềm để gánh thế giới bên ngoài mà Agent được test vận hành trong đó, khiến việc thực thi khởi động lại được nhiều lần, cấu hình được và không có hậu quả thật.**
 
-Nó gồm hai phần. **User Simulation** gánh phần con người tương tác với Agent được test — người dùng, đối phương, bên cộng tác: một khách hàng nhớ sai số tiền, một người duyệt rút lại chỉ thị, một đồng nghiệp nêu nhu cầu mơ hồ. **Environment Simulation** gánh mọi điều kiện bên ngoài mà Agent được test phụ thuộc — tool và API, dữ liệu và trạng thái nghiệp vụ, file, dịch vụ model, sự kiện bên ngoài, và **cả bản thân thời gian.**
+Nó gồm hai phần. **User Simulation** đảm nhiệm con người tương tác với Agent được test — người dùng, đối phương, bên cộng tác: một khách hàng nhớ sai số tiền, một người duyệt rút lại chỉ thị, một đồng nghiệp nêu nhu cầu mơ hồ. **Environment Simulation** gánh mọi điều kiện bên ngoài mà Agent được test phụ thuộc — tool và API, dữ liệu và trạng thái nghiệp vụ, file, dịch vụ model, sự kiện bên ngoài, và **cả bản thân thời gian.**
 
-Hai phần hợp lại chính là **dời "thế giới mà Agent vận hành trong đó" từ production vào phần mềm**: thế giới có thể lưu lại, sửa, phát lại, và khi sai thì không có hậu quả thật nào. Hình 16-1 cho thấy vị trí của nó trong hệ kỹ thuật chất lượng — Simulation cùng Evaluation, Testing, Governance là những năng lực **tổ hợp được, không phải một dây chuyền cố định**: Simulation sinh ra việc thực thi có kiểm soát và bằng chứng; Evaluation thiết lập phán định; Testing tổ chức hoạt động kiểm chứng; Governance nắm quyền phát hành. Việc đánh giá Trace production và unit test có tính xác định thì hoàn toàn không cần đi qua Simulation. Quan hệ này sẽ được nhìn lại từ phía bàn giao ở mục 16.6.
+Hai phần hợp lại chính là **dời "thế giới mà Agent vận hành trong đó" từ production vào phần mềm**: thế giới có thể lưu lại, sửa, phát lại, và khi sai thì không có hậu quả thật nào. Hình 16-1 cho thấy vị trí của nó trong hệ kỹ thuật chất lượng — Simulation cùng Evaluation, Testing, Governance là những năng lực **tổ hợp được, không phải một dây chuyền cố định**: Simulation sinh ra việc thực thi có kiểm soát và bằng chứng; Evaluation thiết lập đánh giá; Testing tổ chức hoạt động kiểm chứng; Governance nắm quyền phát hành. Việc đánh giá Trace production và unit test có tính xác định thì hoàn toàn không cần đi qua Simulation. Quan hệ này sẽ được nhìn lại từ phía bàn giao ở mục 16.6.
 
 ![image](../assets/imgs/chapter-16/image-001.png)
 
@@ -65,18 +65,18 @@ Có một khẳng định lan truyền rộng: "chỉ cần một request thực
 | Chế độ | Ý nghĩa | Khả năng tái lập | Rủi ro | Bối cảnh áp dụng |
 | --- | --- | --- | --- | --- |
 | Toàn thế thân | Cả người dùng và môi trường đều do simulator gánh, không có phụ thuộc bên ngoài thật | Cao nhất | Thấp nhất | Test hồi quy, lặp nhanh |
-| Lai | Một phần component dùng backend thật đã cô lập, phần còn lại do simulator gánh | Trung bình | Thấp | Kiểm chứng tích hợp đầu-cuối |
+| Lai | Một phần component dùng backend thật đã cô lập, phần còn lại do simulator gánh | Trung bình | Thấp | Kiểm chứng tích hợp đầu cuối |
 | Phụ thuộc thật đã cô lập | Kết nối tới dịch vụ hạ nguồn thật nhưng cô lập, chỉ mô phỏng phía người dùng | Khá thấp | Cần bảo đảm cô lập | Kiểm chứng stack dịch vụ, thí nghiệm sự cố |
 
-Khả năng tái lập của toàn thế thân chống đỡ việc hồi quy — cùng một kịch bản chạy lại được mỗi đêm; còn độ trung thực của phụ thuộc thật đã cô lập thì chống đỡ việc kiểm chứng stack dịch vụ — **hành vi lock của database thật, network stack thật là thứ thế thân không mô phỏng ra được.** Việc chọn chế độ phụ thuộc vào mục tiêu kiểm chứng lần này; **các chế độ khác nhau kiểm chứng phạm vi hệ thống khác nhau, nên kết luận không dùng lẫn được — một hồi quy pass ở chế độ toàn thế thân không tạo thành bất kỳ kết luận nào về stack phụ thuộc thật.**
+Khả năng tái lập của toàn thế thân hỗ trợ việc hồi quy — cùng một kịch bản chạy lại được mỗi đêm; còn độ trung thực của phụ thuộc thật đã cô lập thì hỗ trợ việc kiểm chứng stack dịch vụ — **hành vi lock của database thật, network stack thật là thứ thế thân không mô phỏng ra được.** Việc chọn chế độ phụ thuộc vào mục tiêu kiểm chứng lần này; **các chế độ khác nhau kiểm chứng phạm vi hệ thống khác nhau, nên kết luận không dùng lẫn được — một hồi quy pass ở chế độ toàn thế thân không tạo thành bất kỳ kết luận nào về stack phụ thuộc thật.**
 
 **4. Hệ thống được test không nằm trong mô phỏng.**
 
 **SUT (System Under Test)** là đối tượng mà mô phỏng phục vụ, **không phải một thành phần của mô phỏng.** Suy luận, chọn tool, dựng tham số và xử lý ngoại lệ thuộc về SUT — **một khi những hành vi đó bị thay thế, đối tượng được test đã ra khỏi vòng lặp.** Cố định thứ tự gọi tool thành một script là ví dụ ẩn giấu nhất: Run trông như bình thường, nhưng thứ đang được test **không còn là quyết định của Agent, mà là đoạn script đó** — và **không có cảnh báo nào nhắc ta điều này.**
 
-**5. Trước khi thay thế, hãy qua một phép phán định: thứ đang khảo sát thì không được thay, thứ đang thiết lập thì phải thay.**
+**5. Trước khi thay thế, hãy qua một phép đánh giá: thứ đang khảo sát thì không được thay, thứ đang thiết lập thì phải thay.**
 
-Trước khi thay mỗi đối tượng, hãy hỏi một câu: **hành vi của đối tượng này là nội dung ta khảo sát lần này, hay là điều kiện ta thiết lập lần này?** Là nội dung thì không được thay; là điều kiện thì phải thay, **và phải viết rõ đã thay thành gì.** Cùng một Agent cộng tác: khi khảo sát năng lực orchestration thì nó là nội dung — chất lượng phản hồi của nó ảnh hưởng trực tiếp tới kết luận; còn khi khảo sát khả năng chịu lỗi của Agent chính thì nó là điều kiện — biểu hiện sự cố của nó là một thiết lập thí nghiệm, phải kiểm soát và tái lập được. **Phép phán định này thuộc về thiết kế kịch bản; không công cụ nào làm thay được.**
+Trước khi thay mỗi đối tượng, hãy hỏi một câu: **hành vi của đối tượng này là nội dung ta khảo sát lần này, hay là điều kiện ta thiết lập lần này?** Là nội dung thì không được thay; là điều kiện thì phải thay, **và phải viết rõ đã thay thành gì.** Cùng một Agent cộng tác: khi khảo sát năng lực orchestration thì nó là nội dung — chất lượng phản hồi của nó ảnh hưởng trực tiếp tới kết luận; còn khi khảo sát khả năng chịu lỗi của Agent chính thì nó là điều kiện — biểu hiện sự cố của nó là một thiết lập thí nghiệm, phải kiểm soát và tái lập được. **Phép đánh giá này thuộc về thiết kế kịch bản; không công cụ nào làm thay được.**
 
 Còn bản thân thế thân được hiện thực ra sao thì là một **lựa chọn đa chiều, chứ không phải một bậc thang độ khó.** Sắp theo độ mở từ thấp lên cao, mỗi cơ chế có đánh đổi riêng về tính xác định, độ phức tạp state và chi phí bảo trì:
 
@@ -111,16 +111,16 @@ Scenario Spec (đặc tả kịch bản)
                     ├── Artifacts (sản phẩm sinh ra: ảnh chụp, file, trạng thái trình duyệt)
                     ├── Observations (quan sát mang tính sự thật trích từ Records)
                     ├── Evidence (tham chiếu bằng chứng hướng tới từng mục đánh giá)
-                    └── Completeness (phán định tính đầy đủ, dựa trên hợp đồng thu thập)
+                    └── Completeness (đánh giá tính đầy đủ, dựa trên hợp đồng thu thập)
 ```
 
 Hãy đi một vòng cây này theo kịch bản hoàn tiền. Đặc tả kịch bản là `refund-timeout-retry@1.3.0`: một người dùng mới thiếu kiên nhẫn muốn đòi lại 199 nhân dân tệ tiền hoàn, và chỉ đưa mã đơn khi bị hỏi dồn; môi trường thì đặt lần truy vấn hoàn tiền đầu tiên timeout, lần thứ hai hồi phục. Lúc khởi động, Harness phân giải và khoá đặc tả cùng toàn bộ version tài sản được tham chiếu, sinh ra một **Manifest bất biến** — version Agent, version model người dùng, version dữ liệu môi trường — và từ đó **không sửa được nữa.** Run `r-20260914-001` là một lần thực thi có kiểm soát, chứa một Task "gửi yêu cầu hoàn tiền"; dưới Task có một Session — 12 lượt hội thoại người dùng cộng một chuỗi gọi tool song song; mỗi bước trong Session rơi thành một Event: "người dùng từ chối cung cấp mã đơn", "trúng timeout ở lần truy vấn đầu", "truy vấn lần hai thành công", "create_refund đã tiếp nhận". Khi thực thi kết thúc, Run Result gom mọi sản phẩm: Records chứa bản ghi gốc của 12 message và 7 lời gọi tool; Observations trích các quan sát sự thật — số yêu cầu hoàn tiền = 1, số tiền = 19900 (đơn vị nhỏ nhất, tức 199 tệ), trạng thái = accepted; Evidence tổ chức các quan sát thành tham chiếu bằng chứng theo từng mục đánh giá; còn Completeness thì đối chiếu theo hợp đồng thu thập — lần này tài liệu đầy đủ.
 
 **2. Tách các tầng bằng chứng.**
 
-**Trace, snapshot và Artifact là tài liệu bằng chứng gốc; chúng không tự động chứng minh Outcome (kết quả nghiệp vụ).** Run Result phân biệt ba tầng: `records` (bản ghi gốc) → `observations` (quan sát sự thật) → `evidence` (tham chiếu bằng chứng hướng tới mục đánh giá); còn quan hệ `criterion → evidence_refs → verdict` (mục đánh giá → tham chiếu bằng chứng → phán định) thì do **Evaluation Result** thiết lập, **không thuộc Run Result.**
+**Trace, snapshot và Artifact là tài liệu bằng chứng gốc; chúng không tự động chứng minh Outcome (kết quả nghiệp vụ).** Run Result phân biệt ba tầng: `records` (bản ghi gốc) → `observations` (quan sát sự thật) → `evidence` (tham chiếu bằng chứng hướng tới mục đánh giá); còn quan hệ `criterion → evidence_refs → verdict` (mục đánh giá → tham chiếu bằng chứng → đánh giá) thì do **Evaluation Result** thiết lập, **không thuộc Run Result.**
 
-Giá trị của việc phân tầng lộ ra ngay ở thời điểm bàn giao: cùng một bộ `records`, đội chất lượng dùng để chấm lại điểm, đội tuân thủ kiểm tra chuẩn đo số tiền, hệ hồi quy so sánh khác biệt giữa các version — **mỗi bên tham chiếu cùng một bộ tài liệu gốc, mỗi bên tự tổ chức bằng chứng và phán đoán riêng.** Nếu tài liệu gốc và kết luận chất lượng trộn vào cùng một tầng, thì mọi mục đích sử dụng về sau đều bị kết luận của lượt trước làm ô nhiễm. Bản cũ chưa tách tầng này — **đó là món nợ lớn nhất về hợp đồng dữ liệu.**
+Giá trị của việc phân tầng lộ ra ngay ở thời điểm bàn giao: cùng một bộ `records`, đội chất lượng dùng để chấm lại điểm, đội tuân thủ kiểm tra thước đo số tiền, hệ hồi quy so sánh khác biệt giữa các version — **mỗi bên tham chiếu cùng một bộ tài liệu gốc, mỗi bên tự tổ chức bằng chứng và nhận định riêng.** Nếu tài liệu gốc và kết luận chất lượng trộn vào cùng một tầng, thì mọi mục đích sử dụng về sau đều bị kết luận của lượt trước làm ô nhiễm. Bản cũ chưa tách tầng này — **đó là món nợ lớn nhất về hợp đồng dữ liệu.**
 
 **3. Vòng đời của Manifest và Run Result khép kín với nhau.**
 
@@ -130,7 +130,7 @@ Một lỗi dễ mắc là **gọi các kế hoạch tương lai trong kịch b�
 
 **4. Bốn loại trạng thái của Run được biểu đạt độc lập.**
 
-Đi từ sự thật thực thi tới phán đoán chất lượng, trạng thái của Run triển khai theo bốn chiều:
+Đi từ sự thật thực thi tới nhận định chất lượng, trạng thái của Run triển khai theo bốn chiều:
 
 | Chiều | Nội dung biểu đạt | Giá trị điển hình |
 | --- | --- | --- |
@@ -155,7 +155,7 @@ Mục trên định nghĩa "dữ liệu trông như thế nào"; mục này tr�
 
 ### 16.4.1 Tầng kiến trúc
 
-**1. Trách nhiệm và ranh giới.** Harness làm **năm việc**: phân giải kịch bản — phân giải Scenario Spec cùng version tài sản thành một Manifest bất biến; điều phối một Run có kiểm soát — đi hết vòng đời nạp, chạy, chấm dứt, hội tụ, dọn dẹp; quản lý thế thân và cô lập — duy trì ranh giới mô phỏng; gom tham chiếu bản ghi — liên kết quá trình tương tác và điều khiển tới Trace cùng Artifact; và dọn môi trường — đưa thế giới về trạng thái ban đầu. Đồng thời, nó **không làm năm việc**: không quản vòng đời task — đó là trách nhiệm của SUT hay tầng orchestration của nó; không phán định xác thực và quyền hạn — đó là việc của Gateway và framework bảo mật (chương 14); không thu thập telemetry — đó là việc của observability (chương 13), Harness chỉ liên kết tham chiếu trong bản ghi; không chấm điểm và phán định chất lượng — đó là việc của Evaluation; và không ra quyết định phát hành — đó là việc của cổng quản trị.
+**1. Trách nhiệm và ranh giới.** Harness làm **năm việc**: phân giải kịch bản — phân giải Scenario Spec cùng version tài sản thành một Manifest bất biến; điều phối một Run có kiểm soát — đi hết vòng đời nạp, chạy, chấm dứt, hội tụ, dọn dẹp; quản lý thế thân và cô lập — duy trì ranh giới mô phỏng; gom tham chiếu bản ghi — liên kết quá trình tương tác và điều khiển tới Trace cùng Artifact; và dọn môi trường — đưa thế giới về trạng thái ban đầu. Đồng thời, nó **không làm năm việc**: không quản vòng đời task — đó là trách nhiệm của SUT hay tầng orchestration của nó; không đánh giá xác thực và quyền hạn — đó là việc của Gateway và framework bảo mật (chương 14); không thu thập telemetry — đó là việc của observability (chương 13), Harness chỉ liên kết tham chiếu trong bản ghi; không chấm điểm và đánh giá chất lượng — đó là việc của Evaluation; và không ra quyết định phát hành — đó là việc của cổng quản trị.
 
 **Năm trách nhiệm định nghĩa năng lực engine, năm việc không làm định nghĩa ranh giới engine — hai mặt của một thứ.** Mỗi mục "không làm" đều ứng với một hệ chuyên trách trong thể chế quản trị; **thu bất kỳ mục nào vào thì Harness sẽ phình từ một engine thực thi thành một bộ điều khiển tổng**, xung đột với cách phân định trách nhiệm của cả cuốn sách.
 
@@ -167,12 +167,12 @@ Cuốn thứ hai là **sổ phân tách thời gian.** Trong thế giới mô ph
 
 | Thời gian | Trả lời cái gì | Ví dụ trong kịch bản hoàn tiền |
 | --- | --- | --- |
-| Thời gian lịch nghiệp vụ | Phán định thời hạn của luật nghiệp vụ | Đặt hàng 2026-09-01, còn trong hạn 7 ngày đổi trả không lý do không |
+| Thời gian lịch nghiệp vụ | Đánh giá thời hạn của luật nghiệp vụ | Đặt hàng 2026-09-01, còn trong hạn 7 ngày đổi trả không lý do không |
 | Thời gian logic của mô phỏng | Lập lịch các sự kiện ảo | Tiêm timeout truy vấn ở lượt thứ 3 |
 | Đồng hồ đơn điệu | Đo thời lượng thật | Suy luận và gọi tool mất bao lâu |
 | Thời gian đồng hồ treo tường | Liên hệ với ngày tháng thực tế | Run xảy ra lúc nào, báo cáo sinh lúc nào |
 
-**Dùng đồng hồ treo tường để phán định hạn hoàn tiền thì việc tăng tốc thời gian ảo sẽ phá vỡ luật nghiệp vụ; dùng lịch nghiệp vụ để đo thời lượng suy luận thì được một con số vô nghĩa.**
+**Dùng đồng hồ treo tường để đánh giá hạn hoàn tiền thì việc tăng tốc thời gian ảo sẽ phá vỡ luật nghiệp vụ; dùng lịch nghiệp vụ để đo thời lượng suy luận thì được một con số vô nghĩa.**
 
 ### 16.4.2 Simulator người dùng
 
@@ -206,7 +206,7 @@ Mỗi chỉ số phải định nghĩa điều kiện áp dụng và đơn vị 
 
 Việc cô lập phủ tính toán, lối ra mạng, dữ liệu, file, cache và memory: mỗi Run dùng workspace, dữ liệu tài khoản và phiên độc lập, và **giữa các Run không chia sẻ bất kỳ state khả biến nào.** Việc tái lập chia ba tầng: **tái lập cấu hình** — dùng Manifest khôi phục kịch bản và version, trả lời "cùng một thí nghiệm có làm lại được không"; **tái lập sự kiện** — phát lại input và lịch, trả lời "cùng một đường có đi lại được không"; **tái lập thống kê** — lặp thí nghiệm để có phân bố gần nhau, trả lời "kết luận có vững không".
 
-**2. Tiêm sự cố.** **Vị trí tiêm sự cố quyết định phạm vi test:** tiêm ở tầng adapter tool thì kiểm chứng cách Agent xử lý phản hồi lỗi; tiêm lên phụ thuộc thật đã cô lập thì kiểm chứng năng lực khôi phục đầu-cuối. Cách tích hợp ChaosBlade dưới đây là **kiến trúc tham chiếu do cuốn sách đề xuất**: ChaosBlade chỉ đóng vai backend thực thi sự cố; còn **khi nào, với ai, áp sự cố gì thì do Harness quyết định.** ChaosBlade chạy thí nghiệm; Harness lo việc đồng bộ kích hoạt, kiểm chứng khôi phục và dọn dẹp.
+**2. Tiêm sự cố.** **Vị trí tiêm sự cố quyết định phạm vi test:** tiêm ở tầng adapter tool thì kiểm chứng cách Agent xử lý phản hồi lỗi; tiêm lên phụ thuộc thật đã cô lập thì kiểm chứng năng lực khôi phục đầu cuối. Cách tích hợp ChaosBlade dưới đây là **kiến trúc tham chiếu do cuốn sách đề xuất**: ChaosBlade chỉ đóng vai backend thực thi sự cố; còn **khi nào, với ai, áp sự cố gì thì do Harness quyết định.** ChaosBlade chạy thí nghiệm; Harness lo việc đồng bộ kích hoạt, kiểm chứng khôi phục và dọn dẹp.
 
 ```bash
 # Ví dụ kiến trúc tham chiếu: tiêm độ trễ mạng 300ms cho Pod refund-service
@@ -218,7 +218,7 @@ blade create k8s pod-network delay --time 300 \
 
 Bản ghi sự cố lưu riêng theo **bốn bước**: kế hoạch tiêm (kịch bản viết gì), executor có hiệu lực (ChaosBlade báo thí nghiệm đã khởi động), trúng đích (quan sát được độ trễ thực sự rơi lên lời gọi đích), và kiểm chứng khôi phục (dịch vụ trở lại bình thường sau khi huỷ thí nghiệm). **Thiếu một trong bốn bước thì kết luận của thí nghiệm sự cố không đáng tin — "đã tiêm" và "đã có hiệu lực" là hai chuyện khác nhau.**
 
-**3. Môi trường thực thi.** Môi trường thực thi chuẩn bị theo loại task: task file thì chuẩn bị thư mục và quyền khôi phục được; task trình duyệt thì chuẩn bị trang và phiên; task chạy code thì cố định runtime và ngân sách tài nguyên. **Thay hay không thay phụ thuộc vào mục tiêu kiểm chứng:** khi chỉ test việc chọn tool thì có thể thay tool tương ứng; còn khi kiểm chứng việc phân giải đường dẫn, tương tác trang hay hành vi thực tế của code sinh ra thì **bắt buộc phải giữ môi trường thực thi thật** — đây chính là ứng dụng của phép phán định "nội dung hay điều kiện" ở mục 16.2.
+**3. Môi trường thực thi.** Môi trường thực thi chuẩn bị theo loại task: task file thì chuẩn bị thư mục và quyền khôi phục được; task trình duyệt thì chuẩn bị trang và phiên; task chạy code thì cố định runtime và ngân sách tài nguyên. **Thay hay không thay phụ thuộc vào mục tiêu kiểm chứng:** khi chỉ test việc chọn tool thì có thể thay tool tương ứng; còn khi kiểm chứng việc phân giải đường dẫn, tương tác trang hay hành vi thực tế của code sinh ra thì **bắt buộc phải giữ môi trường thực thi thật** — đây chính là ứng dụng của phép đánh giá "nội dung hay điều kiện" ở mục 16.2.
 
 Engine và hai hệ con đều đã có. Nhưng engine không biết "lần này phải chạy cái gì" — **cần cấu hình kịch bản nói cho nó.**
 
@@ -255,7 +255,7 @@ Một đặc tả kịch bản chạy được phải trả lời một chuỗi 
 | `participants` | Vai trò, interface và quyền của các Agent khác | Topology cộng tác |
 | `events` | Điều kiện kích hoạt, hành động sự cố, chiến lược khôi phục | Kiểm soát tiến hoá kịch bản |
 | `execution` | Seed, mức đồng thời, số lượt, ngân sách thời gian và tài nguyên | Ràng buộc việc chạy |
-| `evaluation_ref` | Tham chiếu version của assertion độc lập, Rubric, trạng thái kỳ vọng | Liên kết với phán định chất lượng |
+| `evaluation_ref` | Tham chiếu version của assertion độc lập, Rubric, trạng thái kỳ vọng | Liên kết với đánh giá chất lượng |
 | `provenance` | Yêu cầu gốc, vị trí tài sản, phiên đã ẩn danh, bản ghi sự cố | Truy nguyên nguồn gốc |
 
 Trích đoạn đặc tả của kịch bản hoàn tiền như sau (lược hai nhóm `interaction` ⑤ và `participants` ⑥); số trong chú thích ứng với bảng trên:
@@ -283,7 +283,7 @@ events:                            # ⑦ Kiểm soát tiến hoá kịch bản (
 execution:                         # ⑧ Ràng buộc việc chạy
   seed: 20260914
   budget: { max_turns: 12, wall_clock: 20m }
-evaluation_ref:                    # ⑨ Liên kết phán định chất lượng (tham chiếu version, không chứa phán định)
+evaluation_ref:                    # ⑨ Liên kết đánh giá chất lượng (tham chiếu version, không chứa đánh giá)
   assertions: refund-assertions@1.1.0
 provenance:                        # ⑩ Truy nguyên nguồn gốc
   source: "Phiên đã ẩn danh từ sự cố #7742"
@@ -321,21 +321,21 @@ Kịch bản đã chạy xong. Lần thực thi này bàn giao cái gì? Và k�
 
 ## 16.6 Bàn giao bằng chứng và ranh giới áp dụng
 
-Năm mục trước đã đi hết chuỗi: định nghĩa ranh giới (16.2), hợp đồng dữ liệu (16.3), engine thực thi (16.4), cấu hình kịch bản (16.5). Một kịch bản chạy xong, Harness bàn giao Run Result — bản ghi hội thoại, chuỗi gọi tool, snapshot trạng thái, tình hình trúng sự cố, kết quả kiểm tra tính hợp lệ. **Nhưng bản thân những tài liệu đó không phải kết luận:** "số yêu cầu hoàn tiền = 1" là một **quan sát**; còn "Agent có xử lý đúng việc hoàn tiền không" là một **phán đoán.** Cái trước là điểm cuối của Simulation; cái sau là điểm bắt đầu của Evaluation. Mục này trả lời ba câu hỏi tiệm tiến: **thứ Simulation bàn giao về bản chất là gì, nó được dùng ra sao trong thể chế quản trị, và kết luận của nó mất hiệu lực ở đâu.**
+Năm mục trước đã đi hết chuỗi: định nghĩa ranh giới (16.2), hợp đồng dữ liệu (16.3), engine thực thi (16.4), cấu hình kịch bản (16.5). Một kịch bản chạy xong, Harness bàn giao Run Result — bản ghi hội thoại, chuỗi gọi tool, snapshot trạng thái, tình hình trúng sự cố, kết quả kiểm tra tính hợp lệ. **Nhưng bản thân những tài liệu đó không phải kết luận:** "số yêu cầu hoàn tiền = 1" là một **quan sát**; còn "Agent có xử lý đúng việc hoàn tiền không" là một **nhận định.** Cái trước là điểm cuối của Simulation; cái sau là điểm bắt đầu của Evaluation. Mục này trả lời ba câu hỏi tiệm tiến: **thứ Simulation bàn giao về bản chất là gì, nó được dùng ra sao trong thể chế quản trị, và kết luận của nó mất hiệu lực ở đâu.**
 
 **1. Run Result bàn giao tài liệu bằng chứng, không phải kết luận chất lượng.**
 
-**Chạy xong, task thành công, và được phép phát hành là ba kết luận độc lập, không suy ra lẫn nhau được:** chạy xong là sự thật về vòng đời thực thi; task thành công thuộc về **Outcome (kết quả nghiệp vụ)**, do ứng dụng nghiệp vụ hay một Verifier (bên kiểm chứng) được uỷ quyền phán định theo tiêu chí thành công; còn quyền phát hành thì thuộc về cổng quản trị. Trách nhiệm của Simulation và Evaluation từ đó được vạch rõ:
+**Chạy xong, task thành công, và được phép phát hành là ba kết luận độc lập, không suy ra lẫn nhau được:** chạy xong là sự thật về vòng đời thực thi; task thành công thuộc về **Outcome (kết quả nghiệp vụ)**, do ứng dụng nghiệp vụ hay một Verifier (bên kiểm chứng) được uỷ quyền đánh giá theo tiêu chí thành công; còn quyền phát hành thì thuộc về cổng quản trị. Trách nhiệm của Simulation và Evaluation từ đó được vạch rõ:
 
 | Hạng mục | Trách nhiệm của Simulation | Trách nhiệm của Evaluation |
 | --- | --- | --- |
-| Mục tiêu người dùng | Dẫn dắt người dùng tiếp tục, làm rõ hay dừng | Phán định mục tiêu nghiệp vụ có thực sự hoàn thành không |
-| Sự cố môi trường | Áp điều kiện và ghi lại việc có hiệu lực cùng việc khôi phục | Phán định cách Agent ứng phó và hậu quả nghiệp vụ |
+| Mục tiêu người dùng | Dẫn dắt người dùng tiếp tục, làm rõ hay dừng | Đánh giá mục tiêu nghiệp vụ có thực sự hoàn thành không |
+| Sự cố môi trường | Áp điều kiện và ghi lại việc có hiệu lực cùng việc khôi phục | Đánh giá cách Agent ứng phó và hậu quả nghiệp vụ |
 | Trạng thái nghiệp vụ | Duy trì và thu thập trạng thái theo hợp đồng | Đối chiếu mục tiêu và chính sách để kiểm tra kết quả |
-| Thời hạn vận hành | Kết thúc khi đạt điều kiện | Phán định có thoả yêu cầu về thời hạn không |
+| Thời hạn vận hành | Kết thúc khi đạt điều kiện | Đánh giá có thoả yêu cầu về thời hạn không |
 | Hợp đồng mô phỏng | Báo cáo việc trôi vai và lỗi thực thi | Giới hạn phạm vi chấm điểm được và độ tin cậy của kết luận |
 
-**Kiểm tra tính hợp lệ là output cuối cùng của Simulation:** xác minh cấu hình kịch bản có đúng không, hành vi người dùng có tuân thủ luật nhận thức và tiết lộ không, sự cố có hiệu lực và trúng đích không, bằng chứng bắt buộc có truy cập được không. Kết quả kiểm tra được giao cho bộ đánh giá cùng với Run Result. Phần kiểm tra tính dùng được của bằng chứng ở phía bộ đánh giá **cũng không phải một cánh cổng, mà là ba cánh** — tính đầy đủ của bản ghi (tài liệu có không), tính hợp lệ của lần chạy (điều kiện có thành lập không), và tính đầy đủ của bằng chứng (có đủ để chống đỡ mục đánh giá này không), như hình 16-3. **Những mục thiếu bằng chứng thì xuất ra "không phán định được", còn lại thì đánh giá theo bằng chứng hiện có — "không phán định được" là một kết luận trung thực, tốt hơn việc ép chấm bằng bằng chứng không đủ.**
+**Kiểm tra tính hợp lệ là output cuối cùng của Simulation:** xác minh cấu hình kịch bản có đúng không, hành vi người dùng có tuân thủ luật nhận thức và tiết lộ không, sự cố có hiệu lực và trúng đích không, bằng chứng bắt buộc có truy cập được không. Kết quả kiểm tra được giao cho bộ đánh giá cùng với Run Result. Phần kiểm tra tính dùng được của bằng chứng ở phía bộ đánh giá **cũng không phải một cánh cổng, mà là ba cánh** — tính đầy đủ của bản ghi (tài liệu có không), tính hợp lệ của lần chạy (điều kiện có thành lập không), và tính đầy đủ của bằng chứng (có đủ để hỗ trợ mục đánh giá này không), như hình 16-3. **Những mục thiếu bằng chứng thì xuất ra "không đánh giá được", còn lại thì đánh giá theo bằng chứng hiện có — "không đánh giá được" là một kết luận trung thực, tốt hơn việc ép chấm bằng bằng chứng không đủ.**
 
 ![image](../assets/imgs/chapter-16/image-003.png)
 
@@ -343,11 +343,11 @@ Năm mục trước đã đi hết chuỗi: định nghĩa ranh giới (16.2), h
 
 **2. Cùng một gói bằng chứng phục vụ nhiều loại quyết định trong thể chế quản trị.**
 
-Sản phẩm của một Run **không chỉ để phán một lần "đạt/không đạt".** Với tư cách bằng chứng có cấu trúc, Run Result có ít nhất **bảy công dụng** trong thể chế quản trị; bốn cái đầu dùng bằng chứng để trả lời câu hỏi, ba cái sau dùng bằng chứng để nuôi ngược lại thể chế:
+Sản phẩm của một Run **không chỉ để phán một lần "đạt/không đạt".** Với tư cách bằng chứng có cấu trúc, Run Result có ít nhất **bảy công dụng** trong thể chế quản trị; bốn cái đầu dùng bằng chứng để trả lời câu hỏi, ba cái sau dùng bằng chứng để phản hồi trở lại thể chế:
 
 | Công dụng | Dùng ra sao | Ranh giới áp dụng |
 | --- | --- | --- |
-| Đánh giá chất lượng và chấm lại điểm | Giao quỹ đạo và trạng thái cho assertion/Judge/con người | Mục đánh giá mới chỉ được dùng thông tin mà bằng chứng gốc đủ sức chống đỡ |
+| Đánh giá chất lượng và chấm lại điểm | Giao quỹ đạo và trạng thái cho assertion/Judge/con người | Mục đánh giá mới chỉ được dùng thông tin mà bằng chứng gốc đủ sức hỗ trợ |
 | Định vị lỗi và quy kết | Liên kết phản ứng người dùng → hành động Agent → thực thi tool → thay đổi trạng thái | Nhân quả phức tạp có thể cần lần chạy đối chứng |
 | Hồi quy version và cổng kiểm soát | So sánh theo cặp giữa baseline và ứng viên trong cùng điều kiện | Giữ lại căn cứ hồi quy và phát hành |
 | Tái lập và phát lại | Dùng Manifest dựng lại điều kiện, hoặc dùng Trace để phát lại tương tác | Phân biệt công dụng theo ba tầng tái lập |

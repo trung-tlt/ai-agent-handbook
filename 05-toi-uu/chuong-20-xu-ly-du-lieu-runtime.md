@@ -2,7 +2,7 @@
 
 Người phụ trách chăm sóc khách hàng nêu một yêu cầu cụ thể: mỗi ngày xem một lô hội thoại hoàn tiền, tìm ra các trường hợp "tool chưa làm được việc, mà Agent lại báo với người dùng là đã xong"; sau khi sửa prompt, còn phải dùng chính những ca đó để kiểm tra vấn đề có giảm không.
 
-Bản ghi vận hành đã được kết nối, trajectory cũng mở ra được, nhưng thứ nhân viên kiểm định cần là một bảng dùng thẳng được: người dùng hỏi gì, Agent trả lời ra sao, đã thực thi những thao tác nào, và bản ghi đến từ đâu. Dữ liệu nhiều lên thì còn muốn phân loại theo nghiệp vụ, rút mẫu, và mỗi ngày tự động bổ sung dữ liệu mới. Nếu lần nào cũng phải để người phát triển export log, sửa script, sắp xếp bảng biểu, thì việc kiểm định khó trở thành công việc hằng ngày.
+Bản ghi vận hành đã được kết nối, trajectory cũng mở ra được, nhưng thứ nhân viên kiểm định cần là một bảng dùng trực tiếp được: người dùng hỏi gì, Agent trả lời ra sao, đã thực thi những thao tác nào, và bản ghi đến từ đâu. Dữ liệu nhiều lên thì còn muốn phân loại theo nghiệp vụ, rút mẫu, và mỗi ngày tự động bổ sung dữ liệu mới. Nếu lần nào cũng phải để người phát triển export log, sửa script, sắp xếp bảng biểu, thì việc kiểm định khó trở thành công việc hằng ngày.
 
 **Pipeline lưu bộ phương pháp sắp xếp đó thành một task xử lý dữ liệu, và liên tục sinh ra Dataset theo giao ước.** Người phát triển ứng dụng lo đấu đúng các trường nghiệp vụ, người phụ trách nghiệp vụ thì dựa vào phần xem trước để xác nhận mẫu có hợp mục đích không; sau đó, việc đánh giá, soát thủ công và thí nghiệm dùng chung các trường này, giảm được công sức đi tìm dữ liệu và giải thích dữ liệu lặp đi lặp lại.
 
@@ -16,11 +16,11 @@ Có thể chọn chức năng của Pipeline theo kết quả cần bàn giao. P
 | --- | --- | --- |
 | Biến log thành bảng đọc được | Phép chiếu trường, mở rộng trường, lọc theo điều kiện | Trích các trường câu hỏi, câu trả lời, model, thời lượng; hợp cho kiểm định, phân tích và chuẩn bị dữ liệu trước khi đánh giá |
 | Gom các event rời rạc thành mẫu trọn vẹn | Dựng instance | Ráp bản ghi theo định danh task hay phiên đã xác nhận; hợp với ứng dụng mà input vẫn còn là Span, mảnh message |
-| Gom bộ đề từ những nội dung tương tự | Khử trùng lặp chính xác, khử trùng lặp gần đúng, khử trùng lặp theo ngữ nghĩa | Giảm các câu hỏi giống hay gần giống nhau, hạ công sức bảo trì bộ đề và đánh giá lặp |
+| Gom bộ đề từ những nội dung tương tự | Khử trùng lặp chính xác, loại bỏ trùng lặp gần đúng, loại bỏ trùng lặp theo ngữ nghĩa | Giảm các câu hỏi giống hay gần giống nhau, hạ công sức bảo trì bộ đề và đánh giá lặp |
 | Xem được nhiều loại vấn đề hơn trong ngân sách hữu hạn | Lấy mẫu ngẫu nhiên, lấy mẫu theo nhóm, sinh vector, gom cụm ngữ nghĩa | Chọn mẫu theo tỉ lệ, số bản ghi hay theo loại; hợp cho việc soát thủ công, rà soát chuyên đề và mở rộng tập đánh giá |
 | Bổ sung thông tin nghiệp vụ cho mẫu | Gọi LLM, gọi Agent | Phân loại, tóm tắt, trích thông tin hay sinh nhãn ứng viên, giúp việc sàng lọc và phân tích tiện hơn |
 | Tìm ra những nội dung dài bất thường | Thống kê văn bản, lọc theo điều kiện | Tính các đặc trưng như độ dài văn bản, định vị input hay phần tool trả về quá dài, chọn mẫu cho việc quản trị nội dung và rà soát chi phí |
-| Thu thập dữ liệu mới liên tục | Chạy một lần, chạy theo chu kỳ, lịch sử chạy | Sắp xếp một khoảng lịch sử trước, rồi sinh mẫu mới theo giờ hay theo ngày, chống đỡ việc kiểm định hằng ngày |
+| Thu thập dữ liệu mới liên tục | Chạy một lần, chạy theo chu kỳ, lịch sử chạy | Sắp xếp một khoảng lịch sử trước, rồi sinh mẫu mới theo giờ hay theo ngày, hỗ trợ việc kiểm định hằng ngày |
 
 Cùng một bộ dữ liệu có thể phục vụ nhiều mục đích. Đội chăm sóc khách hàng cần câu hỏi và câu trả lời; người phát triển rà soát việc dùng tool thì cần các bước và kết quả trả về; còn phân tích chi phí lại cần trường model và mức tiêu. Có thể giữ chung phần trường nền, rồi tuỳ mục đích mà cấu hình các task xử lý và tập output khác nhau.
 
@@ -30,7 +30,7 @@ Trước khi chọn, hãy làm rõ **một dòng đại diện cho cái gì**. V
 
 Vào AgentSpace tương ứng, trong mục "Xử lý dữ liệu" của "Trung tâm dữ liệu", bấm "Tạo Pipeline". Trang tạo hỗ trợ chọn nguồn, dùng template hoặc để Loopie sinh pipeline, và cấu hình luôn phần output cùng lịch chạy trong cùng một luồng. Người dùng đang sắp xếp Dataset cũng có thể bắt đầu từ lối vào "Nhập từ dữ liệu trajectory" khi tạo dataset.
 
-Khi chọn nguồn, có thể phán đoán như sau:
+Khi chọn nguồn, có thể nhận định như sau:
 
 * **Đã có trajectory Agent và định làm đánh giá: chọn "dữ liệu trajectory".** Trang dùng nguồn trajectory gắn với không gian hiện tại; có thể bắt đầu từ phương án gợi ý "Trích mẫu trajectory Agent" để trích thẳng input, output, phiên và trọn trajectory.
 
@@ -72,7 +72,7 @@ Việc chọn trường phải thể hiện mục tiêu kiểm định. Kiểm "
 
 Card phương án có nút "Sinh xem trước"; còn khi đã vào trình biên tập thì chọn module output rồi bấm "Xem trước" để xem kết quả của cả pipeline. Hãy chọn khoảng thời gian có dữ liệu thật, mở một task bình thường ra xem input, output và trajectory trước, xác nhận nhân viên kiểm định đọc liền mạch được; rồi tìm một task mà tool báo lỗi hay không có câu trả lời, xem nó có được giữ lại không.
 
-Chẳng hạn trong phần xem trước xuất hiện: tool trả về "thiếu lý do hoàn tiền", nhưng câu trả lời cuối lại là "đã gửi yêu cầu hoàn tiền". Đó đúng là mẫu ta muốn giao cho khâu kiểm định. Nếu chỉ giữ câu cuối thì về sau rất khó phán định vì sao nó sai; còn nếu module lọc đã xoá mất bản ghi tool thất bại thì phải chỉnh điều kiện. Có thể bấm vào module tương ứng để sửa rồi sinh lại phần xem trước.
+Chẳng hạn trong phần xem trước xuất hiện: tool trả về "thiếu lý do hoàn tiền", nhưng câu trả lời cuối lại là "đã gửi yêu cầu hoàn tiền". Đó đúng là mẫu ta muốn giao cho khâu kiểm định. Nếu chỉ giữ câu cuối thì về sau rất khó đánh giá vì sao nó sai; còn nếu module lọc đã xoá mất bản ghi tool thất bại thì phải chỉnh điều kiện. Có thể bấm vào module tương ứng để sửa rồi sinh lại phần xem trước.
 
 Phần xem trước cũng hợp để chốt luôn hình thái output tại chỗ. Phần quá trình khá dài thì giữ trong cột nội dung có cấu trúc, còn danh sách thì hiển thị câu hỏi và câu trả lời trước; những trường cần lọc theo kênh thì tách thành cột riêng. Người phụ trách nghiệp vụ dùng vài mẫu này để xác nhận "nhận được bảng như thế này thì đã bắt tay vào việc được chưa", còn người phát triển thì dựa vào đó mà chốt cấu hình.
 
@@ -86,15 +86,15 @@ Nếu kết quả rỗng, hãy xác nhận khoảng thời gian đã chọn có 
 
 ## 20.4 Thêm phần lấy mẫu và xử lý bằng AI theo nhu cầu thực tế
 
-Task đầu tiên chỉ cần sắp xếp tài liệu cho rõ ràng. Sau khi bắt đầu dùng, hãy tuỳ theo khối lượng soát, độ phủ kịch bản và cách phân tích mà thêm các phép xử lý — như vậy dễ phán định từng bước có ích không.
+Task đầu tiên chỉ cần sắp xếp tài liệu cho rõ ràng. Sau khi bắt đầu dùng, hãy tuỳ theo khối lượng soát, độ phủ kịch bản và cách phân tích mà thêm các phép xử lý — như vậy dễ đánh giá từng bước có ích không.
 
 ### Con người xem không xuể thì hãy thu về mức xử lý nổi
 
 Giả sử nhân viên kiểm định mỗi ngày soát kỹ được 100 bản ghi, có thể thêm module "Lấy mẫu ngẫu nhiên", chọn "theo số bản ghi", điền 100; còn khi muốn mọi loại nghiệp vụ đều có cơ hội được chọn thì chọn trường loại sẵn có ở phần "cột gom nhóm", rồi đặt số bản ghi lấy mẫu cho mỗi nhóm. Con số 100 ở đây là khối lượng ví dụ, nên chỉnh theo nhân lực thực tế.
 
-Nếu còn chưa biết vấn đề chia thành những loại nào, có thể dùng phần sinh vector và gom cụm ngữ nghĩa để sắp chủ đề trước, rồi lấy mẫu theo kết quả gom cụm. Chẳng hạn, lấy một ít đại diện từ nhóm "truy vấn tiến độ" giống nhau, để dành nhiều thời gian đọc hơn cho các vấn đề khác. Cách này hợp cho việc mở rộng bộ đề và phát hiện các loại vấn đề; còn khi cần ước lượng tỉ lệ thất bại tổng thể trên production thì hãy giữ một chuẩn đo lấy mẫu có tính đại diện.
+Nếu còn chưa biết vấn đề chia thành những loại nào, có thể dùng phần sinh vector và gom cụm ngữ nghĩa để sắp chủ đề trước, rồi lấy mẫu theo kết quả gom cụm. Chẳng hạn, lấy một ít đại diện từ nhóm "truy vấn tiến độ" giống nhau, để dành nhiều thời gian đọc hơn cho các vấn đề khác. Cách này hợp cho việc mở rộng bộ đề và phát hiện các loại vấn đề; còn khi cần ước lượng tỉ lệ thất bại tổng thể trên production thì hãy giữ một thước đo lấy mẫu có tính đại diện.
 
-Khử trùng lặp nội dung thì hợp với một nhu cầu khác: đã chọn ra khá nhiều ca và đang định gom một bộ đề hồi quy không trùng lặp. Trong module khử trùng lặp thì chọn trường để so sánh; khử trùng lặp chính xác xử lý phần chữ giống hệt, khử trùng lặp gần đúng xử lý các bản viết lại nhỏ, còn khử trùng lặp theo ngữ nghĩa thì xử lý các cách diễn đạt khác nhau nhưng gần nghĩa. Trước khi khử trùng lặp theo câu hỏi, phải tính tới khác biệt về kết quả và về các kịch bản quan trọng, tránh trộn một lần thành công và một lần thất bại của cùng một đề thành một bản ghi.
+Khử trùng lặp nội dung thì hợp với một nhu cầu khác: đã chọn ra khá nhiều ca và đang định gom một bộ đề hồi quy không trùng lặp. Trong module loại bỏ trùng lặp thì chọn trường để so sánh; loại bỏ trùng lặp chính xác xử lý phần chữ giống hệt, loại bỏ trùng lặp gần đúng xử lý các bản viết lại nhỏ, còn loại bỏ trùng lặp theo ngữ nghĩa thì xử lý các cách diễn đạt khác nhau nhưng gần nghĩa. Trước khi loại bỏ trùng lặp theo câu hỏi, phải tính tới khác biệt về kết quả và về các kịch bản quan trọng, tránh trộn một lần thành công và một lần thất bại của cùng một đề thành một bản ghi.
 
 ### Chưa có nhãn nghiệp vụ thì cho model làm một bản trước
 
@@ -102,7 +102,7 @@ Bản ghi hoàn tiền có thể chia thành các loại "xin hoàn tiền", "tr
 
 Có thể bắt đầu từ một prompt như sau:
 
-> Dựa trên input người dùng {{input}}, hãy xếp task này vào một trong các loại "xin hoàn tiền", "truy vấn tiến độ", "hoàn tiền bị từ chối", "khác". Chỉ phán định theo input, không suy đoán kết quả xử lý. Trả về hai trường `category` và `reason`; `reason` nói ngắn gọn căn cứ phân loại.
+> Dựa trên input người dùng {{input}}, hãy xếp task này vào một trong các loại "xin hoàn tiền", "truy vấn tiến độ", "hoàn tiền bị từ chối", "khác". Chỉ đánh giá theo input, không suy đoán kết quả xử lý. Trả về hai trường `category` và `reason`; `reason` nói ngắn gọn căn cứ phân loại.
 
 Sinh phần xem trước xong thì xem các loại và lý do trong `scenario_label`. Gặp câu "đã xin ba ngày rồi sao vẫn chưa thấy tiền về" thì phải xếp được vào nhóm truy vấn tiến độ; nếu phân loại chưa khớp thì bổ sung phần giải thích loại và các ví dụ gần nhau rồi thử lại một lô mẫu. Khi cần lọc thẳng theo cột loại thì dùng tiếp phần mở rộng trường để trích `category` trong JSON ra thành một cột độc lập.
 
@@ -120,7 +120,7 @@ Khi cấu hình lần đầu, hãy nối khớp phạm vi bù dữ liệu lịch
 
 Tiếp theo hãy vào chức năng đánh giá, tạo task đánh giá mới lấy Dataset làm nguồn, chọn `refund_review_samples` cùng evaluator kiểm định hoàn tiền đã chuẩn bị, rồi ánh xạ các biến input, output, trajectory mà evaluator cần lần lượt sang `input`, `output`, `agent_trajectory`. Hãy chấm một lô mẫu trước, xem điểm, lý do và bằng chứng tương ứng — sẽ tìm ra được các ca chờ xử lý như "tool thất bại mà lại trả lời thành công". Sau khi bắt đầu kiểm định hằng ngày thì lấy các mẫu mới trong `refund_review_daily` làm tài liệu đánh giá.
 
-Người phụ trách nghiệp vụ nhìn thấy được vấn đề tập trung ở kịch bản nào, người phát triển cầm trajectory tương ứng để định vị và sửa, còn người làm đánh giá thì đưa các vấn đề đã xác nhận vào tài liệu hồi quy. Sau khi version mới chạy lại những task đó, thí nghiệm sẽ so sánh kết quả để phán định phần sửa có hữu hiệu không. Các bản ghi vận hành mới tiếp tục đi vào cùng task gia công đó, và việc chuẩn bị dữ liệu hằng ngày thế là nối được vào công việc tối ưu.
+Người phụ trách nghiệp vụ nhìn thấy được vấn đề tập trung ở kịch bản nào, người phát triển cầm trajectory tương ứng để định vị và sửa, còn người làm đánh giá thì đưa các vấn đề đã xác nhận vào tài liệu hồi quy. Sau khi version mới chạy lại những task đó, thí nghiệm sẽ so sánh kết quả để đánh giá phần sửa có hữu hiệu không. Các bản ghi vận hành mới tiếp tục đi vào cùng task gia công đó, và việc chuẩn bị dữ liệu hằng ngày thế là nối được vào công việc tối ưu.
 
 Trong bản demo thao tác, hai câu hỏi chăm sóc khách hàng ban đầu dùng chung các mục chấm điểm; về sau mới phát hiện "giới thiệu có những chức năng gì" và "nói rõ làm đánh giá ra sao" cần chuẩn khác nhau, nên đã quay lại Dataset thêm Rubric theo từng câu, rồi chỉnh phần ánh xạ của đánh giá và thí nghiệm. Điều này cũng cho thấy các trường sinh ra nên dễ mở rộng tiếp. Khi việc sử dụng về sau nêu ra vấn đề mới thì bổ sung tài liệu tương ứng, chứ không phải làm lại toàn bộ khâu chuẩn bị dữ liệu.
 
@@ -130,6 +130,6 @@ Trước hết hãy hoàn thành mạch "trích trajectory → Dataset → một
 
 Khi dùng lâu dài, hãy giữ ba giao ước đơn giản: **độ mịn của mẫu, ý nghĩa của các trường then chốt, và mục đích sử dụng dữ liệu.** Người phụ trách nghiệp vụ xác định muốn xem vấn đề gì, người phát triển ứng dụng duy trì các trường nguồn, còn task xử lý dữ liệu lo việc chạy lặp. Những phần phức tạp như tổng hợp song song, task siêu dài hay bù dữ liệu xuyên cửa sổ thì để người phát triển bổ sung theo dữ liệu thực tế.
 
-Để phán định có đáng tiếp tục đầu tư không, cũng có thể nhìn xem công việc cụ thể đã trôi chảy hơn chưa: nhân viên kiểm định có còn phải đi tìm log gốc từng bản ghi không, thêm một loại kịch bản nghiệp vụ mới thì có đưa vào được bằng cách bổ sung trường và quy tắc không, người phát triển nhận vấn đề rồi có định vị được về đúng lần thực thi đó không. Nếu các khâu này đã nối được với nhau, thì việc thêm gom cụm ngữ nghĩa, dữ liệu tổng hợp hay phân tích bằng Agent phức tạp mới có mục đích rõ ràng. Một pipeline đơn giản mà output được dùng liên tục thường có giá trị hơn một pipeline cấu hình đủ thứ mà không ai tiêu thụ.
+Để đánh giá có đáng tiếp tục đầu tư không, cũng có thể nhìn xem công việc cụ thể đã trôi chảy hơn chưa: nhân viên kiểm định có còn phải đi tìm log gốc từng bản ghi không, thêm một loại kịch bản nghiệp vụ mới thì có đưa vào được bằng cách bổ sung trường và quy tắc không, người phát triển nhận vấn đề rồi có định vị được về đúng lần thực thi đó không. Nếu các khâu này đã nối được với nhau, thì việc thêm gom cụm ngữ nghĩa, dữ liệu tổng hợp hay phân tích bằng Agent phức tạp mới có mục đích rõ ràng. Một pipeline đơn giản mà output được dùng liên tục thường có giá trị hơn một pipeline cấu hình đủ thứ mà không ai tiêu thụ.
 
 Lần bàn giao đầu tiên của việc kiểm định hoàn tiền có thể rất rõ ràng: tìm được các task của hôm qua trong `refund_review_samples`, mở một dòng ra là đọc hiểu được câu hỏi, câu trả lời và quá trình xử lý, và khởi động đánh giá thì có được kết luận có căn cứ. Còn những bản ghi nào đáng giữ lâu dài, và qua sự xác nhận của con người thì thành golden set cùng tập hồi quy ra sao — chương sau sẽ triển khai tiếp.

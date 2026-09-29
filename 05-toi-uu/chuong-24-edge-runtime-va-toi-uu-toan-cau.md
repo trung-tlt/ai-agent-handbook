@@ -1,14 +1,14 @@
 # Chương 24 — Edge Runtime của Agent và tối ưu toàn cầu
 
-Sau khi Agent đạt chuẩn production trong phạm vi Region nhờ đánh giá, mô phỏng và tối ưu liên tục, việc triển khai toàn cầu mang tới một chiều tối ưu mới: người dùng phân bố khắp thế giới, traffic đi vào từ edge, mối đe doạ phát động ở edge, và nội dung cần được thích ứng ngay tại edge. Hệ tối ưu đã chín trong Region có thể mở rộng tiếp tới những kịch bản đó, đưa năng lực tối ưu từ Region ra tới nơi gần người dùng nhất. Trong kiến trúc tham chiếu của Agentic Application, component Runtime phủ phần hạ tầng thực thi trong Region — tài nguyên tính toán, mạng, lưu trữ và cô lập sandbox. Chương này kéo dài Runtime ra edge toàn cầu, đưa vào chiều tối ưu edge, phủ nốt "một dặm cuối" từ Agent tới người dùng. Các năng lực tối ưu edge mô tả trong chương này được hạ tầng của nền tảng **Alibaba Cloud ESA (Edge Security Acceleration)** chống đỡ — ESA vận hành hơn 3200 edge node trên toàn cầu, phủ phần tiếp cận người dùng ở các quốc gia và khu vực chính, với năng lực tích hợp gồm tiếp cận gần nhất, tính toán tại edge và phòng thủ bảo mật, nên là vật mang tự nhiên để kéo hệ tối ưu từ Region ra edge.
+Sau khi Agent đạt chuẩn production trong phạm vi Region nhờ đánh giá, mô phỏng và tối ưu liên tục, việc triển khai toàn cầu mang tới một chiều tối ưu mới: người dùng phân bố khắp thế giới, traffic đi vào từ edge, mối đe doạ phát động ở edge, và nội dung cần được thích ứng ngay tại edge. Hệ tối ưu đã chín trong Region có thể mở rộng tiếp tới những kịch bản đó, đưa năng lực tối ưu từ Region ra tới nơi gần người dùng nhất. Trong kiến trúc tham chiếu của Agentic Application, component Runtime phủ phần hạ tầng thực thi trong Region — tài nguyên tính toán, mạng, lưu trữ và cô lập sandbox. Chương này kéo dài Runtime ra edge toàn cầu, đưa vào chiều tối ưu edge, phủ nốt "một dặm cuối" từ Agent tới người dùng. Các năng lực tối ưu edge mô tả trong chương này được hạ tầng của nền tảng **Alibaba Cloud ESA (Edge Security Acceleration)** hỗ trợ — ESA vận hành hơn 3200 edge node trên toàn cầu, phủ phần tiếp cận người dùng ở các quốc gia và khu vực chính, với năng lực tích hợp gồm tiếp cận gần nhất, tính toán tại edge và phòng thủ bảo mật, nên là vật mang tự nhiên để kéo hệ tối ưu từ Region ra edge.
 
 ## 24.1 Chiều tối ưu edge trong kịch bản toàn cầu hoá
 
 ### Bốn hướng tối ưu edge
 
-* **Độ trễ bất đối xứng:** Độ trễ đầu-cuối của Agent tách được thành bảy yếu tố: xếp hàng, chuẩn bị môi trường, suy luận model, gọi tool, truyền mạng, thực thi sandbox và chờ con người. Sáu yếu tố trong đó phát sinh bên trong Region, chỉ có phần truyền mạng là do khoảng cách vật lý quyết định. Một Agent triển khai ở một Region nào đó, khi phục vụ suy luận cho người dùng xuyên đại dương, thì phần truyền mạng có thể chiếm hơn 40% trong độ trễ token đầu (TTFT) (giả định của kịch bản ví dụ, cần doanh nghiệp hiệu chỉnh theo baseline của mình) — model suy luận có nhanh tới đâu cũng không bù được nút thắt vật lý này. Tối ưu edge nhắm trúng yếu tố truyền mạng, bổ sung phần quan sát độ trễ đầu-cuối ở hai tầng: tiếp cận gần nhất trên toàn cầu và tăng tốc truyền dẫn.
+* **Độ trễ bất đối xứng:** Độ trễ đầu cuối của Agent tách được thành bảy yếu tố: xếp hàng, chuẩn bị môi trường, suy luận model, gọi tool, truyền mạng, thực thi sandbox và chờ con người. Sáu yếu tố trong đó phát sinh bên trong Region, chỉ có phần truyền mạng là do khoảng cách vật lý quyết định. Một Agent triển khai ở một Region nào đó, khi phục vụ suy luận cho người dùng xuyên đại dương, thì phần truyền mạng có thể chiếm hơn 40% trong độ trễ token đầu (TTFT) (giả định của kịch bản ví dụ, cần doanh nghiệp hiệu chỉnh theo baseline của mình) — model suy luận có nhanh tới đâu cũng không bù được nút thắt vật lý này. Tối ưu edge nhắm trúng yếu tố truyền mạng, bổ sung phần quan sát độ trễ đầu cuối ở hai tầng: tiếp cận gần nhất trên toàn cầu và tăng tốc truyền dẫn.
 
-* **Chi phí không minh bạch:** Chi phí Token, chi phí băng thông về nguồn và chi phí request ở edge của Agent nằm rải trong các hệ tính giá khác nhau. Không có phần đo lường thống nhất và tối ưu cache ở tầng edge, doanh nghiệp rất khó biết chi phí đầu-cuối thật của một lời gọi Agent, và cũng không giảm được mức tiêu Token của phần suy luận lặp bằng các biện pháp như semantic cache.
+* **Chi phí không minh bạch:** Chi phí Token, chi phí băng thông về nguồn và chi phí request ở edge của Agent nằm rải trong các hệ tính giá khác nhau. Không có phần đo lường thống nhất và tối ưu cache ở tầng edge, doanh nghiệp rất khó biết chi phí đầu cuối thật của một lời gọi Agent, và cũng không giảm được mức tiêu Token của phần suy luận lặp bằng các biện pháp như semantic cache.
 
 * **Bảo mật đẩy lên trước:** Red team testing và quản trị bảo mật đã dựng cho Agent một hệ đánh giá bảo mật hoàn chỉnh trong Region. Bảo mật edge trên nền đó đẩy tuyến phòng thủ lên trước thêm một bước — tấn công DDoS bị hấp thụ và làm sạch ở edge, Bot crawler bị nhận diện và chặn ở edge, còn Prompt Injection thì được nhận diện và sàng sơ bộ trước khi tới Region (các tấn công tầng sâu như tiêm gián tiếp thì vẫn cần Region kết hợp trọn context để phát hiện) — nhờ đó bảo mật dời từ lối vào Region ra tới biên mạng.
 
@@ -27,7 +27,7 @@ Tối ưu ở mức Region và tối ưu ở edge giải quyết những vấn �
 | Nội dung | Quản lý version của Prompt/Skill/Context | Chuyển đổi và phân phối nội dung bên ngoài tại edge |
 | Trải nghiệm | Mức hoàn thành task, chất lượng kết quả | Trải nghiệm nhất quán toàn cầu, thích ứng theo khu vực |
 
-Nguyên tắc phân công là: **thứ gì edge xử lý được (cache trúng, chặn bảo mật, định tuyến gần nhất) thì không về nguồn Region; thứ gì edge xử lý không được (suy luận phức tạp, thay đổi trạng thái, thực thi task dài) thì mới vào Region.** Việc phán định "xử lý được" không thể chỉ nhìn năng lực tính toán, mà còn phải nhìn tính thẩm quyền của sự thật, danh tính và quyền hạn, tác dụng phụ ghi, nơi lưu trú dữ liệu và ngữ nghĩa khôi phục sau sự cố; chỉ những request không cần phán định trạng thái thẩm quyền, không cần tác dụng phụ ghi, và thoả yêu cầu lưu trú dữ liệu thì mới hợp để hoàn tất ngay tại edge; còn các thao tác liên quan tới tính nhất quán, thứ tự và ngữ nghĩa khôi phục thì bắt buộc phải quay về Region thực thi.
+Nguyên tắc phân công là: **thứ gì edge xử lý được (cache trúng, chặn bảo mật, định tuyến gần nhất) thì không về nguồn Region; thứ gì edge xử lý không được (suy luận phức tạp, thay đổi trạng thái, thực thi task dài) thì mới vào Region.** Việc đánh giá "xử lý được" không thể chỉ nhìn năng lực tính toán, mà còn phải nhìn tính thẩm quyền của sự thật, danh tính và quyền hạn, tác dụng phụ ghi, nơi lưu trú dữ liệu và ngữ nghĩa khôi phục sau sự cố; chỉ những request không cần đánh giá trạng thái thẩm quyền, không cần tác dụng phụ ghi, và thoả yêu cầu lưu trú dữ liệu thì mới hợp để hoàn tất ngay tại edge; còn các thao tác liên quan tới tính nhất quán, thứ tự và ngữ nghĩa khôi phục thì bắt buộc phải quay về Region thực thi.
 
 ## 24.2 Đánh giá ở edge: đo chất lượng bàn giao toàn cầu của Agent
 
@@ -35,7 +35,7 @@ Hệ đánh giá trong Region đã dựng được một khung hoàn chỉnh: đ
 
 ### Hệ chỉ số đánh giá ở edge
 
-Các chỉ số đánh giá ở edge mở rộng hệ đánh giá trong Region theo bốn chiều. **Chiều hiệu năng** quan tâm TTFT (P50/P95/P99) ở từng khu vực trên toàn cầu, độ trễ truyền từ edge tới Region và thời gian thiết lập kết nối dài — đây là phần kéo dài trực tiếp của chỉ số độ trễ theo chiều không gian. **Chiều chi phí** theo dõi chi phí lời gọi đầu-cuối (Token + băng thông + phí request ở edge), lượng tiết kiệm nhờ semantic cache và tỉ trọng traffic về nguồn, giúp doanh nghiệp nhận thức trọn vẹn chi phí thật của cả chuỗi cho mỗi lời gọi Agent. **Chiều bảo mật** đo tỉ lệ chặn ở edge, lượng DDoS hấp thụ, tỉ lệ phát hiện Prompt Injection và độ chính xác nhận diện Bot, phản ánh hiệu quả của việc đẩy tuyến phòng thủ lên trước. **Chiều trải nghiệm** thì đo mức bình đẳng về trải nghiệm của người dùng toàn cầu qua điểm nhất quán trải nghiệm theo khu vực, tính trọn vẹn của output dạng stream và tỉ lệ khôi phục thành công sau khi đứt kết nối.
+Các chỉ số đánh giá ở edge mở rộng hệ đánh giá trong Region theo bốn chiều. **Chiều hiệu năng** quan tâm TTFT (P50/P95/P99) ở từng khu vực trên toàn cầu, độ trễ truyền từ edge tới Region và thời gian thiết lập kết nối dài — đây là phần kéo dài trực tiếp của chỉ số độ trễ theo chiều không gian. **Chiều chi phí** theo dõi chi phí lời gọi đầu cuối (Token + băng thông + phí request ở edge), lượng tiết kiệm nhờ semantic cache và tỉ trọng traffic về nguồn, giúp doanh nghiệp nhận thức trọn vẹn chi phí thật của cả chuỗi cho mỗi lời gọi Agent. **Chiều bảo mật** đo tỉ lệ chặn ở edge, lượng DDoS hấp thụ, tỉ lệ phát hiện Prompt Injection và độ chính xác nhận diện Bot, phản ánh hiệu quả của việc đẩy tuyến phòng thủ lên trước. **Chiều trải nghiệm** thì đo mức bình đẳng về trải nghiệm của người dùng toàn cầu qua điểm nhất quán trải nghiệm theo khu vực, tính trọn vẹn của output dạng stream và tỉ lệ khôi phục thành công sau khi đứt kết nối.
 
 ### Dữ liệu đánh giá edge chảy ngược về
 
@@ -55,13 +55,13 @@ Request suy luận của Agent có đặc điểm kết nối dài, output dạn
 
 Phần lớn request của Agent có tính tương tự về ngữ nghĩa — những người dùng khác nhau hỏi những câu gần giống nhau, cùng một người dùng lặp lại truy vấn tương tự ở các thời điểm khác nhau. **Semantic cache** lưu phần tóm tắt và đáp án của các kết quả suy luận đã có tại edge node; khi độ tương tự ngữ nghĩa giữa request mới và mục cache vượt ngưỡng thì trả thẳng kết quả cache, tiết kiệm mức tiêu Token. Semantic cache nên giới hạn trong phạm vi các request công khai, idempotent và rủi ro thấp, đồng thời đưa tenant, miền quyền hạn, khu vực, model, Prompt và version tri thức vào khoá cache, và định nghĩa TTL (Time To Live — thời gian sống), cách vô hiệu hoá, dấu nguồn cùng chính sách về nguồn — để tránh rò rỉ xuyên tenant, vượt quyền, version cũ và việc trúng nhầm các đáp án cá nhân hoá. Ở các kịch bản truy vấn tần suất cao, cache ở edge giảm tải được đáng kể traffic về nguồn, tương ứng với một mức tiết kiệm chi phí Token đáng kể.
 
-**Chỉ số đánh giá chi phí:** lượng Token tiết kiệm (số Token tiết kiệm được nhờ cache trúng), tỉ lệ giảm băng thông về nguồn, mức thay đổi chi phí lời gọi đầu-cuối, và xu thế thay đổi của tỉ lệ cache trúng theo thời gian.
+**Chỉ số đánh giá chi phí:** lượng Token tiết kiệm (số Token tiết kiệm được nhờ cache trúng), tỉ lệ giảm băng thông về nguồn, mức thay đổi chi phí lời gọi đầu cuối, và xu thế thay đổi của tỉ lệ cache trúng theo thời gian.
 
 ## 24.4 Dữ liệu edge dẫn dắt việc tối ưu liên tục
 
 Sau khi Agent lên production, quá trình sử dụng thật của người dùng toàn cầu là một nguồn dữ liệu quan trọng cho việc tối ưu liên tục.
 
-Edge node của ESA nằm ở chặng đầu tiên mà người dùng truy cập, nên quan sát trực tiếp được khu vực của người dùng, tình trạng mạng, độ trễ truy cập, tình hình cache trúng và rủi ro bảo mật. Những dữ liệu quan sát ở edge này cung cấp cho nền tảng Agent một nguồn tín hiệu thật, phân bố toàn cầu để tối ưu liên tục — log vận hành trong Region ghi lại model đã sinh ra gì, gọi tool nào, trả về kết quả gì; còn dữ liệu edge thì bổ sung phần môi trường bên ngoài lúc request xảy ra. Kết hợp hai loại dữ liệu, nền tảng Agent không chỉ nhìn thấy vấn đề mà còn phán định được vấn đề có khả năng đến từ chỉ thị của model (Prompt), năng lực tool (Skill), định tuyến mạng, cache hay chính sách bảo mật.
+Edge node của ESA nằm ở chặng đầu tiên mà người dùng truy cập, nên quan sát trực tiếp được khu vực của người dùng, tình trạng mạng, độ trễ truy cập, tình hình cache trúng và rủi ro bảo mật. Những dữ liệu quan sát ở edge này cung cấp cho nền tảng Agent một nguồn tín hiệu thật, phân bố toàn cầu để tối ưu liên tục — log vận hành trong Region ghi lại model đã sinh ra gì, gọi tool nào, trả về kết quả gì; còn dữ liệu edge thì bổ sung phần môi trường bên ngoài lúc request xảy ra. Kết hợp hai loại dữ liệu, nền tảng Agent không chỉ nhìn thấy vấn đề mà còn đánh giá được vấn đề có khả năng đến từ chỉ thị của model (Prompt), năng lực tool (Skill), định tuyến mạng, cache hay chính sách bảo mật.
 
 ### Dữ liệu edge cung cấp gì cho việc tối ưu
 
@@ -77,7 +77,7 @@ Edge node của ESA liên tục thu thập được dữ liệu vận hành ở 
 
 Từng hiện tượng này nhìn riêng lẻ thì chỉ là bản ghi vận hành; phải qua tổng hợp và phân tích liên kết thì mới thành căn cứ để tối ưu. Chẳng hạn, một tool thất bại ở nhiều khu vực thì vấn đề có thể nằm ở chính Skill; còn nếu chỉ thất bại ở một khu vực thì nhiều khả năng là vấn đề mạng hay định tuyến dịch vụ. Cái trước cần sửa Skill, cái sau thì phải chỉnh chiến lược định tuyến ở tầng orchestration vận hành (Harness). Dữ liệu edge giúp nền tảng Agent tránh kiểu quy kết sai "thấy thất bại là sửa Prompt".
 
-### Phân công giữa ESA và nền tảng Agent trong vòng khép kín tối ưu
+### Phân công giữa ESA và nền tảng Agent trong vòng lặp khép kín tối ưu
 
 Vòng khép kín tự tiến hoá có kiểm soát (ghi nhận, phân tích, sửa, kiểm chứng, chảy ngược) do nền tảng Agent và đội ngũ cùng hoàn thành; vai trò của ESA là cung cấp dữ liệu quan sát ở edge:
 
@@ -91,15 +91,15 @@ Quản lý version và phát hành canary: hỗ trợ nền tảng Agent kiểm 
 
 **Nền tảng Agent hoàn thành:**
 
-Phân tích: liên kết Trace ở edge với output model, kết quả gọi tool, tình hình hoàn thành task trong Region để phán định vấn đề đến từ khâu nào.
+Phân tích: liên kết Trace ở edge với output model, kết quả gọi tool, tình hình hoàn thành task trong Region để đánh giá vấn đề đến từ khâu nào.
 
 Sửa: đội ngũ dựa trên kết quả phân tích mà sinh ra chiến lược tối ưu, ví dụ sửa Prompt, cập nhật Skill, chỉnh định tuyến model hay chiến lược cache.
 
 Kiểm chứng: canary phạm vi nhỏ để kiểm hiệu quả của Patch, quan sát tỉ lệ thành công task, chất lượng phản hồi, độ trễ, chi phí và các chỉ số bảo mật.
 
-Chảy ngược: kết quả kiểm chứng đi vào vòng tối ưu kế tiếp, tạo thành vòng khép kín cải tiến liên tục.
+Chảy ngược: kết quả kiểm chứng đi vào vòng tối ưu kế tiếp, tạo thành vòng lặp khép kín cải tiến liên tục.
 
-Lấy việc tool timeout theo khu vực làm ví dụ: dữ liệu edge của ESA phát hiện số lời gọi tool thất bại ở một khu vực tăng rõ rệt; nền tảng Agent so sánh với các khu vực khác, xác nhận model và Skill không đổi, vấn đề tập trung ở liên kết mạng; nền tảng Agent theo đó sinh ra một Patch chiến lược định tuyến, dùng môi trường canary của phần quản lý version ESA để kiểm chứng trên một phần nhỏ traffic ở khu vực đó, phán định qua tỉ lệ gọi thành công và độ trễ xem có cải thiện không, rồi mới quyết định có mở rộng phạm vi không.
+Lấy việc tool timeout theo khu vực làm ví dụ: dữ liệu edge của ESA phát hiện số lời gọi tool thất bại ở một khu vực tăng rõ rệt; nền tảng Agent so sánh với các khu vực khác, xác nhận model và Skill không đổi, vấn đề tập trung ở liên kết mạng; nền tảng Agent theo đó sinh ra một Patch chiến lược định tuyến, dùng môi trường canary của phần quản lý version ESA để kiểm chứng trên một phần nhỏ traffic ở khu vực đó, đánh giá qua tỉ lệ gọi thành công và độ trễ xem có cải thiện không, rồi mới quyết định có mở rộng phạm vi không.
 
 Chữ "tự tiến hoá" ở đây nghĩa là nền tảng hỗ trợ phân tích dữ liệu, đội ngũ sinh ra chiến lược ứng viên, và phải qua kiểm tra theo luật, soát bởi con người hay đánh giá tự động rồi mới phát hành canary. Dữ liệu gốc còn phải tuân thủ các yêu cầu thu thập tối thiểu, ẩn danh hoá, kiểm soát truy cập và tuân thủ xuyên khu vực, để bảo đảm năng lực tối ưu dựng trên nền sử dụng dữ liệu quản trị được.
 
@@ -109,7 +109,7 @@ Chất lượng mạng, model khả dụng, dịch vụ tool, thói quen ngườ
 
 Cách hợp lý hơn là dùng **"baseline thống nhất toàn cầu + chính sách tự thích ứng theo khu vực"**. Prompt, Skill lõi và các luật bảo mật nền thì quản trị thống nhất toàn cầu, bảo đảm năng lực cơ bản và hành vi của Agent nhất quán; còn định tuyến model, node dịch vụ, cache, luật bảo mật và chiến lược gọi tool thì chỉnh được theo traffic thật của từng khu vực.
 
-Edge node của ESA liên tục cung cấp dữ liệu vận hành của từng khu vực, còn nền tảng Agent thì hỗ trợ đội ngũ hoàn thành việc so sánh xuyên khu vực, định vị vấn đề và phán định hướng tối ưu. Nhờ vậy vừa tránh được việc các khu vực tiến hoá độc lập gây phân mảnh năng lực, vừa giúp Agent thích ứng với môi trường vận hành thực tế của các thị trường khác nhau.
+Edge node của ESA liên tục cung cấp dữ liệu vận hành của từng khu vực, còn nền tảng Agent thì hỗ trợ đội ngũ hoàn thành việc so sánh xuyên khu vực, định vị vấn đề và đánh giá hướng tối ưu. Nhờ vậy vừa tránh được việc các khu vực tiến hoá độc lập gây phân mảnh năng lực, vừa giúp Agent thích ứng với môi trường vận hành thực tế của các thị trường khác nhau.
 
 ## 24.5 Phân phối nội dung ở edge: đưa Skill/Context tới edge toàn cầu
 
@@ -121,7 +121,7 @@ Sau khi Prompt/Skill/Context được phát hành, chúng được đồng bộ 
 
 ### Thích ứng theo khu vực
 
-Agent ở các khu vực khác nhau có thể cần chiến lược Context phân hoá — thiên hướng ngôn ngữ, yêu cầu tuân thủ và kho tri thức bản địa khác nhau theo vùng. Ở đây cần phân biệt hai loại "nhất quán": **luật quản trị thì nhất quán toàn cầu** (quản lý version, soát thay đổi, quy trình phát hành thống nhất), còn **phân bố dữ liệu thì phân hoá theo yêu cầu lưu trú** (phân loại phân cấp, ẩn danh, uỷ quyền, lưu trú, lưu giữ và cơ chế xoá thì thực thi theo tuân thủ của từng khu vực). Phân phối ở edge hỗ trợ cấu hình các biến thể Context theo khu vực, hiện thực việc thích ứng theo vùng trên nền các luật quản trị thống nhất.
+Agent ở các khu vực khác nhau có thể cần chiến lược Context phân hoá — thiên hướng ngôn ngữ, yêu cầu tuân thủ và kho tri thức bản địa khác nhau theo vùng. Ở đây cần phân biệt hai loại "nhất quán": **luật quản trị thì nhất quán toàn cầu** (quản lý version, soát thay đổi, quy trình phát hành thống nhất), còn **phân bố dữ liệu thì phân hoá theo yêu cầu lưu trú** (phân loại phân cấp, ẩn danh, uỷ quyền, lưu trú, lưu giữ và cơ chế xoá thì thực thi theo tuân thủ của từng khu vực). Phân phối ở edge hỗ trợ cấu hình các biến thể Context theo khu vực, triển khai thích ứng theo vùng trên nền các luật quản trị thống nhất.
 
 ### Chuyển đổi nội dung thân thiện với Agent
 
@@ -155,7 +155,7 @@ Khi người truy cập website mở rộng từ con người sang AI Agent, ESA
 
 ### Cộng tác theo tầng giữa bảo mật edge và bảo mật Region
 
-Bảo mật ở edge lo phần "lọc" (chặn các mối đe doạ đã biết, hấp thụ traffic tấn công), còn bảo mật trong Region lo phần "phán định" (kiểm quyền hạn phức tạp, phân tích hành vi, truy vết kiểm toán). Hai bên liên động qua việc chia sẻ sự kiện bảo mật — các kiểu tấn công bị chặn ở edge được đồng bộ về engine chính sách bảo mật trong Region, còn các luật đe doạ kiểu mới phát hiện trong Region thì được đẩy xuống edge node.
+Bảo mật ở edge lo phần "lọc" (chặn các mối đe doạ đã biết, hấp thụ traffic tấn công), còn bảo mật trong Region lo phần "đánh giá" (kiểm quyền hạn phức tạp, phân tích hành vi, truy vết kiểm toán). Hai bên liên động qua việc chia sẻ sự kiện bảo mật — các kiểu tấn công bị chặn ở edge được đồng bộ về engine chính sách bảo mật trong Region, còn các luật đe doạ kiểu mới phát hiện trong Region thì được đẩy xuống edge node.
 
 ## 24.7 Kiểm chứng production ở edge: dùng traffic thật toàn cầu để kiểm chứng hành vi Agent
 
@@ -169,7 +169,7 @@ Edge node của ESA nằm ở chặng đầu tiên mà người dùng truy cập
 
 **Phân bố request:** tỉ trọng theo vùng, khung giờ cao điểm, thiên hướng về đường request — phản ánh cách sử dụng thực tế của người dùng toàn cầu.
 
-**Tình trạng mạng:** độ trễ đầu-cuối, tỉ lệ mất gói, tần suất đứt kết nối và độ ổn định của kết nối dài — phản ánh môi trường mạng thật ở từng khu vực.
+**Tình trạng mạng:** độ trễ đầu cuối, tỉ lệ mất gói, tần suất đứt kết nối và độ ổn định của kết nối dài — phản ánh môi trường mạng thật ở từng khu vực.
 
 **Tình thế bảo mật:** kiểu tấn công DDoS, hành vi Bot crawler, tình hình phát hiện Prompt Injection thực tế — phản ánh phân bố đe doạ thật.
 
@@ -189,17 +189,17 @@ Kiểm chứng production ở edge và mô phỏng có trọng tâm khác nhau k
 | Đe doạ bảo mật | Mẫu tấn công do red team dựng | Traffic và kiểu tấn công thật |
 | Mục đích kiểm chứng | Agent có ứng phó được với kịch bản giả định không | Agent biểu hiện ra sao trong môi trường thật |
 
-Một kịch bản bổ trợ điển hình: mô phỏng kiểm chứng rằng Agent xử lý được tình huống mạng yếu với timeout 3 giây, rồi version được phát hành lên production; kiểm chứng production ở edge phát hiện thực tế ở khu vực Đông Nam Á có 5% request gặp độ trễ trên 5 giây, khiến tỉ lệ đứt output dạng stream của Agent cao hơn kỳ vọng. Lúc này có thể quay lại hệ mô phỏng, dùng các tham số mạng thật quan sát được ở edge để bổ sung kịch bản test mới, tạo thành vòng khép kín "mô phỏng → lên production → kiểm chứng ở edge → chảy ngược về mô phỏng".
+Một kịch bản bổ trợ điển hình: mô phỏng kiểm chứng rằng Agent xử lý được tình huống mạng yếu với timeout 3 giây, rồi version được phát hành lên production; kiểm chứng production ở edge phát hiện thực tế ở khu vực Đông Nam Á có 5% request gặp độ trễ trên 5 giây, khiến tỉ lệ đứt output dạng stream của Agent cao hơn kỳ vọng. Lúc này có thể quay lại hệ mô phỏng, dùng các tham số mạng thật quan sát được ở edge để bổ sung kịch bản test mới, tạo thành vòng lặp khép kín "mô phỏng → lên production → kiểm chứng ở edge → chảy ngược về mô phỏng".
 
 ### Phát hành canary ở edge và quản lý version
 
 ESA cung cấp năng lực quản lý version ở mức site, hỗ trợ ba bộ môi trường phát triển, canary và production. Mỗi version được sinh ra bằng cách clone từ cấu hình hiện có, có thể test ở môi trường phát triển trước, rồi nâng lên môi trường canary để đưa một phần traffic vào theo luật request mà kiểm chứng, cuối cùng nâng lên môi trường production để có hiệu lực toàn phần. Version hỗ trợ chuyển đổi và rollback, nên khi bất thường thì lùi nhanh về version trước được.
 
-Năng lực này khiến việc kiểm chứng production ở edge không chỉ dừng ở quan sát, mà còn chạy được phần kiểm chứng version có kiểm soát trên traffic thật. Luật cache, chính sách bảo mật hay cấu hình định tuyến của version mới sẽ có hiệu lực trước trên một phần traffic thật ở môi trường canary, và edge node thì liên tục quan sát các chỉ số như tỉ lệ thành công task, độ trễ phản hồi, tỉ lệ cache trúng và tỉ lệ chặn bảo mật. Kiểm chứng qua rồi thì nâng lên production phát hành toàn phần; còn nếu chỉ số bất thường thì rollback thẳng về version trước. Trong suốt quá trình đó, traffic thật vừa là đối tượng kiểm chứng, vừa là căn cứ để nền tảng Agent phán định version đã đạt chuẩn phát hành chưa.
+Năng lực này khiến việc kiểm chứng production ở edge không chỉ dừng ở quan sát, mà còn chạy được phần kiểm chứng version có kiểm soát trên traffic thật. Luật cache, chính sách bảo mật hay cấu hình định tuyến của version mới sẽ có hiệu lực trước trên một phần traffic thật ở môi trường canary, và edge node thì liên tục quan sát các chỉ số như tỉ lệ thành công task, độ trễ phản hồi, tỉ lệ cache trúng và tỉ lệ chặn bảo mật. Kiểm chứng qua rồi thì nâng lên production phát hành toàn phần; còn nếu chỉ số bất thường thì rollback thẳng về version trước. Trong suốt quá trình đó, traffic thật vừa là đối tượng kiểm chứng, vừa là căn cứ để nền tảng Agent đánh giá version đã đạt chuẩn phát hành chưa.
 
 ### Đánh giá liên hợp edge — Region cho kết quả kiểm chứng
 
-Baseline điều kiện vào cho việc phát hành version Agent nên gồm đồng thời các chỉ số trong Region (tỉ lệ trả lời đúng, tỉ lệ hoàn thành task) và các chỉ số ở edge (phân bố độ trễ toàn cầu, tỉ lệ cache trúng, tỉ lệ chặn bảo mật). Một version nếu chưa đạt chuẩn về độ trễ P95 toàn cầu hay tỉ lệ cache trúng ở edge thì dù mọi phần mô phỏng trong Region đều qua cũng không nên được phát hành. Nền tảng Agent dựa trên những dữ liệu đó mà phán định version đã đạt chuẩn phát hành chưa. Kiểm chứng production ở edge mở rộng điều kiện vào cho việc phát hành từ phạm vi Region ra chiều toàn cầu.
+Baseline điều kiện vào cho việc phát hành version Agent nên gồm đồng thời các chỉ số trong Region (tỉ lệ trả lời đúng, tỉ lệ hoàn thành task) và các chỉ số ở edge (phân bố độ trễ toàn cầu, tỉ lệ cache trúng, tỉ lệ chặn bảo mật). Một version nếu chưa đạt chuẩn về độ trễ P95 toàn cầu hay tỉ lệ cache trúng ở edge thì dù mọi phần mô phỏng trong Region đều qua cũng không nên được phát hành. Nền tảng Agent dựa trên những dữ liệu đó mà đánh giá version đã đạt chuẩn phát hành chưa. Kiểm chứng production ở edge mở rộng điều kiện vào cho việc phát hành từ phạm vi Region ra chiều toàn cầu.
 
 ## 24.8 Ba giai đoạn tiến hoá và mô hình độ chín của doanh nghiệp
 
@@ -231,7 +231,7 @@ Chỉ số đánh giá: tỉ lệ semantic cache trúng, lượng Token tiết k
 
 ### Giai đoạn ba: Agent triển khai native ở edge
 
-Đây là viễn cảnh trạng thái cuối. Topology triển khai mặc định của hệ Agent phân tán là **edge-first**, còn cloud trung tâm thì làm phần đỡ lưng và tính toán nặng. Thay đổi kiến trúc cốt lõi của giai đoạn này là đưa vào **runtime hai tầng cho Agent** cùng **edge AI acceleration gateway**, tái cấu trúc topology thực thi toàn cầu của Agent từ góc nhìn tối ưu.
+Đây là viễn cảnh trạng thái cuối. Topology triển khai mặc định của hệ Agent phân tán là **edge-first**, còn cloud trung tâm thì làm phần bảo đảm dự phòng và tính toán nặng. Thay đổi kiến trúc cốt lõi của giai đoạn này là đưa vào **runtime hai tầng cho Agent** cùng **edge AI acceleration gateway**, tái cấu trúc topology thực thi toàn cầu của Agent từ góc nhìn tối ưu.
 
 ![image.png](../assets/imgs/chapter-24/image-002.png)
 
@@ -245,7 +245,7 @@ Kiến trúc ba mặt phẳng (control / state / execution) của Agent Runtime 
 
 * **RegionFunction (cloud function, triển khai gần nguồn)**: triển khai ở các node ESA gần origin hơn, xử lý phần logic Agent cần trạng thái bền và tính toán sâu — quản lý context hội thoại nhiều lượt, orchestration lời gọi tool, lập lịch suy luận model, đọc ghi memory dài hạn, thực thi cô lập trong sandbox. Cloud function nằm sát dịch vụ model, database và hệ thống nghiệp vụ, nên hợp với các task nặng đòi hỏi cao hơn về tài nguyên tính toán và truy cập dữ liệu.
 
-Ý tưởng cốt lõi của kiến trúc hai tầng là: **không phải mọi request của Agent đều cần quay về data center xử lý.** Lấy một Agent chăm sóc khách hàng điển hình làm ví dụ, phần lớn request hoàn tất được ngay gần người dùng nhờ cache ở edge trúng, định tuyến đơn giản hay tiền xử lý nhẹ; chỉ những request liên quan tới suy luận phức tạp và gọi tool sâu mới cần vào data center. Runtime hai tầng giúp phần lớn request hoàn tất ở edge, giảm mạnh độ trễ đầu-cuối cho người dùng toàn cầu, đồng thời giảm áp lực tính toán ở phía data center.
+Ý tưởng cốt lõi của kiến trúc hai tầng là: **không phải mọi request của Agent đều cần quay về data center xử lý.** Lấy một Agent chăm sóc khách hàng điển hình làm ví dụ, phần lớn request hoàn tất được ngay gần người dùng nhờ cache ở edge trúng, định tuyến đơn giản hay tiền xử lý nhẹ; chỉ những request liên quan tới suy luận phức tạp và gọi tool sâu mới cần vào data center. Runtime hai tầng giúp phần lớn request hoàn tất ở edge, giảm mạnh độ trễ đầu cuối cho người dùng toàn cầu, đồng thời giảm áp lực tính toán ở phía data center.
 
 Một kịch bản cụ thể minh hoạ cách chạy của kiến trúc hai tầng. Một người dùng nói tiếng Tây Ban Nha hỏi Agent chăm sóc khách hàng về chính sách trả hàng; request tới edge node gần nhất (Madrid). EdgeFunction trước hết hoàn tất phần xác thực và tiền xử lý request, rồi tra trong semantic cache — khu vực của người dùng này trước đó đã có nhiều truy vấn tương tự, cache trúng, nên edge trả thẳng phần tóm tắt chính sách trả hàng đã cache, với độ trễ cả quá trình dưới 50ms (giả định của kịch bản ví dụ, cần doanh nghiệp hiệu chỉnh theo baseline). Nếu người dùng hỏi dồn một câu phức tạp chưa từng xuất hiện (cache không trúng), EdgeFunction sẽ chuyển tiếp request cùng kết quả tiền xử lý tới RegionFunction ở data center, để bên đó hoàn tất trọn phần suy luận nhiều lượt, gọi tool và truy vấn đơn hàng; kết quả rồi lại được ghi ngược về cache ở edge cho các truy vấn tương tự về sau.
 
@@ -255,7 +255,7 @@ Một kịch bản cụ thể minh hoạ cách chạy của kiến trúc hai t�
 | --- | --- | --- |
 | Tỉ trọng xử lý ở edge | Tỉ trọng request hoàn tất ở tầng EdgeFunction | Đặt mục tiêu theo rủi ro task và SLO nghiệp vụ, ưu tiên tính đúng đắn chứ không cực đại hoá đơn thuần |
 | Thời gian cold start của EdgeFunction | Thời gian từ lúc nạp tới lúc chạy được của edge function | <1ms (mục tiêu ví dụ) |
-| Độ trễ quyết định định tuyến | Thời gian EdgeFunction phán định request đi edge hay đi Region | <5ms (mục tiêu ví dụ) |
+| Độ trễ quyết định định tuyến | Thời gian EdgeFunction đánh giá request đi edge hay đi Region | <5ms (mục tiêu ví dụ) |
 | Tỉ lệ giữ phiên của RegionFunction | Tính liên tục trạng thái trong Region với Agent có phiên dài | Không được gián đoạn |
 | Thời gian failover edge — Region | Thời gian chuyển sang Region hay edge lân cận khi edge node không khả dụng | <3s (mục tiêu ví dụ) |
 
@@ -284,7 +284,7 @@ Các chỉ số tối ưu then chốt của ESA AI Acceleration Gateway: tỉ l�
 
 Điều kiện áp dụng: quy mô toàn cầu hoá và yêu cầu độ trễ của Agent khiến edge-first trở thành lựa chọn bắt buộc về kiến trúc, chứ không còn là một tuỳ chọn tối ưu. Các tín hiệu điển hình gồm: cần triển khai trọn hệ Agent độc lập cho từng khu vực và chi phí vận hành không kiểm soát nổi; phần truyền mạng chiếm hơn 30% trong TTFT toàn cầu (giả định của kịch bản ví dụ, cần doanh nghiệp hiệu chỉnh theo baseline); chi phí Token tăng tuyến tính theo lượng người dùng mà không có biện pháp cache hữu hiệu.
 
-Chỉ số đánh giá: tỉ trọng request Agent được xử lý ở edge, mức khả dụng toàn cầu của Agent (SLA — thoả thuận mức dịch vụ), tỉ lệ failover edge — Region thành công, mức cải thiện TTFT đầu-cuối, tỉ lệ tiết kiệm chi phí Token.
+Chỉ số đánh giá: tỉ trọng request Agent được xử lý ở edge, mức khả dụng toàn cầu của Agent (SLA — thoả thuận mức dịch vụ), tỉ lệ failover edge — Region thành công, mức cải thiện TTFT đầu cuối, tỉ lệ tiết kiệm chi phí Token.
 
 Quan hệ giữa ba giai đoạn nhất quán với nguyên tắc "chọn kiến trúc tối thiểu đủ dùng" — tối ưu edge cũng vậy, không theo đuổi giai đoạn cao nhất, mà chọn giai đoạn tối ưu về chi phí và lợi ích theo mức độ toàn cầu hoá của nghiệp vụ. Phần lớn doanh nghiệp dừng lâu dài ở giai đoạn một hay giai đoạn hai là đã có lợi ích rõ rệt; chỉ khi quy mô toàn cầu hoá đạt tới một mức nhất định thì giai đoạn ba mới thành lựa chọn bắt buộc về kiến trúc.
 
@@ -293,15 +293,15 @@ Quan hệ giữa ba giai đoạn nhất quán với nguyên tắc "chọn kiến
 | Độ chín | Năng lực tối ưu edge | Mức tích hợp với hệ tối ưu | Biểu hiện điển hình |
 | --- | --- | --- | --- |
 | L1 | Không có tối ưu edge, Agent nối thẳng tới Region | Không có | Chênh lệch độ trễ toàn cầu lớn, bảo mật dựa vào phòng thủ trong Region |
-| L2 | Đã tích hợp tăng tốc và bảo mật ở edge, có dashboard riêng | Chưa vào vòng khép kín đánh giá | Độ trễ cải thiện nhưng không định lượng được ROI (tỉ suất hoàn vốn), luật bảo mật duy trì thủ công |
+| L2 | Đã tích hợp tăng tốc và bảo mật ở edge, có dashboard riêng | Chưa vào vòng lặp khép kín đánh giá | Độ trễ cải thiện nhưng không định lượng được ROI (tỉ suất hoàn vốn), luật bảo mật duy trì thủ công |
 | L3 | Chỉ số edge đã vào baseline điều kiện vào của Agent Release | Vòng khép kín đánh giá (nối với hệ đánh giá) | Phát hành version phải qua hồi quy hiệu năng ở edge, chiến lược cache gắn với version Agent |
 | L4 | Dữ liệu edge dẫn dắt việc tự tiến hoá | Vòng khép kín hoàn toàn tự động (nối với vòng tự tiến hoá) | Chiến lược cache/định tuyến/bảo mật tự tối ưu theo Trace ở edge, qua kiểm chứng canary rồi mới có hiệu lực |
 
 Độ chín không phải càng cao càng tốt. L1 hợp với doanh nghiệp chỉ vận hành ở một khu vực; L2 hợp với giai đoạn đầu toàn cầu hoá; L3 hợp với giai đoạn Agent đã vào production và cần cổng chất lượng nghiêm ngặt; L4 hợp với việc vận hành toàn cầu quy mô lớn. Mô hình này về hướng tiến hoá thì tương ứng đại thể với mô hình độ chín triển khai (M1–M5) — tối ưu edge là nhu cầu tự nhiên sau khi độ chín triển khai tiến tới giai đoạn cao — nhưng giữa hai bên không có ánh xạ một-một; mỗi mức năng lực nên có ngưỡng kiểm chứng được, chứ không chỉ dựa vào mô tả định tính.
 
-**Doanh nghiệp phán định mình đang ở giai đoạn nào:**
+**Doanh nghiệp đánh giá mình đang ở giai đoạn nào:**
 
-| Tín hiệu | Phán định giai đoạn |
+| Tín hiệu | Đánh giá giai đoạn |
 | --- | --- |
 | Người dùng toàn cầu than phiền độ trễ cao, nhưng chỉ số trong Region vẫn bình thường | Cần giai đoạn một |
 | Chi phí Token tăng tuyến tính theo lượng người dùng, không thấy hiệu quả cache rõ rệt | Cần giai đoạn hai |
@@ -336,9 +336,9 @@ Tối ưu edge không hợp với mọi nghiệp vụ; các kịch bản dưới
 
 **Yêu cầu lưu trú dữ liệu nghiêm ngặt.** Với các kịch bản không cho phép sao chép cache xuyên khu vực hay yêu cầu dữ liệu không ra khỏi một khu vực tài phán nhất định, thì semantic cache và phân phối toàn cầu phải cấu hình theo tuân thủ từng khu vực, thậm chí phải bỏ hẳn cache ở edge.
 
-**Các câu trả lời có rủi ro cao về tính đúng đắn.** Nội dung cá nhân hoá mạnh, nhạy cảm về quyền hạn hay có tính thời sự cao thì không nên vào semantic cache, nếu không có thể gây trúng nhầm một đáp án sai.
+**Các câu trả lời có rủi ro cao về tính đúng đắn.** Nội dung cá nhân hoá mạnh, nhạy cảm về quyền hạn hay có tính cập nhật cao thì không nên vào semantic cache, nếu không có thể gây trúng nhầm một đáp án sai.
 
-**Năng lực tính toán ở edge hạn chế.** Suy luận phức tạp, task dài, xử lý context lớn thì vẫn phải về nguồn; edge chỉ gánh phần tiền xử lý và sàng thô.
+**Năng lực tính toán ở edge hạn chế.** Suy luận phức tạp, task dài, xử lý context lớn thì vẫn phải về nguồn; edge chỉ đảm nhiệm tiền xử lý và sàng thô.
 
 **Khác biệt năng lực theo khu vực.** Năng lực edge node, model khả dụng và yêu cầu tuân thủ ở các khu vực khác nhau là khác nhau, nên chính sách thống nhất toàn cầu phải thích ứng theo khu vực, không thể cào bằng.
 
@@ -350,12 +350,12 @@ Doanh nghiệp nên chọn giai đoạn một, hai hay ba dựa trên mức đ�
 
 ## 24.10 Tóm tắt chương
 
-Phần tối ưu đã dựng trong Region một vòng khép kín tối ưu hoàn chỉnh từ đánh giá, tự tiến hoá, quản trị kỹ thuật, bảo mật tới mô phỏng. Khi người dùng của Agent mở rộng từ một khu vực ra toàn cầu, vòng khép kín đó cần kéo dài thêm theo chiều không gian — để những năng lực tối ưu đã chín trong Region phủ tới edge, tới nơi gần người dùng nhất.
+Phần tối ưu đã dựng trong Region một vòng lặp khép kín tối ưu hoàn chỉnh từ đánh giá, tự tiến hoá, quản trị kỹ thuật, bảo mật tới mô phỏng. Khi người dùng của Agent mở rộng từ một khu vực ra toàn cầu, vòng lặp khép kín đó cần kéo dài thêm theo chiều không gian — để những năng lực tối ưu đã chín trong Region phủ tới edge, tới nơi gần người dùng nhất.
 
 Tối ưu edge là phần kéo dài theo chiều không gian của khung tối ưu sẵn có — hệ đánh giá mở rộng tới chất lượng bàn giao ở edge, vòng tự tiến hoá mở rộng tới tín hiệu traffic ở edge, quản trị kỹ thuật mở rộng tới phân phối ở edge, đánh giá bảo mật mở rộng tới bề mặt tấn công ở edge, còn kiểm chứng production ở edge thì bổ sung cho phần mô phỏng phủ. Nền tảng Edge Security Acceleration của ESA cung cấp năng lực hạ tầng để thực hiện những phần kéo dài đó, đưa việc tối ưu từ Region ra tận phía người dùng, bù nốt một dặm cuối của hệ tối ưu.
 
 Việc tối ưu từ Region ra Edge là một quá trình tiệm tiến: trước hết dùng hạ tầng edge của ESA để tăng cường cho Agent (giai đoạn một), rồi đưa một phần năng lực ra edge của ESA (giai đoạn hai), cuối cùng để Agent chạy native ở edge qua runtime hai tầng (ESA EdgeFunction + RegionFunction) và ESA AI Acceleration Gateway (giai đoạn ba). Nhận định cốt lõi của giai đoạn ba là: **phần lớn request của Agent không cần tới trọn tài nguyên tính toán ở mức Region;** kiến trúc xử lý ở edge và về nguồn theo nhu cầu có thể cải thiện một cách hệ thống độ trễ, chi phí và trải nghiệm cho người dùng toàn cầu mà không cần đổi logic lõi của Agent. Mỗi giai đoạn đều có chỉ số đánh giá và chuẩn độ chín tương ứng; doanh nghiệp nên chọn giai đoạn thích hợp theo mức độ toàn cầu hoá của mình, rồi tiến hoá liên tục dưới sự dẫn dắt của dữ liệu production.
 
-Nhìn từ góc rộng hơn, topology triển khai edge-first cũng là phần hạ tầng chống đỡ cho viễn cảnh "Agentic OS" nêu ở phần kết — khi Agent đi từ một ứng dụng đơn lẻ tới một hệ sinh thái cộng tác ở tầm hệ điều hành, tầng edge sẽ thành hạ tầng then chốt cho việc giao tiếp giữa các Agent, khám phá năng lực và điều phối task. Việc Runtime kéo dài từ Region ra edge là con đường tất yếu để Agentic Application đi tới Agentic OS.
+Nhìn từ góc rộng hơn, topology triển khai edge-first cũng là phần hạ tầng hỗ trợ cho viễn cảnh "Agentic OS" nêu ở phần kết — khi Agent đi từ một ứng dụng đơn lẻ tới một hệ sinh thái cộng tác ở tầm hệ điều hành, tầng edge sẽ thành hạ tầng then chốt cho việc giao tiếp giữa các Agent, khám phá năng lực và điều phối task. Việc Runtime kéo dài từ Region ra edge là con đường tất yếu để Agentic Application đi tới Agentic OS.
 
 **Từ Region tới Edge, runtime của Agent kéo dài tới mọi ngóc ngách trên toàn cầu.**

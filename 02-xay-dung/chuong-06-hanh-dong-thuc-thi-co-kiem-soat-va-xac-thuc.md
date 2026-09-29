@@ -244,7 +244,7 @@ Runtime chọn môi trường cục bộ, dùng chung, managed hay tự host the
 | Workspace cục bộ | Truy cập file và ứng dụng thật của người dùng, độ trễ tương tác thấp | Môi trường khác nhau nhiều, ảnh hưởng tới thiết bị người dùng, khó quản trị tập trung | Agent trong IDE, CLI, workspace cá nhân |
 | Môi trường từ xa dùng chung | Tái sử dụng hạ tầng và cache | Rủi ro cao về cô lập tenant, xung đột đồng thời và dữ liệu sót lại | Phát triển nội bộ có kiểm soát và task rủi ro thấp |
 | Môi trường cô lập managed | Tạo nhanh theo Session / Task, vòng đời rõ ràng | Cần đánh giá ranh giới dữ liệu, tuỳ biến image và kết nối mạng | Agent online, bất đồng bộ, theo lô |
-| Sandbox doanh nghiệp tự host | Dữ liệu và việc chạy tool ở lại trong mạng doanh nghiệp | Doanh nghiệp gánh phần dung lượng, vá lỗi và chất lượng cô lập | Tuân thủ chặt, dữ liệu nội bộ và tool mạng nội bộ |
+| Sandbox doanh nghiệp tự host | Dữ liệu và việc chạy tool ở lại trong mạng doanh nghiệp | Doanh nghiệp đảm nhiệm dung lượng, vá lỗi và chất lượng cô lập | Tuân thủ chặt, dữ liệu nội bộ và tool mạng nội bộ |
 
 Harness managed và Sandbox tự host có thể kết hợp: phần suy luận và orchestration task do nền tảng quản lý, còn việc thực thi tool thật thì ở lại môi trường doanh nghiệp. Điểm then chốt là giữa Session, Harness và Sandbox phải dùng hợp đồng event, state và định danh ổn định — **không được copy Secret dài hạn hay trọn bộ dữ liệu doanh nghiệp sang phía điều khiển managed.**
 
@@ -304,7 +304,7 @@ Harness có thể quy kết quả policy thành ba loại:
 
 *   **ASK:** hành động thực thi được, nhưng cần người hoặc hệ thống được chỉ định xác nhận.
 
-**`ASK` không phải phương án đỡ mặc định.** Quá nhiều phê duyệt sẽ khiến người dùng bấm xác nhận một cách máy móc, và cũng làm Agent mất tính liên tục. Nên ưu tiên giảm rủi ro bằng Tool hẹp hơn, ràng buộc tham số, preview, phạm vi tài nguyên và Sandbox; chỉ xin con người tham gia khi mục đích hoặc hậu quả không thể được policy phán định đầy đủ.
+**`ASK` không phải phương án đỡ mặc định.** Quá nhiều phê duyệt sẽ khiến người dùng bấm xác nhận một cách máy móc, và cũng làm Agent mất tính liên tục. Nên ưu tiên giảm rủi ro bằng Tool hẹp hơn, ràng buộc tham số, preview, phạm vi tài nguyên và Sandbox; chỉ xin con người tham gia khi mục đích hoặc hậu quả không thể được policy đánh giá đầy đủ.
 
 | Ví dụ rủi ro | Policy mặc định đề xuất |
 | --- | --- |
@@ -314,7 +314,7 @@ Harness có thể quy kết quả policy thành ba loại:
 | Gửi message ra ngoài, phát hành, thanh toán, xoá hoặc đổi dữ liệu production | ASK hoặc DENY, yêu cầu preview và nêu rõ ảnh hưởng |
 | Truy cập dữ liệu xuyên tenant, vòng qua kiểm soát an toàn, xin Secret dài hạn | DENY |
 
-### 6.4.2 Đưa HITL vào đúng chỗ thực sự cần phán đoán
+### 6.4.2 Đưa HITL vào đúng chỗ thực sự cần nhận định
 
 HITL có thể xuất hiện ở ba tầng:
 
@@ -369,13 +369,13 @@ for await (const message of query({
 
 ```
 
-Callback chỉ là **lối vào tương tác**; backend doanh nghiệp vẫn phải phán định một lần nữa một cách có tính xác định dựa trên định danh đang đăng nhập, tenant, version tài nguyên và Policy. Với việc phát hành production, kết quả phê duyệt nên sinh ra một uỷ quyền **ngắn hạn, giới hạn đích**, chứ không phải chuyển cả Session sang chế độ cho qua vô điều kiện.
+Callback chỉ là **lối vào tương tác**; backend doanh nghiệp vẫn phải đánh giá một lần nữa một cách có tính xác định dựa trên định danh đang đăng nhập, tenant, version tài nguyên và Policy. Với việc phát hành production, kết quả phê duyệt nên sinh ra một uỷ quyền **ngắn hạn, giới hạn đích**, chứ không phải chuyển cả Session sang chế độ cho qua vô điều kiện.
 
 **Steering, Interrupt và Resume.**
 
 Sự tham gia của con người không chỉ xảy ra tại điểm phê duyệt. Người dùng còn cần bổ sung thông tin trong lúc task chạy, đổi độ ưu tiên, thu hẹp phạm vi, tạm dừng hoặc huỷ. Harness nên biểu diễn Steering thành một **sự kiện task ưu tiên cao**, để state machine ở chương 4 xử lý tại một điểm an toàn; với việc ngắt khẩn cấp thì có thể huỷ các hành động gián đoạn được và chặn Action mới.
 
-Trước khi khôi phục, Harness phải commit yêu cầu mới của người dùng vào Task State, phán định xem Plan, quyền hạn và task nền hiện có còn hiệu lực không, rồi mới dựng lại Context. **Việc chỉ append một message người dùng vào cuối một lịch sử dài có thể không phủ được kế hoạch cũ vốn đã vào hàng đợi thực thi.**
+Trước khi khôi phục, Harness phải commit yêu cầu mới của người dùng vào Task State, đánh giá xem Plan, quyền hạn và task nền hiện có còn hiệu lực không, rồi mới dựng lại Context. **Việc chỉ append một message người dùng vào cuối một lịch sử dài có thể không phủ được kế hoạch cũ vốn đã vào hàng đợi thực thi.**
 
 ### 6.4.4 Guardrail và phòng chống Prompt Injection
 
@@ -449,7 +449,7 @@ sequenceDiagram
 
 ### 6.5.4 Để luồng event nối tiếp được, giới hạn được và hiển thị theo định danh
 
-Luồng event phải giả định rằng mạng sẽ đứt, client sẽ kết nối lại nhiều lần, và các bên tiêu thụ có tốc độ khác nhau. Mỗi event cần một số thứ tự đơn điệu hoặc một con trỏ khôi phục được; khi client kết nối lại thì nối tiếp từ vị trí xác nhận cuối, và server hỗ trợ khử trùng lặp. Bên tiêu thụ nhanh có thể nhận phần tăng dần theo thời gian thực; bên chậm có thể đọc snapshot trạng thái trước rồi bổ sung các event then chốt.
+Luồng event phải giả định rằng mạng sẽ đứt, client sẽ kết nối lại nhiều lần, và các bên tiêu thụ có tốc độ khác nhau. Mỗi event cần một số thứ tự đơn điệu hoặc một con trỏ khôi phục được; khi client kết nối lại thì nối tiếp từ vị trí xác nhận cuối, và server hỗ trợ loại bỏ trùng lặp. Bên tiêu thụ nhanh có thể nhận phần tăng dần theo thời gian thực; bên chậm có thể đọc snapshot trạng thái trước rồi bổ sung các event then chốt.
 
 Với token text tần suất cao hay log tool hạt mịn, hệ thống có thể gộp, lấy mẫu hoặc chỉ gửi ở chế độ debug; còn các event về trạng thái, phê duyệt, Artifact và trạng thái cuối thì **không được bỏ vì backpressure**. Sau khi người dùng gửi Cancel hay Interrupt, Channel phải xác nhận sớm nhất có thể rằng yêu cầu đã vào state machine, và phân biệt rõ "đã nhận lệnh huỷ" với "Action ở tầng dưới đã dừng an toàn".
 
@@ -488,15 +488,15 @@ curl -fsS -X POST \
   --data '{"events":[{"type":"user.message","content":[{"type":"text","text":"Tạo thay đổi vá lỗ hổng có thể phê duyệt, không được phát hành trực tiếp"}]}]}'
 ```
 
-Luồng event có thể trả về các event ngữ nghĩa như `session.status_running`, `agent.message`, `agent.tool_use`, `agent.tool_result` và `session.status_idle`. Client nên lưu ID của một event sau khi xử lý trọn vẹn thành công, dùng `Last-Event-ID` để nối tiếp khi rớt kết nối, bổ sung phần lịch sử qua List Events khi cần, và xử lý idempotent theo ID cho các event trọn vẹn. `WAITING_APPROVAL` là một trạng thái trừu tượng của cuốn sách này; khi QCA chờ xác nhận tool hoặc chờ kết quả từ client, nó trả về `session.status_idle` với `stop_reason.type` là `requires_action` — **phải đọc `stop_reason.event_ids` để xử lý các hành động đang chờ phản hồi, không được chỉ dựa vào `idle` mà phán định là đã hoàn thành.** Ứng dụng doanh nghiệp nên liên kết Session ID với Task, tenant và phiếu phê duyệt, và sinh view an toàn cho từng Channel.
+Luồng event có thể trả về các event ngữ nghĩa như `session.status_running`, `agent.message`, `agent.tool_use`, `agent.tool_result` và `session.status_idle`. Client nên lưu ID của một event sau khi xử lý trọn vẹn thành công, dùng `Last-Event-ID` để nối tiếp khi rớt kết nối, bổ sung phần lịch sử qua List Events khi cần, và xử lý idempotent theo ID cho các event trọn vẹn. `WAITING_APPROVAL` là một trạng thái trừu tượng của cuốn sách này; khi QCA chờ xác nhận tool hoặc chờ kết quả từ client, nó trả về `session.status_idle` với `stop_reason.type` là `requires_action` — **phải đọc `stop_reason.event_ids` để xử lý các hành động đang chờ phản hồi, không được chỉ dựa vào `idle` mà đánh giá là đã hoàn thành.** Ứng dụng doanh nghiệp nên liên kết Session ID với Task, tenant và phiếu phê duyệt, và sinh view an toàn cho từng Channel.
 
 Cloud Agents cung cấp phần thực thi managed cùng việc đánh giá Outcome và phản hồi để sửa; còn doanh nghiệp chịu trách nhiệm về tiêu chí nghiệm thu nghiệp vụ, nguồn bằng chứng và phê duyệt phát hành. Với các lời gọi tool dựng sẵn hoặc MCP cần xác nhận, ứng dụng gửi lại `user.tool_confirmation` về Session gốc và dùng `tool_use_id` để liên kết tới event đang chờ; còn với tool tuỳ biến phía client thì ứng dụng tự hoàn tất phê duyệt và thực thi rồi gửi lại `user.custom_tool_result`, liên kết bằng `custom_tool_use_id` tới request gốc. `production.deploy` vẫn phải thực thi qua tool và hệ thống phê duyệt của doanh nghiệp; **một `user.message` thông thường không thay thế được việc xác nhận tool hay phản hồi kết quả.**
 
 ---
 
-## 6.6 Observability, Evaluation và vòng khép kín hiệu quả
+## 6.6 Observability, Evaluation và vòng lặp khép kín hiệu quả
 
-### 6.6.1 Dùng Trace đầu-cuối để nối quyết định, hành động và kết quả
+### 6.6.1 Dùng Trace đầu cuối để nối quyết định, hành động và kết quả
 
 Chất lượng cuối cùng của Agent đến từ tổ hợp giữa model và Harness; vấn đề có thể phát sinh ở bất kỳ khâu nào: Context, kế hoạch, tool, quyền hạn, môi trường, state hay kiểm chứng. Vì vậy Trace **không thể chỉ ghi input và output của model.** Một Task Trace ít nhất phải liên kết:
 
@@ -545,15 +545,15 @@ Cần phân biệt lại hai hệ thống:
 
 Evaluation Harness **bắt buộc phải cố định hoặc công bố** model, thiết lập suy luận, Harness, version tool, ngân sách, retry, môi trường và luật chấm điểm. Nếu không, chênh lệch điểm giữa hai version có thể đến từ điều kiện chạy, chứ không từ chính Harness Patch đang được đánh giá.
 
-Verifier ở chương 4 là **cổng hoàn thành cho một lần task**, chạy bên trong Agent Harness; còn Evaluation thì phán định chất lượng trên nhiều mẫu và nhiều version. Verifier có thể trở thành nguồn dữ liệu cho Evaluation, và Evaluation cũng có thể phát hiện một loại Verifier nào đó quá lỏng hay quá chặt; nhưng **không nên nhúng thẳng một bộ đánh giá phát hành đắt đỏ vào mỗi task online.**
+Verifier ở chương 4 là **cổng hoàn thành cho một lần task**, chạy bên trong Agent Harness; còn Evaluation thì đánh giá chất lượng trên nhiều mẫu và nhiều version. Verifier có thể trở thành nguồn dữ liệu cho Evaluation, và Evaluation cũng có thể phát hiện một loại Verifier nào đó quá lỏng hay quá chặt; nhưng **không nên nhúng thẳng một bộ đánh giá phát hành đắt đỏ vào mỗi task online.**
 
-Với task rủi ro cao, Verifier quan tâm tới mức sàn bàn giao được; với một version Agent, Evaluation còn phải phán định mức cải thiện tương đối, phân bố thoái hoá và rủi ro đuôi dài. Phản hồi của con người cũng **không phải ground truth tự nhiên**: cần phân biệt sở thích người dùng, kết quả nghiệp vụ và sự tiện lợi thao tác, rồi kết hợp với bằng chứng môi trường để diễn giải.
+Với task rủi ro cao, Verifier quan tâm tới mức sàn bàn giao được; với một version Agent, Evaluation còn phải đánh giá mức cải thiện tương đối, phân bố thoái hoá và rủi ro đuôi dài. Phản hồi của con người cũng **không phải ground truth tự nhiên**: cần phân biệt sở thích người dùng, kết quả nghiệp vụ và sự tiện lợi thao tác, rồi kết hợp với bằng chứng môi trường để diễn giải.
 
 **Ba tầng đối tượng đánh giá.**
 
 | Tầng | Đối tượng đánh giá | Câu hỏi điển hình | Phương pháp phù hợp |
 | --- | --- | --- | --- |
-| Một bước | Một lần Context, một phán đoán model hay một lời gọi Tool | Chọn tool có đúng không, tham số có đúng không, truy hồi có chứa bằng chứng then chốt không | Luật, Schema, gán nhãn và chấm điểm cục bộ bằng model |
+| Một bước | Một lần Context, một nhận định model hay một lời gọi Tool | Chọn tool có đúng không, tham số có đúng không, truy hồi có chứa bằng chứng then chốt không | Luật, Schema, gán nhãn và chấm điểm cục bộ bằng model |
 | Quỹ đạo | Chuỗi state và hành động từ lúc task bắt đầu tới khi kết thúc | Có đi vòng, lặp, vượt quyền, uỷ nhiệm sai hay tiêu hao quá mức không | Luật quỹ đạo, so sánh chuỗi, thẩm định bởi chuyên gia hoặc model |
 | Kết quả cuối | Artifact, trạng thái cuối của môi trường và Outcome nghiệp vụ | Mục tiêu có thực sự đạt không, chất lượng có chấp nhận được không | Test, truy vấn nghiệp vụ, nghiệm thu bởi con người, Evaluator độc lập |
 
@@ -608,7 +608,7 @@ Patch đúng **không phải** thêm một câu "hãy thận trọng khi phát h
 | Xây Agent dựa trên model | Dùng Agent, Environment, Session, Event để host việc thực thi; nối vào Channel và hệ quan sát doanh nghiệp qua SSE; đánh giá kết quả qua Outcome và phản hồi để sửa trong số lượt giới hạn | Cấu hình Agent, ranh giới tool và dữ liệu doanh nghiệp, ánh xạ Task, tiêu chí nghiệm thu nghiệp vụ, nguồn bằng chứng, quy trình phê duyệt và đánh giá xuyên version |
 | Xây nhanh Agent trên năng lực dựng sẵn của sản phẩm cloud | Tổ hợp định nghĩa Agent, kết nối model, Skill, tool MCP và credential ngay trong nền tảng; tái sử dụng Runtime, Sandbox, Channel và Trace dựng sẵn để chạy việc vá; rồi hình thành version mới qua đánh giá, cổng chấp nhận và canary của nền tảng | Định nghĩa Agent và quyền sở hữu version, phạm vi uỷ quyền năng lực và dữ liệu, ánh xạ Task nghiệp vụ, tiêu chí nghiệm thu Outcome, ngưỡng chấp nhận phát hành và đánh giá xuyên version |
 
-Các nền tảng đánh giá và tối ưu như **AgentLoop** (quan sát và tối ưu Agent của Alibaba Cloud) nằm **bên trên** cả bốn con đường. Nó nhận Trace có version, Outcome, test case và bộ chấm điểm, rồi so sánh nhất quán các version Harness sinh ra từ Framework, SDK, Managed Agent hay năng lực dựng sẵn của sản phẩm cloud. **Con đường xây dựng quyết định ai gánh phần thực thi; còn vòng khép kín đánh giá thống nhất mới quyết định hệ thống có thực sự tốt lên hay không.**
+Các nền tảng đánh giá và tối ưu như **AgentLoop** (quan sát và tối ưu Agent của Alibaba Cloud) nằm **bên trên** cả bốn con đường. Nó nhận Trace có version, Outcome, test case và bộ chấm điểm, rồi so sánh nhất quán các version Harness sinh ra từ Framework, SDK, Managed Agent hay năng lực dựng sẵn của sản phẩm cloud. **Con đường xây dựng quyết định ai đảm nhiệm thực thi; còn vòng lặp khép kín đánh giá thống nhất mới quyết định hệ thống có thực sự tốt lên hay không.**
 
 ---
 

@@ -18,7 +18,7 @@ Sự trưởng thành của các trợ lý lập trình AI và agent R&D đang �
 
 Nút thắt thực sự nằm ở chỗ **năng lực tính toán cho việc test được rót vào đâu.** Kiểm thử động cho kernel hiện nay lấy fuzzing dẫn dắt bởi độ phủ làm khuôn mẫu chủ đạo: liên tục khám phá nhánh mới bằng đột biến ngẫu nhiên quy mô lớn, đẩy độ phủ tổng thể lên cao. Khi dùng để phát hiện các vấn đề chưa biết, tính hữu hiệu của khuôn mẫu này đã được kiểm chứng nhiều lần. Nhưng khi mục tiêu test bị giới hạn rõ ràng vào "phần code mà lần thay đổi này chạm tới", thì vấn đề hiệu suất lộ ra ngay.
 
-Thống kê đo thực tế của chúng tôi cho một con số trực quan: **trong các test case mà các công cụ chủ đạo sinh ra tích luỹ, phần liên quan tới mục tiêu chỉ định chỉ chiếm khoảng 5%.** Phần năng lực tính toán còn lại tạo thành cái gọi là ảo giác về việc chạy test: hệ thống test vận hành với cường độ cao, đường cong độ phủ cũng đi lên, mà những đường code thực sự liên quan tới lần thay đổi này thì vẫn nằm ngoài phạm vi thực thi. Báo cáo trước khi merge được đánh dấu là đạt, nhưng kết luận "đạt" ấy thiếu phần chống đỡ, và khiếm khuyết phải đợi tới lúc canary, thậm chí tới môi trường production, mới lộ ra.
+Thống kê đo thực tế của chúng tôi cho một con số trực quan: **trong các test case mà các công cụ chủ đạo sinh ra tích luỹ, phần liên quan tới mục tiêu chỉ định chỉ chiếm khoảng 5%.** Phần năng lực tính toán còn lại tạo thành cái gọi là ảo giác về việc chạy test: hệ thống test vận hành với cường độ cao, đường cong độ phủ cũng đi lên, mà những đường code thực sự liên quan tới lần thay đổi này thì vẫn nằm ngoài phạm vi thực thi. Báo cáo trước khi merge được đánh dấu là đạt, nhưng kết luận "đạt" ấy thiếu phần hỗ trợ, và khiếm khuyết phải đợi tới lúc canary, thậm chí tới môi trường production, mới lộ ra.
 
 Mâu thuẫn mang tính cấu trúc nằm ngay đó: **phía cung thay đổi đang tăng tốc, còn phía kiểm chứng chất lượng thì đang thành nút thắt.** ABACI đổi mục tiêu tối ưu: đặt **"khả năng chạm tới mục tiêu"** lên hàng đầu, để năng lực tính toán cho việc test rơi đúng vào phần code của lần thay đổi này.
 
@@ -46,9 +46,9 @@ Vì thế việc test có trọng tâm cần một **la bàn lúc chạy**, mộ
 
 Chạm tới mục tiêu chỉ là điều kiện cần; giá trị của việc test rốt cuộc nằm ở việc phát hiện vấn đề thật.
 
-Khiếm khuyết kernel có một đặc tính thống kê quan trọng: **tuyệt đại đa số khiếm khuyết mới là biến thể của khiếm khuyết trong lịch sử**, với cơ chế và mẫu kích hoạt đã hàm chứa trong các báo cáo vấn đề cùng commit sửa lỗi trong lịch sử. Năng lực hiểu code của các model nền hiện tại đủ để đọc hiểu logic thay đổi; nút thắt nằm ở chỗ thiếu kinh nghiệm lịch sử cụ thể tái dùng thẳng được để dẫn dắt. Với mỗi lần thay đổi, model lại phải đọc code từ đầu, và ngân sách suy luận tiêu phần lớn vào việc hiểu code đang làm gì, còn phần dành cho việc định vị vấn đề thì lại hữu hạn.
+Khiếm khuyết kernel có một đặc tính thống kê quan trọng: **tuyệt đại đa số khiếm khuyết mới là biến thể của khiếm khuyết trong lịch sử**, với cơ chế và mẫu kích hoạt đã hàm chứa trong các báo cáo vấn đề cùng commit sửa lỗi trong lịch sử. Năng lực hiểu code của các model nền hiện tại đủ để đọc hiểu logic thay đổi; nút thắt nằm ở chỗ thiếu kinh nghiệm lịch sử cụ thể tái dùng trực tiếp được để dẫn dắt. Với mỗi lần thay đổi, model lại phải đọc code từ đầu, và ngân sách suy luận tiêu phần lớn vào việc hiểu code đang làm gì, còn phần dành cho việc định vị vấn đề thì lại hữu hạn.
 
-Bản thân việc phán định khiếm khuyết cũng đòi hỏi rất cao về suy luận. Model không chỉ phải chỉ ra vị trí đáng ngờ, mà còn phải đưa ra tiền đề trạng thái kích hoạt được cùng mạch kích hoạt cụ thể; trong khi khiếm khuyết thì thường ẩn trong các bất biến xuyên file và trong việc quản lý vòng đời tài nguyên.
+Bản thân việc đánh giá khiếm khuyết cũng đòi hỏi rất cao về suy luận. Model không chỉ phải chỉ ra vị trí đáng ngờ, mà còn phải đưa ra tiền đề trạng thái kích hoạt được cùng mạch kích hoạt cụ thể; trong khi khiếm khuyết thì thường ẩn trong các bất biến xuyên file và trong việc quản lý vòng đời tài nguyên.
 
 ---
 
@@ -74,7 +74,7 @@ Nhắm vào thách thức hai, trong chuỗi thực thi test đưa vào một **
 
 * **Kịp thời cắt các hướng vô hiệu.** Các test case giậm chân tại chỗ lâu bị hạ cấp hoặc loại bỏ.
 
-* **Ưu tiên tín hiệu về phương hướng.** Chỉ khi phán định theo phương hướng khó phân biệt hơn kém thì độ phủ truyền thống mới tham gia làm căn cứ phụ.
+* **Ưu tiên tín hiệu về phương hướng.** Chỉ khi đánh giá theo phương hướng khó phân biệt hơn kém thì độ phủ truyền thống mới tham gia làm căn cứ phụ.
 
 Việc tiến hoá của test case đồng thời tuân theo nguyên tắc **giữ cấu trúc**: phần xương sống chuỗi và các ràng buộc then chốt mà suy luận ngữ nghĩa đã xác nhận thì giữ ổn định qua các vòng lặp, còn việc tiến hoá chỉ xảy ra ở phần tự do còn phải khám phá. Tính hữu hiệu ngữ nghĩa đã thiết lập nhờ đó được bảo vệ, và cả quá trình cho thấy đặc trưng hội tụ ổn định.
 
@@ -92,7 +92,7 @@ Nhắm vào thách thức ba, ABACI dựng một hệ chưng cất và tái dùn
 
 Thiết kế này phân bổ lại ngân sách suy luận của model từ việc hiểu code sang việc định vị vấn đề; và việc sàng lọc khiếm khuyết cũng chuyển từ soát code chung chung thành phép khớp mẫu và kiểm chứng có phương hướng.
 
-**Biểu hiện năng lực**: ở giai đoạn soát thay đổi thì đưa ra phán định về các điểm đáng ngờ kèm điều kiện kích hoạt và tiền đề trạng thái, rồi giao cho chuỗi test có trọng tâm kiểm chứng lúc chạy — nhờ đó chi phí báo nhầm của phán định tĩnh giảm rõ rệt.
+**Biểu hiện năng lực**: ở giai đoạn soát thay đổi thì đưa ra đánh giá về các điểm đáng ngờ kèm điều kiện kích hoạt và tiền đề trạng thái, rồi giao cho chuỗi test có trọng tâm kiểm chứng lúc chạy — nhờ đó chi phí báo nhầm của đánh giá tĩnh giảm rõ rệt.
 
 ---
 
@@ -119,11 +119,11 @@ Chuỗi dịch vụ chia thành bốn giai đoạn tự động:
 
 * **Thời gian kiểm soát được.** Đầu-cuối hội tụ trong ngân sách cỡ giờ, nên đặt được ở vị trí cổng kiểm soát trước khi merge, và nhịp bàn giao vẫn tiến như thường.
 
-* **Kết quả tái hiện được.** Mỗi khiếm khuyết trong báo cáo đều kèm tài liệu tái hiện, chống đỡ thẳng cho việc quy trách nhiệm và sửa chữa về sau.
+* **Kết quả tái hiện được.** Mỗi khiếm khuyết trong báo cáo đều kèm tài liệu tái hiện, hỗ trợ thẳng cho việc quy trách nhiệm và sửa chữa về sau.
 
 * **Song song co giãn.** Chạy song song nhiều instance dựa trên cô lập ảo hoá, nên thông lượng test giãn tuyến tính theo tài nguyên tính toán.
 
-Với bên sử dụng, ABACI hiện ra như một năng lực cổng chất lượng chuẩn. Báo cáo có cấu trúc đưa ra dữ liệu về khả năng chạm tới mục tiêu cùng manh mối khiếm khuyết, và nối thẳng vào quy trình cộng tác R&D để chống đỡ việc theo dõi sửa lỗi và quyết định merge.
+Với bên sử dụng, ABACI hiện ra như một năng lực cổng chất lượng chuẩn. Báo cáo có cấu trúc đưa ra dữ liệu về khả năng chạm tới mục tiêu cùng manh mối khiếm khuyết, và nối thẳng vào quy trình cộng tác R&D để hỗ trợ việc theo dõi sửa lỗi và quyết định merge.
 
 ### 4.3 Thành quả vận hành trong môi trường production
 
@@ -133,9 +133,9 @@ ABACI chạy liên tục trong pipeline CI production, làm phần test có tr�
 
 * **Hình thành phần đóng góp lên upstream của cộng đồng.** Một nhóm vấn đề trong đó được xác nhận là khiếm khuyết của code upstream cộng đồng; đội đã gửi nhiều patch sửa lỗi lên upstream, và có patch đã được xác nhận merge.
 
-* **Nhận diện rủi ro thiếu bản sửa giữa các version.** Một nhóm điểm rủi ro còn tồn do bản sửa upstream chưa được đồng bộ kịp thời đã được tìm ra, cung cấp phần chống đỡ bằng dữ liệu cho chiến lược duy trì version.
+* **Nhận diện rủi ro thiếu bản sửa giữa các version.** Một nhóm điểm rủi ro còn tồn do bản sửa upstream chưa được đồng bộ kịp thời đã được tìm ra, cung cấp phần hỗ trợ bằng dữ liệu cho chiến lược duy trì version.
 
-Những con số này chống đỡ cho một phán đoán then chốt: **một khi năng lực tính toán cho việc test được rót đúng vào phần code thay đổi, thì hiệu suất phát hiện khiếm khuyết sẽ tăng ở mức mang tính cấu trúc.** Lý do khiến một phần đáng kể khiếm khuyết ẩn mình lâu dài rất giản dị: phần code chứa chúng vốn luôn nằm ngoài phạm vi thực thi.
+Những con số này hỗ trợ cho một nhận định then chốt: **một khi năng lực tính toán cho việc test được rót đúng vào phần code thay đổi, thì hiệu suất phát hiện khiếm khuyết sẽ tăng ở mức mang tính cấu trúc.** Lý do khiến một phần đáng kể khiếm khuyết ẩn mình lâu dài rất giản dị: phần code chứa chúng vốn luôn nằm ngoài phạm vi thực thi.
 
 ---
 
@@ -147,7 +147,7 @@ Những con số này chống đỡ cho một phán đoán then chốt: **một 
 
 Dưới đây là trọn quá trình xử lý một merge request thật trong pipeline.
 
-Sau khi thay đổi được gửi lên, giai đoạn nhận diện mục tiêu phân giải ra rằng phần sửa lần này rơi vào đường quản lý trạng thái của một subsystem mạng nào đó; bản thân phần sửa chỉ có một dòng, chỉnh một chỗ điều kiện phán định trạng thái. Chỗ sửa đó được đánh dấu là mục tiêu test của vòng này.
+Sau khi thay đổi được gửi lên, giai đoạn nhận diện mục tiêu phân giải ra rằng phần sửa lần này rơi vào đường quản lý trạng thái của một subsystem mạng nào đó; bản thân phần sửa chỉ có một dòng, chỉnh một chỗ điều kiện đánh giá trạng thái. Chỗ sửa đó được đánh dấu là mục tiêu test của vòng này.
 
 Giai đoạn phân tích liền suy luận ngược lên từ vị trí đó. Muốn kernel chạy tới đây thì trước hết phải dựng một đối tượng trạng thái qua interface cấu hình, rồi kích hoạt đường xoá của nó, và giữa hai thao tác có phụ thuộc. Với mục tiêu cùng loại, nếu liệt kê xuôi từ phía lối vào thì số đường ứng viên lên tới hàng trăm hàng nghìn; còn suy luận ngược thì cuối cùng chỉ cho ra vài đường hữu hiệu, trong đó chỉ có đúng một ràng buộc then chốt cần model quyết định — nó đòi định danh mà request xoá mang theo phải khớp với đối tượng đã dựng trước đó.
 
@@ -155,7 +155,7 @@ Giai đoạn phân tích liền suy luận ngược lên từ vị trí đó. Mu
 
 Giai đoạn báo cáo tổng hợp dữ liệu về khả năng chạm tới của lần này, và đánh dấu một điểm đáng ngờ về vòng đời tài nguyên ở gần hàm mục tiêu, kèm tài liệu tái hiện đầy đủ. Sau khi kỹ sư xác nhận, vấn đề đi vào quy trình sửa chữa.
 
-Thời lượng đầu-cuối của lần xử lý này là khoảng 1 giờ, trong đó phần thực thi test có trọng tâm chiếm khoảng 30 phút, thời gian còn lại dành cho việc phân tích và dựng môi trường. Con người chỉ can thiệp ở khâu xác nhận cuối cùng.
+Thời lượng đầu cuối của lần xử lý này là khoảng 1 giờ, trong đó phần thực thi test có trọng tâm chiếm khoảng 30 phút, thời gian còn lại dành cho việc phân tích và dựng môi trường. Con người chỉ can thiệp ở khâu xác nhận cuối cùng.
 
 ### 5.2 Cấu hình thí nghiệm và so sánh hiệu quả
 
@@ -163,7 +163,7 @@ Trải cùng quy trình đó lên một lô thay đổi thật đã merge để 
 
 * **Chọn thay đổi.** Lấy mẫu theo phân bố subsystem từ các PR đã merge thật của hai version ANCK devel-5.10 và ANCK devel-6.6, mỗi version 50, tổng cộng 100.
 
-* **Thời gian test.** ABACI đầu-cuối 1 giờ, trong đó phần chạy test có trọng tâm 30 phút, còn biên dịch và phân tích chiếm 30 phút còn lại; nhóm đối chứng Syzkaller chạy đủ 1 giờ trên cùng node, tức là có được thời lượng test thuần dư dả hơn.
+* **Thời gian test.** ABACI đầu cuối 1 giờ, trong đó phần chạy test có trọng tâm 30 phút, còn biên dịch và phân tích chiếm 30 phút còn lại; nhóm đối chứng Syzkaller chạy đủ 1 giờ trên cùng node, tức là có được thời lượng test thuần dư dả hơn.
 
 | Chỉ số | ABACI | Google Syzkaller | Mức nâng |
 | --- | --- | --- | --- |
@@ -183,7 +183,7 @@ Nhìn từ góc năng lực tính toán, cơ chế có trọng tâm đã rót l�
 
 * **Việc khởi động nguội cho kho tri thức phụ thuộc vào đầu tư của chuyên gia.** Khâu lấy mẫu kiểm tra trước khi mẫu khiếm khuyết vào kho bắt buộc phải giữ; phần đầu tư ở giai đoạn đầu đổi lấy phương hướng cho mỗi lần sàng lọc về sau. Sau khi chạy một thời gian, việc kho lớn lên chủ yếu đến từ phần đổ ngược của chính pipeline.
 
-* **Tính tái hiện được của báo cáo quyết định vòng khép kín thành hay bại.** Chỉ những khiếm khuyết kèm tài liệu tái hiện mới đẩy được việc sửa chữa; còn báo cáo chỉ có mô tả nghi ngờ thì rất khó đi qua nổi khâu thẩm định.
+* **Tính tái hiện được của báo cáo quyết định vòng lặp khép kín thành hay bại.** Chỉ những khiếm khuyết kèm tài liệu tái hiện mới đẩy được việc sửa chữa; còn báo cáo chỉ có mô tả nghi ngờ thì rất khó đi qua nổi khâu thẩm định.
 
 ---
 
@@ -191,7 +191,7 @@ Nhìn từ góc năng lực tính toán, cơ chế có trọng tâm đã rót l�
 
 ### Với các đội R&D phần mềm nền tảng
 
-Ý nghĩa của cổng chất lượng được viết lại, từ "đã chạy qua test" thành "phần code thay đổi đã được thực thi thật và kiểm chứng", nhờ đó tỉ lệ khiếm khuyết thoát ra giảm ngay từ nguồn. Phần kiểm chứng máy móc hoá được thì hệ thống gánh, còn sự chú ý của kỹ sư kỳ cựu thì quay về đúng những vấn đề mang tính thiết kế cần phán đoán lĩnh vực. Năng lực test giãn theo số lượng commit, và khâu chất lượng nhờ đó theo kịp nhịp tăng tốc của R&D.
+Ý nghĩa của cổng chất lượng được viết lại, từ "đã chạy qua test" thành "phần code thay đổi đã được thực thi thật và kiểm chứng", nhờ đó tỉ lệ khiếm khuyết thoát ra giảm ngay từ nguồn. Phần kiểm chứng máy móc hoá được thì hệ thống gánh, còn sự chú ý của kỹ sư kỳ cựu thì quay về đúng những vấn đề mang tính thiết kế cần nhận định lĩnh vực. Năng lực test giãn theo số lượng commit, và khâu chất lượng nhờ đó theo kịp nhịp tăng tốc của R&D.
 
 ### Với việc vận hành hệ điều hành cấp doanh nghiệp
 
@@ -207,7 +207,7 @@ Các vấn đề và patch sửa lỗi phát hiện được đối với code u
 
 AI đang tái cấu trúc quan hệ sản xuất trong việc phát triển phần mềm. Khâu sản xuất code đã hoàn tất bước nhảy về hiệu suất, còn cuộc cách mạng khuôn mẫu ở khâu bảo đảm chất lượng thì mới chỉ bắt đầu. ABACI đưa ra một lời giải triển khai được cho mệnh đề đó trong lĩnh vực phần mềm nền tảng.
 
-Về khuôn mẫu, mục tiêu tối ưu của việc test chuyển từ khám phá theo chiều rộng dẫn dắt bởi độ phủ sang chạm tới có trọng tâm dẫn dắt bởi mục tiêu. Về kỹ thuật, năng lực ngữ nghĩa của model lớn và phản hồi mang tính xác định lúc chạy hoà vào nhau theo cách tách trách nhiệm, để năng lực model được phát huy và rủi ro cũng bị ràng buộc một cách hệ thống. Về mặt kỹ thuật triển khai, vòng khép kín từ phương pháp tới dịch vụ đã thông; nó chạy ổn định như một cổng chất lượng cấp production và cho ra các kết luận khiếm khuyết tái hiện được. Về giá trị, đầu tư phần cứng giữ nguyên, tỉ lệ chạm tới mục tiêu tăng một bậc độ lớn, còn các khiếm khuyết thật và phần đóng góp cho cộng đồng thì liên tục được sinh ra.
+Về khuôn mẫu, mục tiêu tối ưu của việc test chuyển từ khám phá theo chiều rộng dẫn dắt bởi độ phủ sang chạm tới có trọng tâm dẫn dắt bởi mục tiêu. Về kỹ thuật, năng lực ngữ nghĩa của model lớn và phản hồi mang tính xác định lúc chạy hoà vào nhau theo cách tách trách nhiệm, để năng lực model được phát huy và rủi ro cũng bị ràng buộc một cách hệ thống. Về mặt kỹ thuật triển khai, vòng lặp khép kín từ phương pháp tới dịch vụ đã thông; nó chạy ổn định như một cổng chất lượng cấp production và cho ra các kết luận khiếm khuyết tái hiện được. Về giá trị, đầu tư phần cứng giữ nguyên, tỉ lệ chạm tới mục tiêu tăng một bậc độ lớn, còn các khiếm khuyết thật và phần đóng góp cho cộng đồng thì liên tục được sinh ra.
 
 Độ phức tạp và tốc độ thay đổi của phần mềm nền tảng sẽ còn tiếp tục tăng, và việc test tự động có trọng tâm và kiểm chứng được sẽ trở thành yêu cầu cơ bản của việc bảo đảm chất lượng. Chúng tôi mong được cùng giới công nghiệp và cộng đồng mã nguồn mở thúc đẩy hướng tiến hoá này.
 

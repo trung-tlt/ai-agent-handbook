@@ -16,7 +16,7 @@ Xin dành tặng dự án này cho tất cả những người đồng hành đa
 
 Tháng 9 năm 2025, chúng tôi phát hành [*Sách trắng Kiến trúc Ứng dụng AI-Native*](https://developer.aliyun.com/ebook/8479), xoay quanh toàn bộ vòng đời DevOps của ứng dụng AI-native: từ thiết kế kiến trúc, lựa chọn công nghệ, thực hành kỹ thuật cho đến vận hành và tối ưu. Cuốn sách đó bóc tách một cách hệ thống các khái niệm và điểm khó, đồng thời đề xuất một số hướng giải quyết. Nhưng cùng với tốc độ phát triển rất nhanh của model và công nghệ Agent, chúng tôi nhận thấy mối quan tâm của thị trường đã dịch chuyển từ "xây Agent thật nhanh" sang ba thách thức mới:
 
-*   **Thách thức kỹ thuật (Engineering):** đi từ trí tuệ mang tính xác suất đến năng lực sản xuất đáng tin cậy, để Agent có thể gánh vác những nhiệm vụ trọng yếu.
+*   **Thách thức kỹ thuật (Engineering):** đi từ trí tuệ mang tính xác suất đến năng lực sản xuất đáng tin cậy, để Agent có thể đảm nhiệm những nhiệm vụ trọng yếu.
 
 *   **Thách thức quy mô (Scaling):** ổn định, an toàn, hiệu năng, chi phí — đi từ thử nghiệm đơn lẻ đến hạ tầng trí tuệ, để Agent có thể được triển khai ở quy mô lớn.
 
@@ -87,12 +87,12 @@ Sau khi đọc trọn vẹn, bạn sẽ có thể:
 | Tối ưu | [Chương 17 — Tối ưu model](./05-toi-uu/chuong-17-toi-uu-model.md) | Tiêu chí quy kết vấn đề về model, SFT, Agentic RL, distillation và nghiệm thu trước khi lên production. |
 | Tối ưu | [Chương 18 — Tổng quan tối ưu Agent](./05-toi-uu/chuong-18-tong-quan-toi-uu-agent.md) | Đối tượng tối ưu, ranh giới phương pháp và toàn cảnh bánh đà dữ liệu. |
 | Tối ưu | [Chương 19 — Dữ liệu Trajectory của Agent](./05-toi-uu/chuong-19-du-lieu-trajectory.md) | Từ Trace đến Trajectory, tổ chức bằng chứng hành vi và quyết định có thể tái sử dụng. |
-| Tối ưu | [Chương 20 — Xử lý dữ liệu runtime của Agent](./05-toi-uu/chuong-20-xu-ly-du-lieu-runtime.md) | Thu thập, làm sạch, gia công dữ liệu vận hành và pipeline dữ liệu khai báo. |
-| Tối ưu | [Chương 21 — Golden dataset cho Agent](./05-toi-uu/chuong-21-golden-dataset.md) | Xây tài sản dữ liệu đánh giá chất lượng cao, gồm input, trajectory, kết quả và tiêu chí phán định. |
+| Tối ưu | [Chương 20 — Xử lý dữ liệu runtime của Agent](./05-toi-uu/chuong-20-xu-ly-du-lieu-runtime.md) | Thu thập, làm sạch, xử lý dữ liệu vận hành và pipeline dữ liệu khai báo. |
+| Tối ưu | [Chương 21 — Golden dataset cho Agent](./05-toi-uu/chuong-21-golden-dataset.md) | Xây tài sản dữ liệu đánh giá chất lượng cao, gồm input, trajectory, kết quả và tiêu chí đánh giá. |
 | Tối ưu | [Chương 22 — Tối ưu Agent: Badcase](./05-toi-uu/chuong-22-toi-uu-agent-badcase.md) | Phát hiện, quy kết, khắc phục, hồi quy và kiểm chứng bằng thí nghiệm đối với badcase. |
 | Tối ưu | [Chương 23 — Tự tiến hoá có kiểm soát](./05-toi-uu/chuong-23-tu-tien-hoa-co-kiem-soat.md) | Chuyển kinh nghiệm hiệu quả thành Memory, Skill, tool và cơ chế vận hành, đồng thời kiểm soát rủi ro tự tiến hoá. |
 | Tối ưu | [Chương 24 — Edge Runtime và tối ưu toàn cầu](./05-toi-uu/chuong-24-edge-runtime-va-toi-uu-toan-cau.md) | Runtime biên, đánh giá tại biên, hiệu năng và chi phí, phân phối nội dung, bảo mật và mô phỏng. |
-| Thực tiễn | [Chương 25 — Hiệu suất kỹ thuật (R&D)](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/) | Code review, phát hiện lỗi, bàn giao patch, cộng tác R&D và thực tiễn giao hàng đầu-cuối. |
+| Thực tiễn | [Chương 25 — Hiệu suất kỹ thuật (R&D)](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/) | Code review, phát hiện lỗi, bàn giao patch, cộng tác R&D và thực tiễn giao hàng đầu cuối. |
 | Thực tiễn | [Chương 26 — Design Engineering](./06-thuc-tien/chuong-26-design-engineering/) | Paradigm thiết kế và thực tiễn kỹ thuật của Vibe Designing và GenUI. |
 | Thực tiễn | [Chương 27 — Vận hành, bảo mật và IT doanh nghiệp](./06-thuc-tien/chuong-27-van-hanh-bao-mat-va-it-doanh-nghiep/) | Thực tiễn AIOps quy mô lớn trong ngành ô tô, chuỗi bán lẻ và phần mềm doanh nghiệp. |
 | Thực tiễn | [Chương 28 — Khách hàng, bán hàng và vận hành](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/) | Bộ nhớ dài hạn, insight nội dung, nâng cao hiệu suất văn phòng và thực tiễn Data Agent. |
@@ -107,9 +107,9 @@ Sau khi đọc trọn vẹn, bạn sẽ có thể:
 | Chương 25 — Hiệu suất kỹ thuật | [Kitta: Code Review Agent chuyên ngành](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/kitta-code-review-agent-chuyen-nganh.md) |
 | Chương 25 — Hiệu suất kỹ thuật | [PatchPilot Agents: biến việc bàn giao patch kernel thành vòng lặp kỹ thuật điều phối được và kiểm chứng được](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/patchpilot-agents.md) |
 | Chương 25 — Hiệu suất kỹ thuật | [Từ cảnh báo đến tự động sửa lỗi: thực tiễn kỹ thuật Loop của PolarDB-X](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/polardb-x-tu-canh-bao-den-tu-dong-sua-loi.md) |
-| Chương 25 — Hiệu suất kỹ thuật | [Từ tăng tốc viết code đến bàn giao đầu-cuối: thực tiễn cộng tác người–máy tại Cloud Communication](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/hop-tac-nguoi-may-tai-cloud-communication.md) |
-| Chương 25 — Hiệu suất kỹ thuật | [Từ eval-driven đến bàn giao đầu-cuối: thực tiễn tăng hiệu suất phát triển sản phẩm bảo mật AI Agent](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/eval-driven-phat-trien-san-pham-bao-mat.md) |
-| Chương 25 — Hiệu suất kỹ thuật | [Đội multi-agent: AI trong R&D đi từ viết code tới bàn giao đầu-cuối](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/doi-multi-agent-giao-hang-dau-cuoi.md) |
+| Chương 25 — Hiệu suất kỹ thuật | [Từ tăng tốc viết code đến bàn giao đầu cuối: thực tiễn cộng tác người–máy tại Cloud Communication](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/hop-tac-nguoi-may-tai-cloud-communication.md) |
+| Chương 25 — Hiệu suất kỹ thuật | [Từ eval-driven đến bàn giao đầu cuối: thực tiễn tăng hiệu suất phát triển sản phẩm bảo mật AI Agent](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/eval-driven-phat-trien-san-pham-bao-mat.md) |
+| Chương 25 — Hiệu suất kỹ thuật | [Đội multi-agent: AI trong R&D đi từ viết code tới bàn giao đầu cuối](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/doi-multi-agent-giao-hang-dau-cuoi.md) |
 | Chương 26 — Design Engineering | [GenUI: đưa Agent từ chỗ đưa ra câu trả lời tới chỗ bàn giao kết quả](./06-thuc-tien/chuong-26-design-engineering/genui.md) |
 | Chương 26 — Design Engineering | [Vibe Designing: sự tiến hoá của paradigm thiết kế AI dẫn dắt bởi ý định](./06-thuc-tien/chuong-26-design-engineering/vibe-designing.md) |
 | Chương 27 — Vận hành, bảo mật và IT doanh nghiệp | [Thực tiễn triển khai AIOps tại Geely Auto](./06-thuc-tien/chuong-27-van-hanh-bao-mat-va-it-doanh-nghiep/geely-aiops.md) |
@@ -117,7 +117,7 @@ Sau khi đọc trọn vẹn, bạn sẽ có thể:
 | Chương 27 — Vận hành, bảo mật và IT doanh nghiệp | [Thực tiễn observability và AIOps tại Chanjet](./06-thuc-tien/chuong-27-van-hanh-bao-mat-va-it-doanh-nghiep/chanjet-observability-va-aiops.md) |
 | Chương 28 — Khách hàng, bán hàng và vận hành | [MiniMax xây nền tảng dữ liệu bộ nhớ dài hạn quy mô lớn](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/minimax-nen-tang-du-lieu-memory.md) |
 | Chương 28 — Khách hàng, bán hàng và vận hành | [Hãng kiểm toán ShineWing khám phá việc nâng cao hiệu suất văn phòng](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/shinewing-nang-cao-hieu-suat-van-phong.md) |
-| Chương 28 — Khách hàng, bán hàng và vận hành | [Bilibili xây dựng năng lực insight nội dung toàn miền](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/bilibili-content-insight.md) |
+| Chương 28 — Khách hàng, bán hàng và vận hành | [Bilibili xây dựng năng lực insight nội dung toàn cục](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/bilibili-content-insight.md) |
 | Chương 28 — Khách hàng, bán hàng và vận hành | [Thực tiễn Data Agent cho phân tích vận hành](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/data-agent-phan-tich-van-hanh.md) |
 
 ### Lộ trình đọc gợi ý

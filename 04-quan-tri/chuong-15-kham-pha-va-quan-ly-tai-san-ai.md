@@ -16,7 +16,7 @@ Chương này chỉ triển khai những ràng buộc kiểm chứng và vận h
 
 ## 15.1 Kỹ thuật hoá Prompt: template, version, đánh giá và rollback
 
-Ở giai đoạn prototype, Prompt thường tồn tại dưới dạng chuỗi trong code, mục cấu hình hay đoạn tài liệu. Khi cùng một Prompt được nhiều Agent tái dùng, thì ngoài văn bản, các biến, model, tool và yêu cầu output cũng trở thành điều kiện vận hành. **Nếu chỉ lưu một đoạn văn bản cuối cùng, đội ngũ rất khó phán định một lần sửa có làm đổi interface gọi hay không, và cũng không so sánh ổn định được hành vi giữa version mới và cũ.**
+Ở giai đoạn prototype, Prompt thường tồn tại dưới dạng chuỗi trong code, mục cấu hình hay đoạn tài liệu. Khi cùng một Prompt được nhiều Agent tái dùng, thì ngoài văn bản, các biến, model, tool và yêu cầu output cũng trở thành điều kiện vận hành. **Nếu chỉ lưu một đoạn văn bản cuối cùng, đội ngũ rất khó đánh giá một lần sửa có làm đổi interface gọi hay không, và cũng không so sánh ổn định được hành vi giữa version mới và cũ.**
 
 ### 15.1.1 Từ mảnh văn bản tới template có cấu trúc
 
@@ -26,13 +26,13 @@ Một Prompt phát hành được nên được biểu diễn thành **nội dun
 | --- | --- | --- |
 | Tầng chỉ dẫn | Policy hệ thống, chỉ dẫn của developer hay ứng dụng, chỉ dẫn task… ở các cấp khác nhau | Nguồn rõ ràng, thứ tự ổn định; **nội dung ưu tiên thấp không được ghi đè luật ưu tiên cao** |
 | Template và biến | Thân template, tên biến, kiểu, có bắt buộc không, giá trị mặc định và giới hạn độ dài | Ngăn việc thiếu biến, sai kiểu và input chưa xử lý làm đổi cấu trúc chỉ dẫn |
-| Yêu cầu input/output | Phạm vi input, định dạng output, Schema có cấu trúc và cách xử lý ngoại lệ | Tiện cho bên gọi kiểm tra, cũng dùng để phán định tính tương thích version |
+| Yêu cầu input/output | Phạm vi input, định dạng output, Schema có cấu trúc và cách xử lý ngoại lệ | Tiện cho bên gọi kiểm tra, cũng dùng để đánh giá tính tương thích version |
 | Phụ thuộc vận hành | Model áp dụng được, tool cần thiết, nguồn tri thức và môi trường ngôn ngữ | Tránh để Prompt bị nạp vào một Agent không có năng lực tương ứng |
 | Tài liệu kiểm chứng | Mẫu thuận, mẫu biên, bộ đánh giá và tiêu chí chấm | Hỗ trợ đánh giá trước khi phát hành và so sánh với version lịch sử |
 
 Việc mô hình hoá có cấu trúc **không đòi hỏi mọi Prompt phải dùng định dạng phức tạp.** Với các Prompt ngắn không có biến, phần thân vẫn có thể là chủ thể; trung tâm tài nguyên ít nhất phải biết cấp chỉ dẫn, phạm vi áp dụng và yêu cầu output của nó. Còn với Prompt có biến template thì nên dùng Schema biến rõ ràng, để bên gọi kiểm tra được tên, kiểu và khoảng giá trị trước khi render.
 
-**Việc thay thế biến phải hoàn tất trong một quá trình render có kiểm soát.** Input người dùng, kết quả truy hồi và giá trị trả về của tool đi vào những vị trí chỉ định với tư cách **dữ liệu**, và qua xử lý độ dài, kiểu cùng escape cần thiết; **không nên ghép bừa với template trước rồi để model tự phán đoán nội dung nào là chỉ dẫn.** Cách này vừa giảm lỗi template, vừa giảm rủi ro nội dung bên ngoài làm đổi ranh giới chỉ dẫn ban đầu.
+**Việc thay thế biến phải hoàn tất trong một quá trình render có kiểm soát.** Input người dùng, kết quả truy hồi và giá trị trả về của tool đi vào những vị trí chỉ định với tư cách **dữ liệu**, và qua xử lý độ dài, kiểu cùng escape cần thiết; **không nên ghép bừa với template trước rồi để model tự nhận định nội dung nào là chỉ dẫn.** Cách này vừa giảm lỗi template, vừa giảm rủi ro nội dung bên ngoài làm đổi ranh giới chỉ dẫn ban đầu.
 
 Quan hệ giữa Prompt với model và tool cũng phải được ghi tường minh. Ví dụ, một Prompt yêu cầu model gọi tool `query_order` và xuất kết quả theo một JSON Schema chỉ định, thì tên tool, định nghĩa tham số và Schema output đều cấu thành **điều kiện vận hành.** Thiếu những phụ thuộc đó thì dù thân Prompt có đầy đủ, cũng **không được coi là nó chạy bình thường được.**
 
@@ -46,9 +46,9 @@ Nhìn từ góc độ ảnh hưởng khi phát hành, thay đổi Prompt có th�
 | --- | --- | --- |
 | Sửa chữ nghĩa | Sửa lỗi, bổ sung giải thích hay cải thiện cách diễn đạt | Dự kiến không đổi mục tiêu task và cấu trúc output, **nhưng vẫn phải xác nhận qua đánh giá** |
 | Thay đổi interface | Thêm biến bắt buộc, sửa Schema output, đổi tên tool hay điều kiện phụ thuộc | Ảnh hưởng trực tiếp tới việc thích ứng và tương thích của bên gọi |
-| Thay đổi hành vi | Đổi luật phán đoán, các bước xử lý, phạm vi từ chối hay thiên hướng kết quả | **Ngay cả khi hình thức input/output không đổi, hành vi thực tế của Agent vẫn có thể đổi** |
+| Thay đổi hành vi | Đổi luật nhận định, các bước xử lý, phạm vi từ chối hay thiên hướng kết quả | **Ngay cả khi hình thức input/output không đổi, hành vi thực tế của Agent vẫn có thể đổi** |
 
-Cách phân loại này giúp người thẩm định hiểu rủi ro, **nhưng không thay thế được việc đánh giá thực tế.** Một điều chỉnh nhỏ trong ngôn ngữ tự nhiên cũng có thể làm đổi output của model, nên **khó suy ra tính tương thích chỉ từ major/minor/patch version truyền thống.** Số version trước hết đóng vai trò định danh duy nhất; còn hành vi có chấp nhận được hay không thì vẫn phải kết hợp kết quả đánh giá và phán đoán của con người.
+Cách phân loại này giúp người thẩm định hiểu rủi ro, **nhưng không thay thế được việc đánh giá thực tế.** Một điều chỉnh nhỏ trong ngôn ngữ tự nhiên cũng có thể làm đổi output của model, nên **khó suy ra tính tương thích chỉ từ major/minor/patch version truyền thống.** Số version trước hết đóng vai trò định danh duy nhất; còn hành vi có chấp nhận được hay không thì vẫn phải kết hợp kết quả đánh giá và nhận định của con người.
 
 Prompt được nhiều Agent dùng chung còn phải duy trì **quan hệ tham chiếu ngược.** Trước khi phát hành, phải xem được các bên đang dùng, cách binding ở môi trường production và quy mô lời gọi lịch sử, để xác định Agent nào cần thích ứng trước, bối cảnh nào có thể kiểm chứng ở phạm vi nhỏ.
 
@@ -58,7 +58,7 @@ Việc đánh giá Prompt cần đồng thời quan sát **cấu trúc có đún
 
 Cùng một bộ đánh giá trên các model khác nhau có thể cho kết quả khác nhau; vì vậy **bản ghi đánh giá bắt buộc phải liên kết với version Prompt, version model, tham số suy luận, định nghĩa tool và version bộ đánh giá.** Chỉ ghi một điểm tổng thì không nói lên được sự thay đổi đến từ việc sửa Prompt hay từ việc môi trường vận hành đổi.
 
-Bộ đánh giá nên gồm các task thông thường, input ở biên và các mẫu vấn đề lịch sử. Với output có cấu trúc, phải thống kê riêng tỉ lệ qua định dạng; với Prompt chứa luật phán đoán, phải quan sát phân bố lỗi theo từng loại chứ **không chỉ nhìn điểm trung bình.** Bối cảnh rủi ro cao còn cần con người kiểm tra mẫu các output cụ thể, để xác nhận rằng chỉ số tự động không che mất một thay đổi không chấp nhận được về mặt nghiệp vụ.
+Bộ đánh giá nên gồm các task thông thường, input ở biên và các mẫu vấn đề lịch sử. Với output có cấu trúc, phải thống kê riêng tỉ lệ qua định dạng; với Prompt chứa luật nhận định, phải quan sát phân bố lỗi theo từng loại chứ **không chỉ nhìn điểm trung bình.** Bối cảnh rủi ro cao còn cần con người kiểm tra mẫu các output cụ thể, để xác nhận rằng chỉ số tự động không che mất một thay đổi không chấp nhận được về mặt nghiệp vụ.
 
 **Kết quả đánh giá là input cho việc thẩm định thay đổi, không phải lệnh phát hành tự động.** Tác giả tài nguyên vẫn phải nói rõ mục đích sửa, cải thiện kỳ vọng và giới hạn đã biết; còn người thẩm định thì kết hợp phạm vi ảnh hưởng để quyết định có cho vào giai đoạn phát hành tiếp theo hay không. Quy trình thẩm định thống nhất sẽ triển khai ở mục 15.5.
 
@@ -83,9 +83,9 @@ Prompt hiệu dụng = Version Prompt + Snapshot biến + Model và tham số
                    + Version định nghĩa tool + Version policy + Nguồn Context
 ```
 
-Hệ vận hành nên sinh một **vân tay truy vấn được** cho tổ hợp này, và lưu version chính xác hoặc digest nội dung của từng thành phần. Các biến chứa dữ liệu nhạy cảm có thể ghi giá trị đã qua bảo vệ, digest hay vị trí tham chiếu — **không cần copy toàn bộ nguyên văn**; nhưng cách ghi phải đủ để phán định hai lần chạy có dùng cùng điều kiện hay không.
+Hệ vận hành nên sinh một **vân tay truy vấn được** cho tổ hợp này, và lưu version chính xác hoặc digest nội dung của từng thành phần. Các biến chứa dữ liệu nhạy cảm có thể ghi giá trị đã qua bảo vệ, digest hay vị trí tham chiếu — **không cần copy toàn bộ nguyên văn**; nhưng cách ghi phải đủ để đánh giá hai lần chạy có dùng cùng điều kiện hay không.
 
-Bản ghi Prompt hiệu dụng cuối cùng đi vào **Context Manifest.** Nhờ những thông tin đó, khi kết quả lệch kỳ vọng, đội ngũ mới phán định được vấn đề đến từ việc đổi Prompt, nâng cấp model, sai biến, hay từ một phần context khác đã thay đổi.
+Bản ghi Prompt hiệu dụng cuối cùng đi vào **Context Manifest.** Nhờ những thông tin đó, khi kết quả lệch kỳ vọng, đội ngũ mới đánh giá được vấn đề đến từ việc đổi Prompt, nâng cấp model, sai biến, hay từ một phần context khác đã thay đổi.
 
 ### 15.1.6 Con đường hiện thực của Nacos Prompt Registry
 
@@ -126,7 +126,7 @@ Ngoài tên và mô tả ngắn, thông tin khám phá thường còn gồm bố
 
 ### 15.2.2 Version, phụ thuộc và phân phối
 
-Một khi Skill đã phát hành, **nội dung gói và thông tin khoá phụ thuộc của nó không được ghi đè.** Thêm script, sửa bước thực thi, chỉnh yêu cầu quyền hay cập nhật phụ thuộc đều phải tạo version mới, và tính lại digest của cả gói. **Chỉ tính digest cho `SKILL.md` sẽ bỏ sót thay đổi của script, template và file phụ thuộc**, nên digest phải phủ trọn gói năng lực.
+Một khi Skill đã phát hành, **nội dung gói và thông tin khoá phụ thuộc của nó không được ghi đè.** Thêm script, sửa bước thực thi, chỉnh yêu cầu quyền hay cập nhật phụ thuộc đều phải tạo version mới, và tính lại digest của cả gói. **Chỉ tính digest cho `SKILL.md` sẽ bỏ sót thay đổi của script, template và file phụ thuộc**, nên digest phải bao quát toàn bộ gói năng lực.
 
 Tính tương thích version **không thể chỉ nhìn phần hướng dẫn.** Ví dụ, version mới nâng runtime script từ Python 3.10 lên 3.12, hoặc bắt đầu phụ thuộc vào một tool chưa mở ở môi trường production — thì dù input/output không đổi, Agent hiện có vẫn có thể không dùng được. Trước khi phát hành, phải kiểm tra điều kiện phụ thuộc theo AgentSpec hay môi trường vận hành, và đưa ra kết quả phân giải rõ ràng.
 
@@ -211,7 +211,7 @@ Một lượng lớn API HTTP hay RPC sẵn có của doanh nghiệp cũng có t
 
 Nguồn thứ ba là nhà cung cấp bên ngoài hay marketplace công cộng. Nền tảng có thể import phần mô tả và cách truy cập của họ, rồi bổ sung người phụ trách nội bộ, phạm vi nhìn thấy, mức rủi ro và cấu hình xác thực. **MCP Server bên ngoài trước khi vào phạm vi khám phá ở production thì phải được xác minh nguồn, hành vi giao thức, cách dùng dữ liệu và tính khả dụng; và tránh viết thẳng credential dài hạn vào phần mô tả tài nguyên có thể tìm kiếm được.**
 
-Dù nguồn là gì, cuối cùng đều phải hình thành một tài nguyên logic và version định danh duy nhất được trong nội bộ doanh nghiệp. Địa chỉ gốc có thể giữ làm thông tin nguồn, nhưng **Agent phải lấy tham chiếu đã qua quản trị từ Registry nội bộ, chứ không vòng qua trung tâm tài nguyên để dùng thẳng địa chỉ nguồn.**
+Dù nguồn là gì, cuối cùng đều phải hình thành một tài nguyên logic và version định danh duy nhất được trong nội bộ doanh nghiệp. Địa chỉ gốc có thể giữ làm thông tin nguồn, nhưng **Agent phải lấy tham chiếu đã qua quản trị từ Registry nội bộ, chứ không vòng qua trung tâm tài nguyên để dùng trực tiếp địa chỉ nguồn.**
 
 ### 15.3.3 Version, tính tương thích và trạng thái vận hành
 
@@ -221,7 +221,7 @@ Việc sửa mô tả Tool cũng **không thể vơ đũa cả nắm là "không
 
 Lúc chạy có thể cung cấp công tắc bật/tắt cho Tool, dùng để tạm dừng các năng lực bất thường hay rủi ro cao. Thay đổi công tắc phải đi vào audit và bản ghi vận hành, **nhưng không cần sửa nội dung version lịch sử.** Khi gỡ Tool lâu dài thì vẫn phải tạo version mới và chừa thời gian di trú cho bên sử dụng. **Trạng thái online của MCP Server, trạng thái sức khoẻ endpoint và trạng thái version phải được biểu đạt riêng: tài nguyên online không có nghĩa mọi endpoint đều khoẻ; có endpoint khoẻ cũng không có nghĩa bên gọi hiện tại có quyền truy cập.**
 
-Trung tâm tài nguyên còn phải duy trì quan hệ tiêu thụ và gọi. Trước khi phát hành version không tương thích, tắt Tool hay thu hồi MCP Server, có thể đi từ MCP Server để xem các Agent và AgentSpec phụ thuộc nó, từ đó phán đoán phạm vi ảnh hưởng và sắp xếp việc di trú.
+Trung tâm tài nguyên còn phải duy trì quan hệ tiêu thụ và gọi. Trước khi phát hành version không tương thích, tắt Tool hay thu hồi MCP Server, có thể đi từ MCP Server để xem các Agent và AgentSpec phụ thuộc nó, từ đó nhận định phạm vi ảnh hưởng và sắp xếp việc di trú.
 
 ### 15.3.4 Khám phá, kết nối và gọi
 
@@ -229,7 +229,7 @@ Agent có trách nhiệm ổn định có thể khai báo tên MCP Server cùng 
 
 Sau khi tài nguyên được chọn, việc kết nối thật, thoả thuận năng lực và gọi tool thì vẫn do luồng MCP native hoàn tất. **Registry lo việc cung cấp định danh tài nguyên, version, endpoint và thông tin quản trị, chứ không thay MCP Server thực thi tool.** Kết quả gọi cũng phải đi vào Agent với tư cách **dữ liệu bên ngoài, không tự động có được vị thế chỉ dẫn ưu tiên cao.**
 
-Thông tin xác thực phải do môi trường vận hành tiêm vào theo định danh hiện tại. Phần mô tả tài nguyên có thể khai báo loại xác thực và quyền cần thiết, **nhưng không lưu khoá dùng thẳng được.** Khi gọi còn phải uỷ quyền dựa trên phạm vi mạng, mức nhạy cảm dữ liệu, yêu cầu rate limit và timeout. Các biện pháp an toàn tổng quát về định danh, mạng và dữ liệu xem chương 14.
+Thông tin xác thực phải do môi trường vận hành tiêm vào theo định danh hiện tại. Phần mô tả tài nguyên có thể khai báo loại xác thực và quyền cần thiết, **nhưng không lưu khoá dùng trực tiếp được.** Khi gọi còn phải uỷ quyền dựa trên phạm vi mạng, mức nhạy cảm dữ liệu, yêu cầu rate limit và timeout. Các biện pháp an toàn tổng quát về định danh, mạng và dữ liệu xem chương 14.
 
 ### 15.3.5 Nacos MCP Registry và MCP Router
 
@@ -306,7 +306,7 @@ RAD chia quá trình từ truy hồi ứng viên tới duy trì endpoint vận h
 | Register | Phát hành địa chỉ vận hành của instance Agent hiện tại | Endpoint Batch đầy đủ, version vận hành và khoảng version tương thích của cùng một publisher dưới Agent và giao thức chỉ định |
 | Deregister | Thu hồi địa chỉ vận hành mà publisher duy trì | Gỡ endpoint khỏi trạng thái kỳ vọng của publisher; gỡ hết thì huỷ cả phần phát hành vận hành đó |
 
-Cách chia này khiến **"có thể phù hợp"** và **"hiện gọi được"** trở thành hai phán đoán khác nhau. Search chỉ trả về thông tin danh mục nhẹ, dùng để hình thành tập ứng viên theo tên, nhãn, giao thức…, và **không cam kết rằng ứng viên hiện có endpoint khoẻ.** Sau khi bên gọi chọn Agent, Discover mới phân giải version online chính xác và trả về snapshot gọi theo các điều kiện giao thức, version giao thức, cách truyền tải và nguồn endpoint. Với endpoint vận hành, RAD đồng thời ghi version hiện thực triển khai cùng khoảng version Agent mà nó phục vụ được, **tránh trả về instance không tương thích cho bên gọi trong lúc nâng cấp version.**
+Cách chia này khiến **"có thể phù hợp"** và **"hiện gọi được"** trở thành hai nhận định khác nhau. Search chỉ trả về thông tin danh mục nhẹ, dùng để hình thành tập ứng viên theo tên, nhãn, giao thức…, và **không cam kết rằng ứng viên hiện có endpoint khoẻ.** Sau khi bên gọi chọn Agent, Discover mới phân giải version online chính xác và trả về snapshot gọi theo các điều kiện giao thức, version giao thức, cách truyền tải và nguồn endpoint. Với endpoint vận hành, RAD đồng thời ghi version hiện thực triển khai cùng khoảng version Agent mà nó phục vụ được, **tránh trả về instance không tương thích cho bên gọi trong lúc nâng cấp version.**
 
 ![ch15-02-agent-registry-rad.png](../assets/imgs/chapter-15/image-002.png)
 
@@ -320,7 +320,7 @@ Hiện tại, việc giao tiếp giữa các Agent trong cộng đồng chủ y�
 
 ## 15.5 Thẩm định thay đổi: cách thay đổi tài sản năng lực đi vào pipeline đánh giá
 
-Prompt, Skill, MCP Server, Agent và AgentSpec có hình thức nội dung khác nhau, **nhưng thay đổi của chúng đều ảnh hưởng tới hành vi Agent.** Chỉ lưu version thôi thì không chứng minh được rằng một version mới phù hợp để vào production. Doanh nghiệp còn cần một **đường thẩm định chung** nối kiểm tra định dạng, kiểm tra an toàn, đánh giá task, phán đoán của con người và thao tác phát hành lại với nhau.
+Prompt, Skill, MCP Server, Agent và AgentSpec có hình thức nội dung khác nhau, **nhưng thay đổi của chúng đều ảnh hưởng tới hành vi Agent.** Chỉ lưu version thôi thì không chứng minh được rằng một version mới phù hợp để vào production. Doanh nghiệp còn cần một **đường thẩm định chung** nối kiểm tra định dạng, kiểm tra an toàn, đánh giá task, nhận định của con người và thao tác phát hành lại với nhau.
 
 Đường thẩm định chung **không đòi hỏi mọi tài nguyên dùng nội dung kiểm tra hoàn toàn giống nhau.** Một tài nguyên có thể vào Pipeline phát hành sẵn có của Registry, hoặc để một hệ bên ngoài hoàn tất phần đánh giá bổ sung rồi liên kết kết quả tới version tài nguyên. Mục này bàn về **nguyên tắc thẩm định nhất quán và yêu cầu ghi chép**; còn cách tiếp nhận Pipeline cho năm loại tài nguyên trong dòng version Nacos 3.3 cùng khác biệt của chúng sẽ nói ở mục 15.5.6.
 
@@ -336,13 +336,13 @@ Bản nháp cho phép tác giả sửa liên tục, **nhưng không được run
 
 **Việc qua thẩm định và việc lên online chính thức cũng phải phân biệt.** Qua thẩm định nghĩa là nội dung ứng viên thoả điều kiện phát hành hiện tại; phát hành thì tạo ra một version bất biến; còn trạng thái online cùng nhãn thì quyết định runtime có khám phá và lấy được hay không. Nhờ vậy có thể chuẩn bị version trước, rồi bật ở thời điểm hay phạm vi đã lên kế hoạch.
 
-### 15.5.2 Kiểm tra tự động và phán đoán của con người
+### 15.5.2 Kiểm tra tự động và nhận định của con người
 
 Pipeline phát hành có thể gồm nhiều node kiểm tra có thứ tự. Node nền tảng kiểm tra định dạng, metadata bắt buộc và tính toàn vẹn của tham chiếu trước; kế đến chạy quét an toàn, kiểm tra phụ thuộc và đánh giá task; khi một node từ chối thì các node sau không chạy nữa và trả về lý do hiểu được.
 
 **Quá trình kiểm tra không được sửa nội dung ứng viên.** Việc tự động sửa có thể khiến nội dung phát hành cuối cùng khác với nội dung mà tác giả đã gửi, đã được đánh giá và con người đã xem. Khi cần điều chỉnh, phải quay lại bản nháp để hình thành digest ứng viên mới, rồi chạy lại kiểm tra.
 
-Kết quả tự động cũng **không thay thế hoàn toàn được phán đoán của con người.** Công cụ phát hiện được lỗi Schema, các mẫu nguy hiểm đã biết và việc chỉ số đánh giá giảm; nhưng người phụ trách tài nguyên vẫn phải xác nhận mục đích sửa, ảnh hưởng nghiệp vụ, quyền cần thiết, phương án di trú và giới hạn đã biết. Với các tài sản dùng chung xuyên team hay có phạm vi ảnh hưởng lớn, còn phải để các bên sử dụng chính tham gia xác nhận.
+Kết quả tự động cũng **không thay thế hoàn toàn được nhận định của con người.** Công cụ phát hiện được lỗi Schema, các mẫu nguy hiểm đã biết và việc chỉ số đánh giá giảm; nhưng người phụ trách tài nguyên vẫn phải xác nhận mục đích sửa, ảnh hưởng nghiệp vụ, quyền cần thiết, phương án di trú và giới hạn đã biết. Với các tài sản dùng chung xuyên team hay có phạm vi ảnh hưởng lớn, còn phải để các bên sử dụng chính tham gia xác nhận.
 
 ### 15.5.3 Trọng tâm đánh giá của từng loại tài nguyên
 
@@ -356,7 +356,7 @@ Pipeline thống nhất **không có nghĩa mọi tài nguyên dùng cùng một
 | Agent | Thay đổi AgentCard, năng lực và hành vi từ xa | Kiểm tra AgentCard, khả năng tới được của endpoint, tương thích giao thức, tỉ lệ thành công task, độ trễ và chi phí | Ranh giới cộng tác, trách nhiệm về kết quả, quyền hạn và cách xử lý thất bại |
 | AgentSpec | Thay đổi cấu hình lắp ráp và tham chiếu tài nguyên | Manifest, phân giải phụ thuộc, khoá version, kiểm chứng build và khởi động | Tổ hợp tài nguyên, tính phù hợp với môi trường và phạm vi nâng cấp |
 
-Cùng một thay đổi có thể cần nhiều loại đánh giá. Ví dụ, AgentSpec cập nhật tham chiếu Prompt và MCP thì vừa phải xác nhận phụ thuộc phân giải được, vừa phải chạy task đầu-cuối để quan sát xem tổ hợp tài nguyên mới có làm đổi hành vi Agent không. **Pipeline đánh giá nên cho phép từng loại tài nguyên cung cấp node chuyên biệt, đồng thời giữ luật audit và phát hành thống nhất của tổ chức.**
+Cùng một thay đổi có thể cần nhiều loại đánh giá. Ví dụ, AgentSpec cập nhật tham chiếu Prompt và MCP thì vừa phải xác nhận phụ thuộc phân giải được, vừa phải chạy task đầu cuối để quan sát xem tổ hợp tài nguyên mới có làm đổi hành vi Agent không. **Pipeline đánh giá nên cho phép từng loại tài nguyên cung cấp node chuyên biệt, đồng thời giữ luật audit và phát hành thống nhất của tổ chức.**
 
 ### 15.5.4 Gắn kết quả đánh giá với version
 
@@ -378,7 +378,7 @@ Pipeline phát hành AI của Nacos đặt phần thẩm định, quét và ch�
 
 Các node Pipeline có thể khai báo riêng loại tài nguyên chúng hỗ trợ. Dòng version Nacos 3.3 đã đưa Skill, Prompt, MCP Server, AgentSpec và Agent vào khung Pipeline chung. Agent khi gửi thì vào thẩm định với loại tài nguyên `AGENT`; khi có Pipeline Agent khớp thì version đi từ `draft` sang `reviewing` và chạy các node tương ứng; còn khi chưa cấu hình Pipeline khớp thì xử lý theo đường phát hành không Pipeline. Nhờ vậy, **khung chung phủ được Agent, nhưng nội dung kiểm tra cụ thể thì vẫn do plugin Pipeline đã cấu hình quyết định.**
 
-**Việc kiểm tra tài nguyên và đánh giá hành vi từ xa của Agent vẫn phải phân biệt.** Pipeline có thể kiểm tra nội dung version, interface gọi, mô tả giao thức, phụ thuộc, yêu cầu an toàn và các luật tuỳ biến của tổ chức; còn tỉ lệ thành công task, độ trễ, chi phí cùng hiệu quả cộng tác xuyên Agent thì có thể do hệ đánh giá bên ngoài hoàn tất rồi liên kết kết quả tới cùng version Agent. **Luồng thống nhất cung cấp vòng đời, bản ghi thực thi và phán định phát hành nhất quán, chứ không đòi hỏi mọi đánh giá phải chạy bên trong Registry.**
+**Việc kiểm tra tài nguyên và đánh giá hành vi từ xa của Agent vẫn phải phân biệt.** Pipeline có thể kiểm tra nội dung version, interface gọi, mô tả giao thức, phụ thuộc, yêu cầu an toàn và các luật tuỳ biến của tổ chức; còn tỉ lệ thành công task, độ trễ, chi phí cùng hiệu quả cộng tác xuyên Agent thì có thể do hệ đánh giá bên ngoài hoàn tất rồi liên kết kết quả tới cùng version Agent. **Luồng thống nhất cung cấp vòng đời, bản ghi thực thi và đánh giá phát hành nhất quán, chứ không đòi hỏi mọi đánh giá phải chạy bên trong Registry.**
 
 Plugin `skill-scanner` trong tập plugin mặc định của Nacos có thể xử lý phần nội dung quét được trong Skill, Prompt và AgentSpec; tổ chức cũng có thể tiếp nhận các hệ quét bảo mật, kiểm tra định dạng, kiểm tra tuân thủ hay hệ thủ công sẵn có qua Pipeline tuỳ biến. Vì việc kiểm tra thực hiện trên nội dung ứng viên đã cố định, nên **kết luận thẩm định tương ứng được với version và digest, tránh việc nội dung phát hành bị thay lặng lẽ sau khi kiểm tra xong.**
 
@@ -410,7 +410,7 @@ Trong mô hình quản trị chung, version có thể trải qua các trạng th
 
 Version online **chỉ được runtime khám phá khi định danh hiện tại nhìn thấy được, có quyền đọc và môi trường thoả yêu cầu.** Phạm vi nhìn thấy dùng để quyết định tài nguyên có xuất hiện trong chi tiết, danh sách và kết quả tìm kiếm không; còn xác thực quyền thì quyết định bên gọi có đọc, sửa hay phát hành được không — **hai thứ đảm nhận vai trò khác nhau.** Namespace hay đơn vị cô lập tương đương còn có thể phân biệt môi trường, tenant và miền nghiệp vụ, tránh để tài nguyên test và tài nguyên production vào cùng phạm vi khám phá.
 
-Trung tâm tài nguyên còn phải duy trì **quan hệ tham chiếu hai chiều**: đi từ Agent hay AgentSpec thì xem được nó phụ thuộc những Prompt, Skill và MCP Server nào; đi từ một version tài nguyên thì xác định được việc phát hành, tắt hay thu hồi nó sẽ ảnh hưởng những Agent nào. **Chỉ khi lưu những quan hệ đó, việc thẩm định thay đổi và xử lý rủi ro mới phán đoán chính xác được phạm vi ảnh hưởng.**
+Trung tâm tài nguyên còn phải duy trì **quan hệ tham chiếu hai chiều**: đi từ Agent hay AgentSpec thì xem được nó phụ thuộc những Prompt, Skill và MCP Server nào; đi từ một version tài nguyên thì xác định được việc phát hành, tắt hay thu hồi nó sẽ ảnh hưởng những Agent nào. **Chỉ khi lưu những quan hệ đó, việc thẩm định thay đổi và xử lý rủi ro mới nhận định chính xác được phạm vi ảnh hưởng.**
 
 ### 15.6.3 Cấu thành bên trong của trung tâm tài nguyên
 
@@ -427,11 +427,11 @@ Request Agent ──> Policy Engine ──> Resolver ──> Version chính xác
 
 | Thành phần | Trách nhiệm chính |
 | --- | --- |
-| Registry có thẩm quyền | Lưu tài nguyên logic, version, trạng thái, nhãn, quyền và quan hệ tham chiếu; là căn cứ để phán định tài nguyên có tồn tại và có dùng được không |
+| Registry có thẩm quyền | Lưu tài nguyên logic, version, trạng thái, nhãn, quyền và quan hệ tham chiếu; là căn cứ để đánh giá tài nguyên có tồn tại và có dùng được không |
 | Kho nội dung tài nguyên AI | Lưu thân Prompt, gói Skill, gói AgentSpec cùng các nội dung khối lượng lớn khác, và liên kết với version qua digest |
 | Pipeline phát hành | Thực thi kiểm tra định dạng, kiểm tra an toàn, đánh giá và các điều kiện phát hành tuỳ biến của tổ chức |
 | Index khám phá | Lưu tên, mô tả năng lực, nội dung đã chia mảnh, vector và quan hệ tài nguyên, phục vụ tìm kiếm thủ công và khám phá động |
-| Policy Engine | Phán định tài nguyên có xem hay dùng được không, dựa trên định danh, Namespace, môi trường, quyền và mức rủi ro |
+| Policy Engine | Đánh giá tài nguyên có xem hay dùng được không, dựa trên định danh, Namespace, môi trường, quyền và mức rủi ro |
 | Resolver | Phân giải tham chiếu logic hay nhãn thành một version bất biến, trả về vị trí nội dung, digest, phụ thuộc và thông tin trạng thái |
 
 Các phần này có thể triển khai trong cùng một hệ thống, cũng có thể do nhiều dịch vụ cùng hiện thực. **Điều quan trọng là trách nhiệm rõ ràng: kết quả truy hồi không thay thế được việc phân giải version; kho nội dung AI có file không có nghĩa version đó còn dùng được; endpoint vận hành khoẻ cũng không có nghĩa định danh hiện tại có quyền gọi.**
@@ -440,7 +440,7 @@ Các phần này có thể triển khai trong cùng một hệ thống, cũng c�
 
 Để hỗ trợ tìm kiếm ngữ nghĩa, trung tâm tài nguyên sẽ sinh Document, Chunk hay index vector từ tên, mô tả, thân nội dung và các câu hỏi tiêu biểu. **Những dữ liệu đó phục vụ hiệu suất truy hồi và có thể sinh lại sau khi chiến lược chia mảnh, model hay engine index thay đổi — nên chúng thuộc dữ liệu phái sinh.** Còn version tài nguyên, trạng thái, quyền và digest nội dung thì vẫn lấy bản ghi trong Registry làm chuẩn.
 
-Task index phải ghi version nguồn, chiến lược chia mảnh và model vector, và giữ hội tụ bằng các task tăng dần lặp lại được, retry khi lỗi, backfill và đối chiếu định kỳ. Ngay cả khi index cũ truy hồi ra một tài nguyên đã offline, **trước khi trả về vẫn phải phán định lại theo trạng thái hiện tại trong Registry.** Khi mô tả khám phá và thân nội dung đến từ các version khác nhau thì **phải từ chối sinh index lai.**
+Task index phải ghi version nguồn, chiến lược chia mảnh và model vector, và giữ hội tụ bằng các task tăng dần lặp lại được, retry khi lỗi, backfill và đối chiếu định kỳ. Ngay cả khi index cũ truy hồi ra một tài nguyên đã offline, **trước khi trả về vẫn phải đánh giá lại theo trạng thái hiện tại trong Registry.** Khi mô tả khám phá và thân nội dung đến từ các version khác nhau thì **phải từ chối sinh index lai.**
 
 ### 15.6.5 Chuỗi quản lý và chuỗi vận hành
 
@@ -564,7 +564,7 @@ Qua đó có thể thấy, việc khám phá tài nguyên của Agent ổn đị
 
 Phạm vi task của **Agent động** thay đổi theo request người dùng và trạng thái vận hành. Ví dụ, một Agent vận hành đa dụng có thể xử lý bất thường container trước, rồi chuyển sang phân tích hiệu năng database hay thay đổi phát hành. Nó **không thể liệt kê chính xác mọi Prompt, Skill, MCP Server hay Agent cộng tác mà từng lần task cần, trước khi phát hành.** Nếu binding trước mọi năng lực ứng viên thì cấu hình sẽ phình liên tục, và một lượng lớn hướng dẫn không liên quan sẽ chiếm chỗ Context, đồng thời làm tăng xác suất model chọn nhầm năng lực.
 
-**Agentic Resource Discovery (ARD)** dùng để khám phá những năng lực có thể cần, dựa trên task hiện tại, **trước khi gọi.** Dòng ARD v0.9 của cộng đồng định nghĩa phần mô tả, truy hồi và khám phá liên bang cho nhiều loại Agentic Resource dưới dạng đề xuất mở; còn dòng version Nacos 3.3 thì cung cấp năng lực khám phá theo ý định tương ứng trên nền AI Registry, có thể truy hồi Prompt, Skill, MCP Server và Agent, rồi tiếp tục lấy tài nguyên cụ thể. **ARD nằm giữa việc phán đoán ý định của Agent và việc dùng tài nguyên, trả lời câu hỏi "task hiện tại phù hợp dùng cái gì" — nhưng không lo việc thực thi Skill, gọi Tool hay thay một Agent khác hoàn thành công việc.**
+**Agentic Resource Discovery (ARD)** dùng để khám phá những năng lực có thể cần, dựa trên task hiện tại, **trước khi gọi.** Dòng ARD v0.9 của cộng đồng định nghĩa phần mô tả, truy hồi và khám phá liên bang cho nhiều loại Agentic Resource dưới dạng đề xuất mở; còn dòng version Nacos 3.3 thì cung cấp năng lực khám phá theo ý định tương ứng trên nền AI Registry, có thể truy hồi Prompt, Skill, MCP Server và Agent, rồi tiếp tục lấy tài nguyên cụ thể. **ARD nằm giữa việc nhận định ý định của Agent và việc dùng tài nguyên, trả lời câu hỏi "task hiện tại phù hợp dùng cái gì" — nhưng không lo việc thực thi Skill, gọi Tool hay thay một Agent khác hoàn thành công việc.**
 
 ### 15.8.1 Hình thành nhu cầu năng lực từ sự thật task
 
@@ -586,11 +586,11 @@ Truy hồi từ khoá phù hợp với tên, sản phẩm, mã lỗi và các th
 
 ### 15.8.3 Xếp hạng theo mức liên quan và tư cách quản trị
 
-**Mức liên quan và tư cách sử dụng là hai vấn đề khác nhau.** Mức liên quan quyết định ứng viên được xếp hạng ra sao; còn luật quản trị thì phán định bên gọi có quyền dùng không, tài nguyên có online không, version có được phép vào môi trường hiện tại không, và rủi ro cùng chi phí có thoả giới hạn không. **Một tài nguyên rất liên quan nhưng đã bị thu hồi hay vượt phạm vi uỷ quyền thì không được xuất hiện trong danh sách ứng viên khả dụng chỉ vì điểm cao.**
+**Mức liên quan và tư cách sử dụng là hai vấn đề khác nhau.** Mức liên quan quyết định ứng viên được xếp hạng ra sao; còn luật quản trị thì đánh giá bên gọi có quyền dùng không, tài nguyên có online không, version có được phép vào môi trường hiện tại không, và rủi ro cùng chi phí có thoả giới hạn không. **Một tài nguyên rất liên quan nhưng đã bị thu hồi hay vượt phạm vi uỷ quyền thì không được xuất hiện trong danh sách ứng viên khả dụng chỉ vì điểm cao.**
 
-Việc phán định quản trị có thể chia giai đoạn. Trước khi truy hồi, thu hẹp phạm vi nhìn thấy theo định danh, Namespace và loại tài nguyên, để những tài nguyên không nên phơi ra không lọt vào tìm kiếm; sau khi có ứng viên thì kết hợp trạng thái version, uỷ quyền tường minh, tính tương thích môi trường, mức rủi ro và quyền của task hiện tại để phán định lần cuối. **Việc lọc phải hoàn tất trước khi phân trang cuối cùng, tránh để số trang và tổng số làm lộ thông tin về những tài nguyên không nhìn thấy được.**
+Việc đánh giá quản trị có thể chia giai đoạn. Trước khi truy hồi, thu hẹp phạm vi nhìn thấy theo định danh, Namespace và loại tài nguyên, để những tài nguyên không nên phơi ra không lọt vào tìm kiếm; sau khi có ứng viên thì kết hợp trạng thái version, uỷ quyền tường minh, tính tương thích môi trường, mức rủi ro và quyền của task hiện tại để đánh giá lần cuối. **Việc lọc phải hoàn tất trước khi phân trang cuối cùng, tránh để số trang và tổng số làm lộ thông tin về những tài nguyên không nhìn thấy được.**
 
-Kết quả trả về còn nên nói rõ căn cứ khớp chính, nguồn tài nguyên, trạng thái version và các điều kiện sử dụng cần thiết, để Agent hay người thẩm định hiểu được lý do lựa chọn. **Truy cập ẩn danh cũng bắt buộc phải tuân theo phạm vi công khai và yêu cầu quyền tối thiểu, không được vòng qua phán định quản trị.**
+Kết quả trả về còn nên nói rõ căn cứ khớp chính, nguồn tài nguyên, trạng thái version và các điều kiện sử dụng cần thiết, để Agent hay người thẩm định hiểu được lý do lựa chọn. **Truy cập ẩn danh cũng bắt buộc phải tuân theo phạm vi công khai và yêu cầu quyền tối thiểu, không được vòng qua đánh giá quản trị.**
 
 ### 15.8.4 Quan hệ phân tầng giữa ARD và RAD
 
@@ -600,7 +600,7 @@ Khi task cần chuyển một Agent ứng viên thành đối tượng gọi t�
 
 **Agent Registry là nguồn tài nguyên có thẩm quyền của RAD**, lưu định nghĩa chung, version và endpoint vận hành của Agent; còn các mô tả giao thức như A2A AgentCard thì giữ lại làm nội dung native của interface gọi tương ứng, **chứ không cố định hoá thành mô hình chung của RAD.** Sau khi chọn Agent, việc trao đổi message task và trạng thái thực tế vẫn do A2A hay cách native tương ứng hoàn tất. Tương tự, ARD tìm ra MCP Server thì MCP Client dùng; tìm ra Skill thì Skill Loader nạp; tìm ra Prompt thì Prompt Resolver lấy.
 
-Vì vậy, **ARD và RAD không phải quan hệ song song hay cạnh tranh.** ARD tự hoàn tất được việc truy hồi Agent và lấy tài nguyên cụ thể; khi bên gọi cần snapshot gọi từ xa thì mới dùng RAD theo nhu cầu để phân giải giao thức và endpoint. Bên gọi đã biết đích là một Agent từ xa cũng có thể dùng thẳng RAD Search hay Discover — **đó là một lối vào chuyên biệt cho bối cảnh Agent, và không làm đổi vị trí phụ thuộc của RAD trong hệ khám phá tài nguyên theo nghĩa rộng.** Hai con đường luôn dùng chung cùng một tài nguyên Agent, version, phạm vi nhìn thấy và ngữ nghĩa quyền hạn.
+Vì vậy, **ARD và RAD không phải quan hệ song song hay cạnh tranh.** ARD tự hoàn tất được việc truy hồi Agent và lấy tài nguyên cụ thể; khi bên gọi cần snapshot gọi từ xa thì mới dùng RAD theo nhu cầu để phân giải giao thức và endpoint. Bên gọi đã biết đích là một Agent từ xa cũng có thể dùng trực tiếp RAD Search hay Discover — **đó là một lối vào chuyên biệt cho bối cảnh Agent, và không làm đổi vị trí phụ thuộc của RAD trong hệ khám phá tài nguyên theo nghĩa rộng.** Hai con đường luôn dùng chung cùng một tài nguyên Agent, version, phạm vi nhìn thấy và ngữ nghĩa quyền hạn.
 
 ### 15.8.5 Khám phá động có kiểm soát và mô hình lai
 
@@ -616,7 +616,7 @@ Với các thao tác rủi ro cao, kết quả khám phá có thể yêu cầu c
 
 ### 15.8.6 Nacos đi từ quản lý theo loại tới khám phá theo ý định
 
-Nacos AI Registry đã quản lý riêng được Prompt, Skill, MCP Server, Agent và AgentSpec, nhưng **truy vấn truyền thống thường vẫn bắt đầu từ loại tài nguyên.** Bên gọi phải phán đoán trước là mình cần tìm Skill, MCP hay Agent, rồi mới vào interface tương ứng. Năng lực ARD ở dòng version Nacos 3.3 bổ sung một **tầng thích ứng khám phá theo ý định task** trên nền Registry sẵn có, khiến việc quản lý thống nhất mở rộng tiếp thành khám phá thống nhất.
+Nacos AI Registry đã quản lý riêng được Prompt, Skill, MCP Server, Agent và AgentSpec, nhưng **truy vấn truyền thống thường vẫn bắt đầu từ loại tài nguyên.** Bên gọi phải nhận định trước là mình cần tìm Skill, MCP hay Agent, rồi mới vào interface tương ứng. Năng lực ARD ở dòng version Nacos 3.3 bổ sung một **tầng thích ứng khám phá theo ý định task** trên nền Registry sẵn có, khiến việc quản lý thống nhất mở rộng tiếp thành khám phá thống nhất.
 
 Chuỗi nội bộ của nó có thể khái quát là: ARD Client truy cập ARD Adapter; Adapter gọi AI Resource Search độc lập giao thức; tầng tìm kiếm dùng index quan hệ và năng lực vector tuỳ chọn; và cuối cùng **vẫn lấy tài nguyên chuẩn trong Nacos AI Registry làm dữ liệu có thẩm quyền.** Định nghĩa interface ARD hướng ra ngoài tách rời với mô hình tài nguyên nội bộ, để việc chỉnh giao thức, thay đổi chiến lược truy hồi và quản trị version tài nguyên tiến hoá độc lập được.
 
@@ -674,11 +674,11 @@ Mô tả năng lực cũng phải nhất quán với uỷ quyền thực tế. *
 
 **Context dài thêm không tất yếu mang lại kết quả task tốt hơn.** Quá nhiều luật, ví dụ và tài liệu sẽ phân tán sự chú ý của model, đồng thời tăng chi phí gọi và độ trễ phản hồi. Context Compiler nên phân bổ ngân sách cho từng nhóm nội dung trước, rồi mới chọn nội dung trong nhóm theo mức liên quan tới task và mức cần thiết.
 
-Policy lõi và chỉ dẫn task hiện tại thường phải giữ trọn vẹn; Skill có thể giữ trước các bước thực thi và giới hạn cần thiết, rồi hoãn phần tài liệu tham chiếu khối lượng lớn tới bước liên quan; tài liệu truy hồi có thể giữ những mảnh liên quan nhất tới câu hỏi hiện tại kèm nguồn; còn lịch sử hội thoại và Memory thì tóm tắt hay đào thải theo giai đoạn task. Với phần giải thích nền bị nhiều tài nguyên lặp lại, **hãy khử trùng rồi giữ nguồn có thẩm quyền.**
+Policy lõi và chỉ dẫn task hiện tại thường phải giữ trọn vẹn; Skill có thể giữ trước các bước thực thi và giới hạn cần thiết, rồi hoãn phần tài liệu tham chiếu khối lượng lớn tới bước liên quan; tài liệu truy hồi có thể giữ những mảnh liên quan nhất tới câu hỏi hiện tại kèm nguồn; còn lịch sử hội thoại và Memory thì tóm tắt hay đào thải theo giai đoạn task. Với phần giải thích nền bị nhiều tài nguyên lặp lại, **hãy loại bỏ trùng lặp rồi giữ nguồn có thẩm quyền.**
 
 **Tool Schema của MCP Server cũng có thể tiết lộ theo nhu cầu.** Khi Server cung cấp nhiều tool, hãy chọn một tập nhỏ hơn theo task, quyền và phân loại tool trước, rồi mới đưa Schema tương ứng cho model; khi cần mở rộng phạm vi chẩn đoán thì khám phá lại hay nạp thêm tool khác. Agent từ xa cũng có thể cung cấp bản tóm tắt năng lực trước, và chỉ sau khi xác định được đối tác cộng tác thì mới lấy AgentCard đầy đủ cùng thông tin endpoint.
 
-Việc lắp ráp tiệm tiến có thể xuyên suốt task nhiều lượt. Giai đoạn đầu chỉ nạp danh mục năng lực và tool cần thiết; sau khi xác định hướng xử lý thì mới lấy các bước chi tiết của Skill tương ứng; và tới khâu phân tích dữ liệu mới đọc template tham chiếu. **Mỗi lần thêm nội dung đều phải qua cùng những phán định về version, quyền và ngân sách — không được vì vòng đầu đã qua kiểm tra mà cho phép các file sau vào Context không giới hạn.**
+Việc lắp ráp tiệm tiến có thể xuyên suốt task nhiều lượt. Giai đoạn đầu chỉ nạp danh mục năng lực và tool cần thiết; sau khi xác định hướng xử lý thì mới lấy các bước chi tiết của Skill tương ứng; và tới khâu phân tích dữ liệu mới đọc template tham chiếu. **Mỗi lần thêm nội dung đều phải qua cùng những đánh giá về version, quyền và ngân sách — không được vì vòng đầu đã qua kiểm tra mà cho phép các file sau vào Context không giới hạn.**
 
 Khi nội dung vượt ngân sách, **chiến lược cắt bớt phải giải thích được.** Hệ thống có thể ghi lại mảnh nào được giữ, được tóm tắt hay bị bỏ, cùng độ ưu tiên và lý do tương ứng. **Những giới hạn quan trọng không được bị cắt chỉ vì nằm ở cuối một văn bản dài**; gói Skill có thể dùng Manifest để đánh dấu phần hướng dẫn an toàn buộc phải nạp trọn vẹn và phần tài liệu tham chiếu hoãn nạp được.
 
@@ -686,7 +686,7 @@ Khi nội dung vượt ngân sách, **chiến lược cắt bớt phải giải 
 
 Việc lắp ráp Context liên quan tới nhiều tài nguyên; khi một tài nguyên lấy thất bại thì **không được tuỳ tiện trộn version mới và cũ để chạy tiếp.** Ví dụ, Prompt mới phụ thuộc vào Schema output đã cập nhật, trong khi node vận hành vẫn cache Skill version cũ; khi đó việc lấy riêng Prompt mới nhất cùng Skill cũ **có thể rủi ro hơn việc dùng trọn tổ hợp đã kiểm chứng trước đó.**
 
-Khi Agent Release hay task bắt đầu, có thể lưu tổ hợp tài nguyên đã kiểm chứng thành **Lock Manifest.** Khi phân giải online thành công thì dùng tổ hợp mới; còn khi một phần tài nguyên không khả dụng hay kiểm tra thất bại thì tuỳ policy mà lùi trọn về tổ hợp đã kiểm chứng trước đó, hoặc dừng task và nói rõ phụ thuộc còn thiếu. Với các năng lực đuôi dài độc lập và tuỳ chọn thì có thể chạy lại ARD; còn khi nhu cầu đã rõ là hướng tới một Agent từ xa thì cũng có thể dùng thẳng RAD để tìm ứng viên khác thoả cùng nhu cầu — **nhưng quá trình thay thế bắt buộc phải qua lại các phán định về version, quyền và rủi ro.**
+Khi Agent Release hay task bắt đầu, có thể lưu tổ hợp tài nguyên đã kiểm chứng thành **Lock Manifest.** Khi phân giải online thành công thì dùng tổ hợp mới; còn khi một phần tài nguyên không khả dụng hay kiểm tra thất bại thì tuỳ policy mà lùi trọn về tổ hợp đã kiểm chứng trước đó, hoặc dừng task và nói rõ phụ thuộc còn thiếu. Với các năng lực đuôi dài độc lập và tuỳ chọn thì có thể chạy lại ARD; còn khi nhu cầu đã rõ là hướng tới một Agent từ xa thì cũng có thể dùng trực tiếp RAD để tìm ứng viên khác thoả cùng nhu cầu — **nhưng quá trình thay thế bắt buộc phải qua lại các đánh giá về version, quyền và rủi ro.**
 
 MCP Server và Agent từ xa còn có tình huống **"version tài nguyên khả dụng nhưng endpoint cụ thể tạm thời không khả dụng".** Resolver phải phân biệt trạng thái version của nội dung hay định nghĩa năng lực với trạng thái sức khoẻ của endpoint vận hành: **sự cố endpoint không được sửa version lịch sử, và việc failover cũng không được lặng lẽ làm đổi định nghĩa năng lực.** Khi dùng endpoint dự phòng, phải tiếp tục thoả cùng yêu cầu về version, giao thức, môi trường và quyền hạn, và ghi lại đích kết nối thực tế.
 
@@ -728,7 +728,7 @@ Nacos cung cấp cho runtime phần định danh tài nguyên, version chính x�
 
 Giữa hai bên có thể thiết lập một interface ổn định qua **Context Manifest.** Với mỗi tài nguyên Nacos, Manifest ít nhất ghi Namespace, loại tài nguyên, tên, version đã phân giải và digest cần thiết; còn MCP Server và Agent thì ghi thêm endpoint thực tế. Khi đường khám phá đến từ Nacos ARD hay RAD thì lưu thêm định danh request khám phá và lý do khớp chính. Nhờ vậy, **Trace phía model liên kết được với bản ghi phát hành phía tài nguyên.**
 
-Khi nhãn, trạng thái online hay tập endpoint trong Nacos thay đổi, **Context Compiler không được lặng lẽ thay nội dung trong một lượt task đang chạy.** Runtime phải hoàn tất việc phân giải lại và kiểm chứng trước, rồi sinh Manifest mới ở ranh giới task hay giai đoạn. Nacos lọc ứng viên theo Namespace, khả năng nhìn thấy, trạng thái tài nguyên và luật quyền hạn; còn Harness thì vẫn phải kết hợp uỷ quyền task, tính tương thích giao thức và rủi ro vận hành để hoàn tất phán định trước khi gọi, và **bảo đảm Context thực sự dùng trong một lần chạy là rõ ràng, giải thích được và phát lại được.**
+Khi nhãn, trạng thái online hay tập endpoint trong Nacos thay đổi, **Context Compiler không được lặng lẽ thay nội dung trong một lượt task đang chạy.** Runtime phải hoàn tất việc phân giải lại và kiểm chứng trước, rồi sinh Manifest mới ở ranh giới task hay giai đoạn. Nacos lọc ứng viên theo Namespace, khả năng nhìn thấy, trạng thái tài nguyên và luật quyền hạn; còn Harness thì vẫn phải kết hợp uỷ quyền task, tính tương thích giao thức và rủi ro vận hành để hoàn tất đánh giá trước khi gọi, và **bảo đảm Context thực sự dùng trong một lần chạy là rõ ràng, giải thích được và phát lại được.**
 
 ![ch15-06-context-assembly.png](../assets/imgs/chapter-15/image-006.png)
 
@@ -736,9 +736,9 @@ Khi nhãn, trạng thái online hay tập endpoint trong Nacos thay đổi, **Co
 
 Tới đây, Prompt, Skill, MCP và Agent đã đi từ tài sản phát hành, qua phân giải khai báo hay khám phá động, vào một quá trình chạy truy nguyên được. Phần dưới lấy việc chẩn đoán sự cố production làm ví dụ, để minh hoạ những năng lực này phối hợp trong một luồng trọn vẹn ra sao, và đưa ra các chỉ số cùng lộ trình tiến hoá dùng được cho vận hành liên tục.
 
-## 15.10 Case đầu-cuối, chỉ số vận hành và lộ trình tiến hoá
+## 15.10 Case đầu cuối, chỉ số vận hành và lộ trình tiến hoá
 
-Các phần trước đã lần lượt bàn về mô hình hoá tài nguyên, phát hành version, thẩm định thay đổi, khám phá tài nguyên và lắp ráp Context. Hệ thống thật cần nối những khâu đó thành một đường **chạy được, quan sát được và cải tiến liên tục được.** Mục này lấy một Agent chẩn đoán sự cố production do Nacos Agentic Resource Registry chống đỡ làm ví dụ, để minh hoạ phụ thuộc cố định và năng lực động cùng hoàn thành task ra sao.
+Các phần trước đã lần lượt bàn về mô hình hoá tài nguyên, phát hành version, thẩm định thay đổi, khám phá tài nguyên và lắp ráp Context. Hệ thống thật cần nối những khâu đó thành một đường **chạy được, quan sát được và cải tiến liên tục được.** Mục này lấy một Agent chẩn đoán sự cố production do Nacos Agentic Resource Registry hỗ trợ làm ví dụ, để minh hoạ phụ thuộc cố định và năng lực động cùng hoàn thành task ra sao.
 
 ### 15.10.1 Bối cảnh và chuẩn bị tài nguyên
 
@@ -758,24 +758,24 @@ Toàn bộ quá trình thực thi có thể chia thành các bước sau:
 | Hình thành nhu cầu năng lực | Trích dịch vụ, khoảng thời gian, loại bất thường và kết quả kỳ vọng từ request người dùng để hình thành Capability Requirement; còn đơn hàng cụ thể và nguyên văn log thì vẫn giữ trong môi trường task | Ý định gốc và nhu cầu năng lực có cấu trúc |
 | Khám phá năng lực không cố định | Nacos ARD truy hồi trong phạm vi cho phép các Skill phân tích log đơn hàng, Prompt đối chiếu thay đổi phát hành, MCP Server observability và Agent lĩnh vực đơn hàng, và có thể tiếp tục lấy tài nguyên cụ thể | Ứng viên, version và căn cứ khớp chính |
 | Phân giải Agent từ xa | Khi đã chọn Agent lĩnh vực đơn hàng và cần gọi từ xa, lấy version chính xác, mô tả native của giao thức và endpoint khả dụng qua RAD; khi không cần thông tin gọi từ xa thì tiếp tục dùng kết quả của ARD | Request RAD, snapshot giao thức và endpoint |
-| Thực thi phán định quản trị | Nacos lọc ứng viên theo định danh nhân viên trực, Namespace production, uỷ quyền tài nguyên và trạng thái online; Runtime của task rồi kết hợp tương thích giao thức, mức rủi ro và quyền của task này để phán định trước khi gọi | Phán định tư cách và quyền thực sự được cấp |
+| Thực thi đánh giá quản trị | Nacos lọc ứng viên theo định danh nhân viên trực, Namespace production, uỷ quyền tài nguyên và trạng thái online; Runtime của task rồi kết hợp tương thích giao thức, mức rủi ro và quyền của task này để đánh giá trước khi gọi | Đánh giá tư cách và quyền thực sự được cấp |
 | Phân giải version và endpoint | Nacos Client chuyển nhãn hay tham chiếu tài nguyên thành version chính xác, và chọn endpoint khả dụng thoả yêu cầu môi trường từ MCP Registry, Naming hay Agent Registry | Version chính xác, digest và endpoint thực tế |
 | Lắp ráp và dùng năng lực | Context Compiler lắp ráp Prompt, các bước Skill, mô tả tool cần thiết và thông tin task theo độ ưu tiên; Agent dùng năng lực đã chọn qua MCP Router hay client native | Context Manifest và Trace lời gọi |
-| Xuất kết quả và ghi chép | Liên kết thay đổi giám sát, bản ghi phát hành và bản ghi log hay tài liệu bằng chứng lại với nhau, rồi xuất kết quả chẩn đoán kèm phần nói rõ độ bất định | Version tài nguyên, lý do khám phá, phán định quyền, endpoint và kết quả cuối |
+| Xuất kết quả và ghi chép | Liên kết thay đổi giám sát, bản ghi phát hành và bản ghi log hay tài liệu bằng chứng lại với nhau, rồi xuất kết quả chẩn đoán kèm phần nói rõ độ bất định | Version tài nguyên, lý do khám phá, đánh giá quyền, endpoint và kết quả cuối |
 
-Trong luồng này, Nacos AI Registry lưu tài nguyên có thẩm quyền; Pipeline ràng buộc việc phát hành; ARD lo việc khám phá xuyên loại và lấy tài nguyên; RAD bù phần khám phá giao thức và endpoint cho Agent từ xa theo nhu cầu; Client và Router lo việc phân giải hay kết nối; Context Compiler lo việc lắp ráp; còn MCP Client và A2A Client thì lo việc tương tác thực tế. **Chỉ khi những ranh giới này rõ ràng, thì lúc có vấn đề ta mới phán định được đó là do ứng viên không chính xác, tài nguyên không khả dụng, phán định quyền không đúng, lắp ráp Context sai, hay lời gọi thực tế thất bại.**
+Trong luồng này, Nacos AI Registry lưu tài nguyên có thẩm quyền; Pipeline ràng buộc việc phát hành; ARD lo việc khám phá xuyên loại và lấy tài nguyên; RAD bù phần khám phá giao thức và endpoint cho Agent từ xa theo nhu cầu; Client và Router lo việc phân giải hay kết nối; Context Compiler lo việc lắp ráp; còn MCP Client và A2A Client thì lo việc tương tác thực tế. **Chỉ khi những ranh giới này rõ ràng, thì lúc có vấn đề ta mới đánh giá được đó là do ứng viên không chính xác, tài nguyên không khả dụng, đánh giá quyền không đúng, lắp ráp Context sai, hay lời gọi thực tế thất bại.**
 
 ### 15.10.3 Xử lý khi một Skill đã phát hành lộ ra rủi ro
 
-Giả sử một version của Skill phân tích log đơn hàng về sau bị phát hiện là gửi dữ liệu mẫu tới một dịch vụ bên ngoài chưa khai báo. Sau khi nhân sự bảo mật xác nhận rủi ro dựa trên bản ghi vận hành, họ đưa version đó offline trong Nacos, và khi cần thì tắt luôn cả Skill. Truy vấn lúc chạy không còn trả nó về như một tài nguyên online; **ARD cũng phải loại version đó ra trong bước phán định tư cách của kết quả**; còn node vận hành thì theo policy rủi ro mà dừng việc nạp mới, dọn cache chờ dùng, và chấm dứt các task chưa thực thi request ra ngoài.
+Giả sử một version của Skill phân tích log đơn hàng về sau bị phát hiện là gửi dữ liệu mẫu tới một dịch vụ bên ngoài chưa khai báo. Sau khi nhân sự bảo mật xác nhận rủi ro dựa trên bản ghi vận hành, họ đưa version đó offline trong Nacos, và khi cần thì tắt luôn cả Skill. Truy vấn lúc chạy không còn trả nó về như một tài nguyên online; **ARD cũng phải loại version đó ra trong bước đánh giá tư cách của kết quả**; còn node vận hành thì theo policy rủi ro mà dừng việc nạp mới, dọn cache chờ dùng, và chấm dứt các task chưa thực thi request ra ngoài.
 
 Bản ghi version và offline của Nacos xác định phạm vi tài nguyên cần điều tra; nền tảng Agent rồi dùng Lock Manifest, Context Manifest và Trace lịch sử để tìm các task đã dùng version đó theo cách cố định hay động. Việc kiểm tra có thể xác nhận những lần chạy nào từng có quyền mạng, có thực sự sinh request ra ngoài không, và trong request có chứa dữ liệu nhạy cảm không. Sau khi đội bảo trì sửa Skill, họ cho version mới đi lại qua Pipeline Nacos, kiểm chứng cô lập và thẩm định của con người; qua được rồi mới khôi phục nhãn và phạm vi khám phá tương ứng.
 
-Quá trình này cho thấy: **thu hồi version không đơn thuần là xoá file.** Việc xử lý hiệu quả phụ thuộc vào digest nội dung xác định, bản ghi quyền vận hành, danh sách bên tiêu thụ và version thay thế được. **Thiếu bất kỳ mục nào, đội ngũ cũng khó phán định chính xác cần dừng những task nào và khôi phục dịch vụ ra sao.**
+Quá trình này cho thấy: **thu hồi version không đơn thuần là xoá file.** Việc xử lý hiệu quả phụ thuộc vào digest nội dung xác định, bản ghi quyền vận hành, danh sách bên tiêu thụ và version thay thế được. **Thiếu bất kỳ mục nào, đội ngũ cũng khó đánh giá chính xác cần dừng những task nào và khôi phục dịch vụ ra sao.**
 
 ### 15.10.4 Chỉ số vận hành
 
-Sau khi nền tảng được xây, cần dùng chỉ số để phán định xem nó có thực sự cải thiện chất lượng tài nguyên và việc vận hành Agent không. Các chỉ số có thể tổ chức theo năm mặt:
+Sau khi nền tảng được xây, cần dùng chỉ số để đánh giá xem nó có thực sự cải thiện chất lượng tài nguyên và việc vận hành Agent không. Các chỉ số có thể tổ chức theo năm mặt:
 
 | Mặt | Chỉ số tiêu biểu | Câu hỏi chính nó trả lời |
 | --- | --- | --- |
@@ -799,10 +799,10 @@ Các tổ chức khác nhau có thể xây dựng dần theo số lượng Agent
 | L1 — Lưu version | Dùng repository hay artifact repository để lưu nội dung, xem được lịch sử sửa | Phân biệt bản làm việc, version bất biến và version thực sự chạy |
 | L2 — Registry thống nhất | Dùng Nacos AI Registry để thiết lập định danh ổn định, quyền, nhãn, vòng đời, phân giải lúc chạy và thông tin endpoint | Hoàn thiện Lock Manifest, tham chiếu ngược và phân tích ảnh hưởng xuyên tài nguyên |
 | L3 — Đánh giá thống nhất và chuỗi cung ứng đáng tin | Nacos Pipeline tiếp nhận kiểm tra phát hành; tài nguyên bên ngoài qua xác minh nguồn, kiểm tra nội dung và chạy có giới hạn | Thiết lập kiểm tra liên tục, thông báo offline và xử lý ảnh hưởng |
-| L4 — Khám phá động có kiểm soát | Dùng Nacos ARD để khám phá và lấy tài nguyên theo task, và dùng RAD theo nhu cầu trong bối cảnh Agent từ xa | Tối ưu truy hồi, phán định quản trị, việc chọn giao thức và endpoint cùng Context Manifest |
+| L4 — Khám phá động có kiểm soát | Dùng Nacos ARD để khám phá và lấy tài nguyên theo task, và dùng RAD theo nhu cầu trong bối cảnh Agent từ xa | Tối ưu truy hồi, đánh giá quản trị, việc chọn giao thức và endpoint cùng Context Manifest |
 | L5 — Cải tiến liên tục | Đánh giá và phản hồi vận hành hình thành version ứng viên; hiệu quả phát hành đo được | Nâng chất lượng đánh giá tự động và khả năng nhân rộng xuyên môi trường |
 
-**Tiêu chí phán định giữa các giai đoạn phải lấy năng lực thực tế làm chuẩn, chứ không phải việc đã triển khai một sản phẩm nào đó hay chưa.** Ví dụ, chỉ lập được danh sách tài nguyên nhưng vẫn cho phép ghi đè nội dung lịch sử thì **không được coi là đã xong L2**; còn triển khai truy hồi ngữ nghĩa mà không có lọc quyền và phân giải version chính xác thì cũng **không được coi là đã có khám phá động có kiểm soát.**
+**Tiêu chí đánh giá giữa các giai đoạn phải lấy năng lực thực tế làm chuẩn, chứ không phải việc đã triển khai một sản phẩm nào đó hay chưa.** Ví dụ, chỉ lập được danh sách tài nguyên nhưng vẫn cho phép ghi đè nội dung lịch sử thì **không được coi là đã xong L2**; còn triển khai truy hồi ngữ nghĩa mà không có lọc quyền và phân giải version chính xác thì cũng **không được coi là đã có khám phá động có kiểm soát.**
 
 ### 15.10.6 Thứ tự triển khai với Nacos và tóm tắt chương
 
@@ -812,4 +812,4 @@ Quan điểm cốt lõi của chương này là: **Prompt, Skill, MCP và Agent 
 
 Với vai trò Agentic Resource Registry, Nacos đặt việc đăng ký tài nguyên, phát hành version, khám phá lúc chạy và thay đổi động trên cùng một hạ tầng; còn Agent Harness thì lo việc biến những tài nguyên đó thành một lần thực thi cụ thể. **Hai bên cùng tạo thành một quan hệ liên tục từ "tổ chức có những năng lực nào" tới "task lần này thực sự đã dùng gì".**
 
-Khi tài nguyên, việc khám phá và bản ghi vận hành hình thành một quan hệ liên tục, đội ngũ mới trả lời chính xác được ba câu hỏi: **hiện có những năng lực đã được quản trị nào, vì sao một Agent nào đó chọn và dùng chúng, và khi nội dung hay instance vận hành thay đổi thì những task nào bị ảnh hưởng.** Đó cũng là giá trị kỹ thuật của việc Nacos đi từ nền tảng đăng ký – cấu hình microservice sang Agentic Resource Registry, và của việc chống đỡ cho Agent đi từ thí nghiệm cục bộ tới vận hành ở quy mô.
+Khi tài nguyên, việc khám phá và bản ghi vận hành hình thành một quan hệ liên tục, đội ngũ mới trả lời chính xác được ba câu hỏi: **hiện có những năng lực đã được quản trị nào, vì sao một Agent nào đó chọn và dùng chúng, và khi nội dung hay instance vận hành thay đổi thì những task nào bị ảnh hưởng.** Đó cũng là giá trị kỹ thuật của việc Nacos đi từ nền tảng đăng ký – cấu hình microservice sang Agentic Resource Registry, và của việc hỗ trợ cho Agent đi từ thí nghiệm cục bộ tới vận hành ở quy mô.

@@ -4,7 +4,7 @@
 
 Sau khi lập trình có AI hỗ trợ trở nên phổ biến, sản lượng code tăng theo cấp số nhân, nhưng nhân lực review thì không mở rộng theo. Với phần mềm nền tảng như kernel, kích thước PR và thời gian thẩm định tăng vọt; còn các công cụ AI Review đa dụng, vì thiếu tri thức lĩnh vực và hiểu biết nghiệp vụ, khó đáp ứng được yêu cầu soát ở mức chuyên gia. Nút thắt hiệu suất R&D đang nhanh chóng dịch từ khâu "viết" sang khâu "soát".
 
-Bản white paper này giới thiệu **Kitta**, một Code Review Agent tuỳ biến sâu theo lĩnh vực. Nó lĩnh vực hoá một Agent đa dụng bằng cách kết tinh tài sản chuyên gia ở mức project, tuỳ biến quy trình soát và kho tri thức lĩnh vực, đồng thời dựng một vòng khép kín tiến hoá phối hợp online – offline, để giải quyết chính xác các vấn đề code đặc thù của lĩnh vực.
+Bản white paper này giới thiệu **Kitta**, một Code Review Agent tuỳ biến sâu theo lĩnh vực. Nó lĩnh vực hoá một Agent đa dụng bằng cách kết tinh tài sản chuyên gia ở mức project, tuỳ biến quy trình soát và kho tri thức lĩnh vực, đồng thời dựng một vòng lặp khép kín tiến hoá phối hợp online – offline, để giải quyết chính xác các vấn đề code đặc thù của lĩnh vực.
 
 Kitta chạy trên production ở cộng đồng OpenAnolis tới nay đã hoàn tất soát hơn 70 nghìn patch, với độ chính xác của cổng kiểm soát đạt 97% và tỉ lệ merge giữ ổn định ở mức 62%. Phương pháp luận tuỳ biến theo lĩnh vực của nó đã được kiểm chứng ở sáu lĩnh vực lớn gồm kernel hệ điều hành, compiler, nền tảng cloud native…, đạt mức nâng chất lượng soát 17,0%–31,6%, và thành công giải phóng sự chú ý của Maintainer từ việc soát từng dòng sang việc phân xử các điểm tranh cãi then chốt.
 
@@ -20,7 +20,7 @@ Số CVE mà Linux kernel upstream sửa đang tăng nhanh: các version kernel 
 
 ![image.png](../../assets/imgs/chapter-25/image-001.png)
 
-Dữ liệu ở phía hiệu suất R&D cũng xác nhận xu thế này. Báo cáo thường niên *State of AI-assisted Software Development* do DORA (dự án nghiên cứu hiệu suất R&D thuộc Google Cloud) công bố cho thấy: trong khi AI tham gia sâu vào việc phát triển, tỉ lệ bug của code +9%, thời gian thẩm định code +91%, và kích thước PR trung bình +154% (phiên bản này có khoảng 5.000 người tham gia khảo sát; các con số là theo chuẩn đo tương quan chứ không phải kết luận nhân quả).
+Dữ liệu ở phía hiệu suất R&D cũng xác nhận xu thế này. Báo cáo thường niên *State of AI-assisted Software Development* do DORA (dự án nghiên cứu hiệu suất R&D thuộc Google Cloud) công bố cho thấy: trong khi AI tham gia sâu vào việc phát triển, tỉ lệ bug của code +9%, thời gian thẩm định code +91%, và kích thước PR trung bình +154% (phiên bản này có khoảng 5.000 người tham gia khảo sát; các con số là theo thước đo tương quan chứ không phải kết luận nhân quả).
 
 Tóm lại, trong thời đại AI Coding người – máy cùng viết, việc viết code không còn bị giới hạn bởi nhân lực nữa, nhưng nhân lực soát thì không tăng theo. Nút thắt năng suất đang dịch từ "viết" sang "soát".
 
@@ -48,7 +48,7 @@ Tách ra mà xem, các phương án Code Review đa dụng hiện nay đều có
 
 **Hiểu nghiệp vụ chưa đủ.** Mô hình phát triển của các project rất đa dạng, nên định vị và chức năng của việc soát phải bám sát kịch bản nghiệp vụ. Với project mã nguồn mở của cộng đồng, repo nội bộ doanh nghiệp và việc duy trì một bản phân phối, thì chuẩn "cái gì là vấn đề, vấn đề nghiêm trọng tới đâu" khác nhau hoàn toàn.
 
-**Ranh giới tin cậy mơ hồ.** Thiếu chuẩn đánh giá chất lượng khách quan, và thiếu cơ chế tiến hoá khớp được với nhu cầu người dùng. Người dùng nói "tốt" chưa chắc là tốt thật, còn việc Agent tự thấy hài lòng thì càng không đáng tin — không có vòng khép kín đánh giá và tiến hoá khách quan thì không có cơ sở nào để dựng niềm tin.
+**Ranh giới tin cậy mơ hồ.** Thiếu chuẩn đánh giá chất lượng khách quan, và thiếu cơ chế tiến hoá khớp được với nhu cầu người dùng. Người dùng nói "tốt" chưa chắc là tốt thật, còn việc Agent tự thấy hài lòng thì càng không đáng tin — không có vòng lặp khép kín đánh giá và tiến hoá khách quan thì không có cơ sở nào để dựng niềm tin.
 
 Tóm một câu: khi AI tham gia sâu vào nghiệp vụ lõi, AI "đọc hiểu" được code, nhưng chưa chắc "hiểu" được project.
 
@@ -60,7 +60,7 @@ Nhắm vào ba thách thức đó, phương án thực hành của Kitta là lĩ
 
 Tri thức lĩnh vực không từ trên trời rơi xuống, mà được chắt ra từ lịch sử thật. Kitta xuất phát từ các bản ghi soát và khiếm khuyết thật trong lịch sử R&D của cộng đồng, phủ dữ liệu nhiều nguồn như repo GitHub của project. Các bản ghi gốc qua các bước thu thập và liên kết, chỉnh trang khử nhiễu, phân giải ngữ nghĩa, tái hiện cô lập, rồi kết tinh thành tài sản chuyên gia ở mức project; trong đó phần "tái hiện cô lập" là để mỗi mẫu khiếm khuyết cùng kết luận kỳ vọng đều kiểm chứng được và chịu được truy vấn, chứ không phải coi nhiễu là kinh nghiệm. Tài sản này gồm hai nhóm nội dung cốt lõi:
 
-* **Chuẩn phán định** — nguyên tắc soát, mẫu khiếm khuyết, thông lệ của project; trả lời câu "phán theo chuẩn nào";
+* **Chuẩn đánh giá** — nguyên tắc soát, mẫu khiếm khuyết, thông lệ của project; trả lời câu "phán theo chuẩn nào";
 
 * **Mẫu kiểm chứng** — mẫu có vấn đề, mẫu bình thường, kết luận kỳ vọng; trả lời câu "phán đúng hay sai thì đo bằng gì".
 
@@ -72,15 +72,15 @@ Có tài sản chuyên gia rồi thì phải giải quyết tiếp câu hỏi "s
 
 **Tuỳ biến quy trình soát, để AI soát đủ**: định nghĩa việc soát phải nhìn vào đâu, gồm các chiều nhất quán ngữ nghĩa, trọn vẹn khi backport, quy phạm của bản phân phối, rủi ro tích hợp — nhất quán ngữ nghĩa ngăn hành vi của patch đi lệch khỏi kỳ vọng; trọn vẹn khi backport thì canh xem chuỗi patch xuyên version có đủ không, có sót gì không; quy phạm bản phân phối thì gác xem có khớp yêu cầu merge của bản phân phối không; còn rủi ro tích hợp thì đánh giá các ảnh hưởng dây chuyền sau khi thay đổi vào codebase. Bốn chiều đó bảo đảm những gì cần soát đều được soát, không sót mục nào.
 
-Ở ANCK, trọng tâm tuỳ biến quy trình là **Code Review cho patch backport**. Backport patch là thao tác tần suất cao khi duy trì một cộng đồng kernel hạ nguồn: khi backport patch upstream xuống hạ nguồn, thường phải thích ứng theo context hạ nguồn, nên vừa phải phán định chính xác việc thích ứng có đúng không, vừa phải xác nhận việc backport có trọn vẹn không, có mang theo cả các bản sửa về sau của upstream không. Quanh kịch bản đó, Kitta tuỳ biến hai góc nhìn soát đặc thù cho kernel:
+Ở ANCK, trọng tâm tuỳ biến quy trình là **Code Review cho patch backport**. Backport patch là thao tác tần suất cao khi duy trì một cộng đồng kernel hạ nguồn: khi backport patch upstream xuống hạ nguồn, thường phải thích ứng theo context hạ nguồn, nên vừa phải đánh giá chính xác việc thích ứng có đúng không, vừa phải xác nhận việc backport có trọn vẹn không, có mang theo cả các bản sửa về sau của upstream không. Quanh kịch bản đó, Kitta tuỳ biến hai góc nhìn soát đặc thù cho kernel:
 
-* **Kiểm nhất quán ngữ nghĩa patch** — nhận diện khác biệt giữa patch backport và patch gốc upstream, rồi kết hợp ngữ nghĩa mà phán định tính nhất quán về chức năng của patch. Về phương án thì truy nguyên vi mô và so khác biệt ở mức patch trước, rồi mới đánh giá vĩ mô xem chức năng tổng thể có nhất quán không, tránh kiểu bỏ lọt "từng dòng đều đúng mà tổng thể đã đổi".
+* **Kiểm nhất quán ngữ nghĩa patch** — nhận diện khác biệt giữa patch backport và patch gốc upstream, rồi kết hợp ngữ nghĩa mà đánh giá tính nhất quán về chức năng của patch. Về phương án thì truy nguyên vi mô và so khác biệt ở mức patch trước, rồi mới đánh giá vĩ mô xem chức năng tổng thể có nhất quán không, tránh kiểu bỏ lọt "từng dòng đều đúng mà tổng thể đã đổi".
 
 * **Kiểm tính trọn vẹn của patch** — lần theo chuỗi phụ thuộc upstream của patch backport một cách thông minh, tự động nhận diện các patch Fixes tương ứng ở upstream, dùng quy trình tra cứu Fixes bị sót bốn giai đoạn, chặn việc các lỗ hổng đã biết quay trở lại.
 
 Ngoài ra, nhắm vào hiện trạng "việc soát chất lượng của bản thân code chỉ là một khâu" trong quy trình sản phẩm hoá ở hạ nguồn, Kitta còn phủ các mục soát thuộc nhóm quy trình như kiểm quy phạm phần mô tả PR, kiểm tính nhất quán giữa mô tả và code — mở rộng phạm vi soát từ bản thân code ra trọn context của quy trình R&D.
 
-**Tuỳ biến tri thức lĩnh vực, để AI soát sâu**: quyết định phán một vấn đề ra sao, dựa vào kho tri thức phân tầng nhiều nguồn, tách theo lĩnh vực con, kết tinh các mẫu khiếm khuyết điển hình, để phán đoán của Agent bám sát kinh nghiệm thật của chuyên gia trong lĩnh vực đó, chứ không phải những "best practice" chung chung. Ở ANCK, vòng tuỳ biến này được triển khai thành ba việc:
+**Tuỳ biến tri thức lĩnh vực, để AI soát sâu**: quyết định phán một vấn đề ra sao, dựa vào kho tri thức phân tầng nhiều nguồn, tách theo lĩnh vực con, kết tinh các mẫu khiếm khuyết điển hình, để nhận định của Agent bám sát kinh nghiệm thật của chuyên gia trong lĩnh vực đó, chứ không phải những "best practice" chung chung. Ở ANCK, vòng tuỳ biến này được triển khai thành ba việc:
 
 * **Kỹ thuật dữ liệu lĩnh vực kernel** — thu thập tri thức lĩnh vực kernel từ nhiều nguồn, qua pipeline xử lý gồm sàng lọc dữ liệu, tổng hợp dữ liệu, cân bằng dữ liệu, để có được kho tri thức lĩnh vực cùng dữ liệu Benchmark;
 
@@ -94,7 +94,7 @@ Ngoài ra, nhắm vào hiện trạng "việc soát chất lượng của bản 
 
 Tri thức lĩnh vực là thứ sống, nên Agent cũng phải tiến hoá liên tục. Kitta dùng cơ chế lặp phối hợp online – offline:
 
-**Phía offline, vòng tối ưu bằng mẫu kiểm chứng** — dùng mẫu kiểm chứng để đánh giá cô lập, rồi tự soi lại và tiến hoá theo kết quả, liên tục hiệu chỉnh chuẩn phán định của Agent.
+**Phía offline, vòng tối ưu bằng mẫu kiểm chứng** — dùng mẫu kiểm chứng để đánh giá cô lập, rồi tự soi lại và tiến hoá theo kết quả, liên tục hiệu chỉnh chuẩn đánh giá của Agent.
 
 **Phía online, hiệu chỉnh liên tục bằng quan sát production** — dựa trên nội dung ý kiến Review và hành vi code về sau của người phát triển, chúng tôi phát triển một framework đánh giá phân tích và tổng hợp thông minh mức hữu hiệu của từng loại ý kiến; kết hợp với việc giám sát liên tục tỉ lệ ý kiến được tiếp nhận, cập nhật tri thức, hiệu chỉnh lặp và chỉnh ngưỡng, để Agent càng dùng càng chính xác trong sử dụng thật.
 
@@ -106,17 +106,17 @@ Tri thức lĩnh vực là thứ sống, nên Agent cũng phải tiến hoá li�
 
 Kitta đã triển khai và chạy liên tục trong pipeline R&D thật của cộng đồng OpenAnolis, soát từng PR kernel theo một pipeline năm giai đoạn hoàn chỉnh. Khi người phát triển gửi PR hay gõ `/check-code-review` trong comment, task soát sẽ được kích hoạt; cả quy trình thì phân loại trước, rồi kiểm quy phạm và phụ thuộc, cuối cùng mới tới chất lượng code — từng lớp tiến dần.
 
-**Giai đoạn 1 — Phân loại PR.** Trước hết Kitta phán định đây là patch tự phát triển thuần tuý hay patch backport: nếu trong Commit có khai báo patch upstream kiểu `commit xxxx upstream` thì xếp vào patch backport. Việc phân loại quyết định phạm vi kiểm tra về sau — patch tự phát triển thuần tuý sẽ không chạy phần kiểm tính trọn vẹn của patch và kiểm nhất quán khi backport, tránh chi phí không cần thiết.
+**Giai đoạn 1 — Phân loại PR.** Trước hết Kitta đánh giá đây là patch tự phát triển thuần tuý hay patch backport: nếu trong Commit có khai báo patch upstream kiểu `commit xxxx upstream` thì xếp vào patch backport. Việc phân loại quyết định phạm vi kiểm tra về sau — patch tự phát triển thuần tuý sẽ không chạy phần kiểm tính trọn vẹn của patch và kiểm nhất quán khi backport, tránh chi phí không cần thiết.
 
 **Giai đoạn 2 — Kiểm quy phạm PR/Commit Message.** Dựa trên tài liệu quy phạm của cộng đồng OpenAnolis, kiểm phần mô tả PR, Commit Title, Commit Message… Bước này trông "nhẹ" nhưng chặn trước được rất nhiều chi phí bảo trì do mô tả không rõ, tiêu đề không đúng quy phạm. Không có vấn đề thì không báo cáo; có vấn đề thì đưa ra khuyến nghị về quy phạm Message để người phát triển tham khảo.
 
 ![image.png](../../assets/imgs/chapter-25/image-003.png)
 
-**Giai đoạn 3 — Kiểm tính trọn vẹn của patch.** Với patch backport, Kitta lần theo chuỗi phụ thuộc upstream của nó một cách thông minh, tự động nhận diện các patch Fixes tương ứng ở upstream, và rà soát phần bị sót theo mạch "tra cứu Fixes ở upstream → phán định có trong PR không → phán định có sẵn trong repo hạ nguồn chưa". Kết quả kiểm chia ba loại: `không sót Fixes` nghĩa là không cần bổ sung; `patch Fixes đã merge` nghĩa là bản sửa liên quan đã tồn tại trong repo hạ nguồn; còn `patch Fixes bị sót` thì yêu cầu người phát triển bổ sung, để ngăn các lỗ hổng đã biết bị đưa lại vào hạ nguồn.
+**Giai đoạn 3 — Kiểm tính trọn vẹn của patch.** Với patch backport, Kitta lần theo chuỗi phụ thuộc upstream của nó một cách thông minh, tự động nhận diện các patch Fixes tương ứng ở upstream, và rà soát phần bị sót theo mạch "tra cứu Fixes ở upstream → đánh giá có trong PR không → đánh giá có sẵn trong repo hạ nguồn chưa". Kết quả kiểm chia ba loại: `không sót Fixes` nghĩa là không cần bổ sung; `patch Fixes đã merge` nghĩa là bản sửa liên quan đã tồn tại trong repo hạ nguồn; còn `patch Fixes bị sót` thì yêu cầu người phát triển bổ sung, để ngăn các lỗ hổng đã biết bị đưa lại vào hạ nguồn.
 
 ![image.png](../../assets/imgs/chapter-25/image-004.png)
 
-**Giai đoạn 4 — Kiểm nhất quán khi backport patch.** Với các patch backport có khai báo nguồn upstream, Kitta lấy patch gốc upstream trước, rồi so sánh ở ba tầng: so cơ bản xem file và khối code bị sửa có nhất quán không; so context xem các symbol, hàm, định nghĩa biến được tham chiếu có nhất quán không, có thích ứng hợp lý không; còn so ngữ nghĩa thì dùng LLM phán định patch ở thượng nguồn và hạ nguồn có hiện thực cùng chức năng và cùng ngữ nghĩa không. Kết quả kiểm xuất ra theo tầng từ `consistent` tới `text-inconsistent`, `semantic-inconsistent`, `inconsistent`, giúp người phát triển và Maintainer nhanh chóng định vị được bản chất của khác biệt.
+**Giai đoạn 4 — Kiểm nhất quán khi backport patch.** Với các patch backport có khai báo nguồn upstream, Kitta lấy patch gốc upstream trước, rồi so sánh ở ba tầng: so cơ bản xem file và khối code bị sửa có nhất quán không; so context xem các symbol, hàm, định nghĩa biến được tham chiếu có nhất quán không, có thích ứng hợp lý không; còn so ngữ nghĩa thì dùng LLM đánh giá patch ở thượng nguồn và hạ nguồn có hiện thực cùng chức năng và cùng ngữ nghĩa không. Kết quả kiểm xuất ra theo tầng từ `consistent` tới `text-inconsistent`, `semantic-inconsistent`, `inconsistent`, giúp người phát triển và Maintainer nhanh chóng định vị được bản chất của khác biệt.
 
 ![image.png](../../assets/imgs/chapter-25/image-005.png)
 
@@ -138,13 +138,13 @@ Thay đổi code ở ANCK chủ yếu là patch backport và patch tự phát tr
 
 * **Kịch bản PR tự phát triển**: tỉ lệ tiếp nhận ý kiến Code Review 41,8%, độ chính xác 73,6%.
 
-Sự tham gia của Kitta khiến rất nhiều vấn đề code được nhận ra trước khi vào khâu soát của con người, kèm theo các khuyến nghị sửa định vị được và kiểm chứng được. Trong thực tế, rất nhiều PR sau khi Kitta nêu ý kiến thì người phát triển bổ sung thẳng patch phụ thuộc hay chỉnh phần hiện thực theo khuyến nghị, giảm mạnh số vòng Maintainer phải hỏi đi hỏi lại và xác nhận qua lại. Với Maintainer của cộng đồng, điều đó có nghĩa là họ chuyển được sự chú ý từ "soát từng dòng thay đổi" sang "phán định các điểm tranh cãi then chốt"; còn với người phát triển thì nghĩa là phản hồi nhanh hơn và nhịp merge dự đoán được hơn.
+Sự tham gia của Kitta khiến rất nhiều vấn đề code được nhận ra trước khi vào khâu soát của con người, kèm theo các khuyến nghị sửa định vị được và kiểm chứng được. Trong thực tế, rất nhiều PR sau khi Kitta nêu ý kiến thì người phát triển bổ sung thẳng patch phụ thuộc hay chỉnh phần hiện thực theo khuyến nghị, giảm mạnh số vòng Maintainer phải hỏi đi hỏi lại và xác nhận qua lại. Với Maintainer của cộng đồng, điều đó có nghĩa là họ chuyển được sự chú ý từ "soát từng dòng thay đổi" sang "đánh giá các điểm tranh cãi then chốt"; còn với người phát triển thì nghĩa là phản hồi nhanh hơn và nhịp merge dự đoán được hơn.
 
 ### 4.2 Hệ đánh giá Benchmark: làm cho hiệu quả tuỳ biến đo được
 
 Để hiệu quả tuỳ biến đo được, Kitta còn dựng một hệ đánh giá Benchmark: thu dữ liệu từ ba loại nguồn — LKML (quá trình thẩm định của Reviewer thật trong cộng đồng, phân bố vấn đề đều, tính chân thực cao), sashiko benchmark (ứng chính xác một commit — một issue), và dữ liệu cộng đồng OpenAnolis. Trong đó:
 
-* Dữ liệu LKML giúp Kitta khớp được với chuẩn phán định của Reviewer thật trong cộng đồng.
+* Dữ liệu LKML giúp Kitta khớp được với chuẩn đánh giá của Reviewer thật trong cộng đồng.
 
 * sashiko benchmark cung cấp ánh xạ một commit — một issue nghiêm ngặt, giúp hướng cải thiện năng lực đủ tập trung.
 
@@ -167,18 +167,18 @@ Năng lực của Kitta không giới hạn ở kernel. Bằng cách trừu tư�
 
 Mức nâng ổn định xuyên lĩnh vực cho thấy phương pháp luận "tuỳ biến theo lĩnh vực" của Kitta có tính phổ quát: dù là ngữ nghĩa lock của kernel, biểu diễn trung gian của compiler hay quy ước cấu hình của nền tảng cloud native, đều dựng được năng lực Review mức chuyên gia bằng cách kết tinh tài sản chuyên gia và tuỳ biến quy trình soát. Điều này cũng đặt nền cho việc mở rộng sang nhiều project phần mềm nền tảng hơn như LLVM, CRIU, BaseOS về sau.
 
-### 4.4 Data flywheel: dữ liệu kết tinh xuống dưới, năng lực model nuôi ngược lên trên
+### 4.4 Data flywheel: dữ liệu kết tinh xuống dưới, năng lực model phản hồi trở lại lên trên
 
-Trong quá trình phục vụ, Kitta còn liên tục kết tinh dữ liệu dùng được cho model nền Qwen, tạo thành bánh đà "dữ liệu kết tinh xuống dưới, năng lực nuôi ngược lên trên":
+Trong quá trình phục vụ, Kitta còn liên tục tích luỹ dữ liệu dùng được cho model nền Qwen, tạo thành bánh đà "dữ liệu kết tinh xuống dưới, năng lực phản hồi trở lại lên trên":
 
-| Dữ liệu kết tinh | Năng lực được nuôi ngược |
+| Dữ liệu kết tinh | Năng lực được phản hồi trở lại |
 | --- | --- |
 | Bộ dữ liệu Benchmark chuẩn do chuyên gia gán nhãn | Năng lực phát hiện lỗ hổng — hiểu ngữ nghĩa sâu hơn và phát hiện lỗ hổng tiềm ẩn |
 | Dữ liệu theo dõi trajectory chuỗi suy nghĩ của Agent | Năng lực tuân thủ chỉ thị — gọi tool và tuân thủ chỉ thị chính xác hơn |
 | Dữ liệu căn chỉnh theo sở thích người dùng | Năng lực đối thoại với người dùng — diễn đạt ý kiến soát bám sát nhu cầu người dùng |
 | Các hành động Coding về sau của người dùng | Năng lực sinh code — Coding và Debug xuyên ngôn ngữ tốt hơn |
 
-Phần gán nhãn của chuyên gia, trajectory chuỗi suy nghĩ, sở thích người dùng và các thay đổi code về sau sinh ra trong quá trình thẩm định vừa là nhiên liệu để cải thiện chính dịch vụ Review, vừa nuôi ngược lại những năng lực nền tảng hơn của model nền. Quan trọng hơn, những dữ liệu này đến từ việc vận hành thật của cộng đồng chứ không phải một bộ dữ liệu tĩnh dựng thủ công, nên mỗi vòng lặp đều khiến Kitta bám sát hơn kịch bản R&D thực tế.
+Phần gán nhãn của chuyên gia, trajectory chuỗi suy nghĩ, sở thích người dùng và các thay đổi code về sau sinh ra trong quá trình thẩm định vừa là nhiên liệu để cải thiện chính dịch vụ Review, vừa phản hồi trở lại những năng lực nền tảng hơn của model nền. Quan trọng hơn, những dữ liệu này đến từ việc vận hành thật của cộng đồng chứ không phải một bộ dữ liệu tĩnh dựng thủ công, nên mỗi vòng lặp đều khiến Kitta bám sát hơn kịch bản R&D thực tế.
 
 ## Tóm tắt thực tiễn: ranh giới và đồng thuận của AI Code Review
 
@@ -188,7 +188,7 @@ Sau khi triển khai thực tế, chúng tôi nhận ra rằng muốn tối đa 
 
 **Lấy hành vi làm chứng, từ chối tự sướng — người dùng có thể im lặng, nhưng thay đổi code thì không nói dối được.** Không coi việc người phát triển lặng lẽ bỏ qua là sự công nhận; không nhìn người dùng nói gì mà nhìn "code đã sửa cái gì": qua cơ chế ngắt theo độ tin cậy và việc lần theo thay đổi code thật mà dẫn dắt việc soát và việc lặp model dựa trên thay đổi khách quan.
 
-**Con người đỡ lưng, rút lui đúng lúc.** AI là đèn pha, rọi sáng rủi ro và đưa ra bằng chứng; còn Maintainer là vô lăng, quyền quyết định cuối cùng thuộc về con người, và đó là tuyến phòng thủ cuối.
+**Con người bảo đảm dự phòng, rút lui đúng lúc.** AI là đèn pha, rọi sáng rủi ro và đưa ra bằng chứng; còn Maintainer là vô lăng, quyền quyết định cuối cùng thuộc về con người, và đó là tuyến phòng thủ cuối.
 
 Cổng kiểm soát AI tốt nhất không phải là thay thế Maintainer, mà là để họ chỉ dồn sức vào đúng những chỗ thực sự cần trí tuệ con người.
 

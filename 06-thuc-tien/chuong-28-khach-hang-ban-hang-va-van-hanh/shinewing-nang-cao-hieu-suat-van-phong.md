@@ -24,7 +24,7 @@ Hai bên triển khai xây dựng xoay quanh các nhu cầu cốt lõi như cộ
 
 Dựa trên AgentCore, ShineWing xây các Agent AI hướng tới những kịch bản nghiệp vụ khác nhau, và dùng cách quản lý thống nhất, điều phối phối hợp để cung cấp dịch vụ thông minh tiện lợi hơn cho nhân viên.
 
-Trong mô hình cộng tác đa Agent, nền tảng nhận diện được loại task từ câu hỏi nhân viên nêu ra, rồi phân các task khác nhau cho Agent chuyên trách tương ứng xử lý. Với các task phức tạp gồm nhiều bước, còn có một Agent quản lý thống nhất lo việc tách task và tổng hợp kết quả, hiện thực việc nhiều Agent phối hợp làm việc.
+Trong mô hình cộng tác đa Agent, nền tảng nhận diện được loại task từ câu hỏi nhân viên nêu ra, rồi phân các task khác nhau cho Agent chuyên trách tương ứng xử lý. Với các task phức tạp gồm nhiều bước, còn có một Agent quản lý thống nhất lo việc tách task và tổng hợp kết quả, triển khai nhiều Agent phối hợp làm việc.
 
 Qua mô hình này, ShineWing dần đưa được các ứng dụng AI ở những lĩnh vực, những năng lực khác nhau vào quản lý trên một nền tảng thống nhất — vừa giữ được năng lực của các Agent chuyên trách trong kịch bản riêng, vừa cung cấp cho nhân viên một lối vào thống nhất, tiện lợi.
 
@@ -36,7 +36,7 @@ Dựa trên AgentCore, ShineWing quản lý tập trung được các tài sản
 
 Qua năng lực quản lý MCP Server, các hệ thống và interface dịch vụ sẵn có trong nội bộ doanh nghiệp dần chuyển thành những năng lực chuẩn mà Agent gọi được, khiến Agent không chỉ trả lời được câu hỏi mà còn tra cứu thông tin, gọi hệ thống và thực thi task được trong phạm vi được uỷ quyền.
 
-Đồng thời, các Skill nội bộ doanh nghiệp được kết tinh, thẩm định và tái dùng một cách thống nhất, cung cấp phần chống đỡ năng lực nền cho việc nhanh chóng xây thêm nhiều Agent nghiệp vụ về sau.
+Đồng thời, các Skill nội bộ doanh nghiệp được kết tinh, thẩm định và tái dùng một cách thống nhất, cung cấp phần hỗ trợ năng lực nền cho việc nhanh chóng xây thêm nhiều Agent nghiệp vụ về sau.
 
 ### Kết hợp nghiệp vụ thực tế để xây nhiều loại Agent AI
 
@@ -52,7 +52,7 @@ Xoay quanh các nhu cầu tần suất cao của nhân viên và các kịch b�
 
 * **Agent tra cứu thông tin doanh nghiệp**
 
-  Tra cứu quanh các nội dung như thông tin cơ bản của doanh nghiệp, tình hình cổ đông, quan hệ liên kết và thông tin rủi ro, làm tham chiếu hỗ trợ cho nhân viên khi tìm hiểu khách hàng, lập dự án và phán đoán nghiệp vụ liên quan.
+  Tra cứu quanh các nội dung như thông tin cơ bản của doanh nghiệp, tình hình cổ đông, quan hệ liên kết và thông tin rủi ro, làm tham chiếu hỗ trợ cho nhân viên khi tìm hiểu khách hàng, lập dự án và nhận định nghiệp vụ liên quan.
 
 * **Agent xử lý tài liệu và hỗ trợ báo cáo**
 
@@ -64,7 +64,7 @@ Tương lai, ShineWing còn sẽ mở rộng dần thêm các Agent chuyên môn
 
 Các loại Agent tích hợp vào nền tảng ứng dụng nội bộ của ShineWing theo kiểu dịch vụ hoá, và nhân viên truy cập các năng lực AI khác nhau qua một lối vào thống nhất.
 
-Khi số Agent tăng lên, nền tảng còn dùng Agent quản lý để điều phối thống nhất nhiều Agent chuyên trách. Nhân viên không cần phán đoán từng cái xem nên dùng Agent nào, mà chỉ cần mô tả nhu cầu của mình, rồi nền tảng tự nhận diện loại task và phân task cho Agent phù hợp hoàn thành.
+Khi số Agent tăng lên, nền tảng còn dùng Agent quản lý để điều phối thống nhất nhiều Agent chuyên trách. Nhân viên không cần nhận định từng cái xem nên dùng Agent nào, mà chỉ cần mô tả nhu cầu của mình, rồi nền tảng tự nhận diện loại task và phân task cho Agent phù hợp hoàn thành.
 
 Mô hình này vừa giữ được năng lực của các Agent chuyên trách, vừa nâng trải nghiệm sử dụng tổng thể, đặt nền cho việc tương lai đi từ "tra cứu thông tin" tiến tới "thực thi task".
 
@@ -76,13 +76,13 @@ AI Gateway, với tư cách lối vào thống nhất cho việc gọi model, qu
 
 **Điều phối nhiều model bảo đảm dịch vụ ổn định.** Tuỳ đặc điểm task của từng kịch bản, nền tảng chọn được model phù hợp để phục vụ. Khi model chính bị trễ hay bất thường thì chuyển sang model dự phòng theo chính sách đặt trước, nâng tính liên tục và ổn định của dịch vụ AI.
 
-**Thống kê chi tiết chống đỡ việc quản trị chi phí.** Nền tảng thống kê được lượng lời gọi và mức dùng Token theo từng bộ phận, từng Agent và từng model, cung cấp dữ liệu chống đỡ cho việc phân bổ tài nguyên, phân tích sử dụng và quản lý ngân sách về sau.
+**Thống kê chi tiết hỗ trợ việc quản trị chi phí.** Nền tảng thống kê được lượng lời gọi và mức dùng Token theo từng bộ phận, từng Agent và từng model, cung cấp dữ liệu hỗ trợ cho việc phân bổ tài nguyên, phân tích sử dụng và quản lý ngân sách về sau.
 
-**Xác thực thống nhất hiện thực việc kiểm soát quyền hạn.** Theo trách nhiệm nghiệp vụ của từng Agent, nền tảng cấu hình được các quyền truy cập model và chính sách gọi khác nhau, tránh việc Agent gọi các năng lực vượt phạm vi.
+**Xác thực thống nhất triển khai kiểm soát quyền hạn.** Theo trách nhiệm nghiệp vụ của từng Agent, nền tảng cấu hình được các quyền truy cập model và chính sách gọi khác nhau, tránh việc Agent gọi các năng lực vượt phạm vi.
 
 **Phòng thủ bảo mật giảm rủi ro dữ liệu.** Trong quá trình request và trả về, có thể kết hợp các cơ chế nhận diện thông tin nhạy cảm, kiểm tra an toàn nội dung và kiểm soát truy cập để phòng thủ thống nhất cho chuỗi gọi model, giảm rủi ro bảo mật với dữ liệu doanh nghiệp trong quá trình dùng AI.
 
-### Quan sát được toàn trình, chống đỡ việc quản trị AI cấp doanh nghiệp
+### Quan sát được toàn trình, hỗ trợ việc quản trị AI cấp doanh nghiệp
 
 Các tổ chức dịch vụ chuyên nghiệp có yêu cầu khá cao về an toàn thông tin, bảo vệ dữ liệu và tuân thủ nghiệp vụ. Trong quá trình đẩy các ứng dụng AI, ShineWing luôn lấy **an toàn, kiểm soát được và truy vết được** làm nguyên tắc quan trọng.
 
@@ -114,7 +114,7 @@ Khi các hệ thống nội bộ dần mở năng lực chuẩn hoá cho Agent q
 
 Việc doanh nghiệp triển khai AI Agent, mấu chốt không chỉ nằm ở năng lực model, mà còn ở chỗ tổ chức thống nhất được các Agent, model, tri thức, hệ thống và tool khác nhau, rồi phục vụ nghiệp vụ thật trên tiền đề bảo mật, tuân thủ và chi phí kiểm soát được.
 
-Trong lần hợp tác này, ShineWing kết hợp kịch bản dịch vụ chuyên nghiệp và nền tảng xây dựng số hoá của mình để hoàn tất việc quy hoạch nghiệp vụ, thiết kế kịch bản, tích hợp hệ thống và triển khai ứng dụng nội bộ; còn Alibaba Cloud thì qua AgentCore và AI Gateway mà cung cấp phần chống đỡ kỹ thuật về cộng tác đa Agent, quản lý tài sản AI, quản trị model và kiểm soát bảo mật.
+Trong lần hợp tác này, ShineWing kết hợp kịch bản dịch vụ chuyên nghiệp và nền tảng xây dựng số hoá của mình để hoàn tất việc quy hoạch nghiệp vụ, thiết kế kịch bản, tích hợp hệ thống và triển khai ứng dụng nội bộ; còn Alibaba Cloud thì qua AgentCore và AI Gateway mà cung cấp phần hỗ trợ kỹ thuật về cộng tác đa Agent, quản lý tài sản AI, quản trị model và kiểm soát bảo mật.
 
 Ở giai đoạn then chốt khi dự án lên production, hai bên phối hợp chặt chẽ, dùng một tuần để hoàn tất việc tích hợp thử hệ thống, test tối ưu và chính thức lên production, hình thành năng lực dịch vụ AI đa Agent cấp doanh nghiệp hướng tới nhân viên nội bộ.
 

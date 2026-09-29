@@ -30,11 +30,11 @@ Chương này so sánh các cơ chế giao tiếp theo trục **state do ai lưu
 | --- | --- | --- | --- |
 | Kết nối và bộ nhớ process | Phản hồi hiện tại, state gọi tạm thời | Sau khi mất kết nối hay process thoát, phần chưa bền vững hoá có thể mất | Truy vấn task bền vững hoặc phát lại lời gọi được phép retry |
 | Kho state bên ngoài | Bản ghi task, checkpoint, tham chiếu kết quả | Phụ thuộc tính khả dụng của kho và tính nhất quán khi commit | Lấy state đáng tin theo định danh task, rồi tiếp tục theo hợp đồng khôi phục |
-| Kênh message bền vững | Message, số thứ tự, vị trí xác nhận | Vượt thời hạn lưu hoặc mất vị trí tiêu thụ sẽ tạo ra khoảng trống | Đọc bù event trong phạm vi lưu giữ, khử trùng theo luật ứng dụng rồi cập nhật state |
+| Kênh message bền vững | Message, số thứ tự, vị trí xác nhận | Vượt thời hạn lưu hoặc mất vị trí tiêu thụ sẽ tạo ra khoảng trống | Đọc bù event trong phạm vi lưu giữ, loại bỏ trùng lặp theo luật ứng dụng rồi cập nhật state |
 
 *Bảng 12-1 — Vị trí gánh state và điều kiện khôi phục*
 
-Kho state bên ngoài và kênh bền vững là hai năng lực **tổ hợp được.** Bảng task duy trì trạng thái nghiệp vụ hiện tại, còn kênh lưu các event tương tác; **chỉ khi dùng một hợp đồng event sourcing đầy đủ thì event log trong kênh mới trở thành nguồn thẩm quyền để dựng lại trạng thái nghiệp vụ.** Việc phát lại message **không tự động khôi phục process**, và cũng không tự động huỷ hay khử trùng các thao tác bên ngoài.
+Kho state bên ngoài và kênh bền vững là hai năng lực **tổ hợp được.** Bảng task duy trì trạng thái nghiệp vụ hiện tại, còn kênh lưu các event tương tác; **chỉ khi dùng một hợp đồng event sourcing đầy đủ thì event log trong kênh mới trở thành nguồn thẩm quyền để dựng lại trạng thái nghiệp vụ.** Việc phát lại message **không tự động khôi phục process**, và cũng không tự động huỷ hay loại bỏ trùng lặp các thao tác bên ngoài.
 
 Bài báo FSE 2026 về RocketMQ-A2A bàn về giao tiếp Agent ở quy mô lớn bằng một luồng event phát lại được ở mức phiên. Loại nghiên cứu này dùng được để so sánh biểu hiện khi sự cố giữa state trong kết nối và kênh bền vững hoá, **nhưng kết quả benchmark phải được diễn giải kèm quy mô message, mức đồng thời, phần cứng và điều kiện tiêm lỗi — không suy thẳng ra giới hạn hiệu năng phổ quát của bản thân giao thức.** Các case liên quan sẽ được triển khai ở phần sau theo cơ chế giao tiếp của chúng.
 
@@ -63,7 +63,7 @@ Thêm mặt phẳng nội bộ là để nói rõ trách nhiệm giao tiếp gi�
 
 Trục toạ độ thứ hai chia theo **mức ghép nối về thời gian và không gian.** Trục này quyết định **kiểu thất bại sẽ là gì.**
 
-Bốn nấc dưới đây dùng để phân biệt cách trình bày interface và mức tách rời, **không phải các cấp trưởng thành.** Một hệ thống có thể dùng đồng thời nhiều nấc; interface lập trình phi chặn, output dạng stream và việc task nghiệp vụ chạy bất đồng bộ cũng phải phán định riêng.
+Bốn nấc dưới đây dùng để phân biệt cách trình bày interface và mức tách rời, **không phải các cấp trưởng thành.** Một hệ thống có thể dùng đồng thời nhiều nấc; interface lập trình phi chặn, output dạng stream và việc task nghiệp vụ chạy bất đồng bộ cũng phải đánh giá riêng.
 
 | Nấc | Ngữ nghĩa | Ghép nối thời gian | Ghép nối không gian | Vị trí state | Giải quyết gì | Không giải quyết gì |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -97,13 +97,13 @@ Bảng này dùng để trình bày **những tổ hợp có thể dùng, chứ 
 
 ### 12.2.5 Sáu yếu tố của một hợp đồng giao tiếp
 
-Dù rơi vào nấc nào, một hợp đồng giao tiếp Agent dùng được cho production cũng phải trả lời sáu câu hỏi. Sáu mục này vừa là checklist thiết kế, vừa là thước đo để phán định một giao thức nào đó **"còn thiếu gì".**
+Dù rơi vào nấc nào, một hợp đồng giao tiếp Agent dùng được cho production cũng phải trả lời sáu câu hỏi. Sáu mục này vừa là checklist thiết kế, vừa là thước đo để đánh giá một giao thức nào đó **"còn thiếu gì".**
 
 *   **Định danh:** định danh của phiên, task, lượt, message cùng quan hệ trực thuộc giữa chúng. **Gắn thẳng định danh task làm định danh luồng message sẽ giới hạn việc chạy nền, cộng tác nhiều người và nối tiếp xuyên kênh** — hãy giữ riêng và ghi liên kết một cách tường minh.
 
 *   **Thứ tự:** phạm vi cần bảo đảm thứ tự. Phạm vi này thường giới hạn được trong một task hay một phiên — trong một case tương tác giọng nói, phía request dùng định danh phiên làm partition key để bảo đảm thứ tự trong phiên, phía response cô lập theo phiên, và **cả hai đều không cam kết thứ tự toàn cục xuyên phiên.**
 
-*   **Bảo đảm giao nhận:** chọn giữa at-least-once, at-most-once hay exactly-once, cùng khoá khử trùng đi kèm. Các kênh khác nhau trong cùng một hệ thống có thể dùng mức khác nhau.
+*   **Bảo đảm giao nhận:** chọn giữa at-least-once, at-most-once hay exactly-once, cùng khoá loại bỏ trùng lặp đi kèm. Các kênh khác nhau trong cùng một hệ thống có thể dùng mức khác nhau.
 
 *   **Điểm nối tiếp:** sau khi mất kết nối hay đổi node thì tiếp tục từ đâu. **Phải khai báo tách biệt với năng lực truy vấn task.**
 
@@ -113,7 +113,7 @@ Dù rơi vào nấc nào, một hợp đồng giao tiếp Agent dùng được c
 
 ## 12.3 Giao tiếp đồng bộ và ranh giới của nó
 
-Request–response phù hợp với những lời gọi có thời lượng thực thi và đường xử lý sự cố rõ ràng. Mục này giữ lại phần so sánh ưu thế và ranh giới của đồng bộ, và đưa việc phán định về từng chuỗi cụ thể: **có cần task handle độc lập không, có cần đọc bù event không, và sau khi đưa component bất đồng bộ vào thì có bù được chi phí tương ứng không.**
+Request–response phù hợp với những lời gọi có thời lượng thực thi và đường xử lý sự cố rõ ràng. Mục này giữ lại phần so sánh ưu thế và ranh giới của đồng bộ, và đưa việc đánh giá về từng chuỗi cụ thể: **có cần task handle độc lập không, có cần đọc bù event không, và sau khi đưa component bất đồng bộ vào thì có bù được chi phí tương ứng không.**
 
 ### 12.3.1 Bốn ưu thế kỹ thuật khó thay thế
 
@@ -180,7 +180,7 @@ Trên đây là danh sách năng lực mà chương này dùng để kiểm tra 
 
 | Cái giá | Biểu hiện cụ thể | Hành động kỹ thuật tương ứng |
 | --- | --- | --- |
-| Độ trễ mỗi chặng | Độ trễ thêm ở mỗi chặng phụ thuộc vào truyền tải, bền vững hoá và tình trạng xếp hàng | Đo cùng mục tiêu độ trễ đầu-cuối, đặc biệt chú ý tương tác thời gian thực |
+| Độ trễ mỗi chặng | Độ trễ thêm ở mỗi chặng phụ thuộc vào truyền tải, bền vững hoá và tình trạng xếp hàng | Đo cùng mục tiêu độ trễ đầu cuối, đặc biệt chú ý tương tác thời gian thực |
 | Yêu cầu idempotent | Gửi lại và phát lại đòi hỏi bước phải chạy lặp lại an toàn được | Định nghĩa khoá idempotent cho từng bước; trước khi khôi phục thì đối chiếu trạng thái hệ thống bên ngoài |
 | Chính sách lưu giữ | Giữ quá lâu cho một lượng lớn phiên sẽ tốn thêm dung lượng và chi phí | Đặt thời gian lưu hợp lý dựa trên nhu cầu truy hồi sau thảm hoạ và audit |
 | Lan truyền sự cố | Các cạnh orchestration không có timeout sẽ khuếch đại thất bại | Đặt thời hạn, trần retry và cách xử lý thất bại theo loại lời gọi hay loại chờ |
@@ -209,7 +209,7 @@ Bản 2025-11-25 lần đầu đưa Tasks vào ở dạng thử nghiệm; bản 
 
 Bản 2026-07-28 gỡ bỏ định danh phiên và handshake khởi tạo của giao thức, khiến request mang theo metadata về version và năng lực. Các bản hiện thực trước đây vốn phụ thuộc phiên thì có thể mở rộng bằng affinity hay state dùng chung, nhưng phải quản lý thêm kết nối và phiên; cơ chế mới giảm bớt phần ràng buộc giao thức đó, **còn trạng thái nghiệp vụ thì vẫn phải tổ chức tường minh.**
 
-Bản mới dùng metadata theo từng request và cung cấp khám phá theo nhu cầu qua `server/discover`. Các request không phụ thuộc phiên thì dễ phân bổ sang instance khác nhau hơn; **còn có dùng thẳng được load balancing kiểu round-robin hay không thì vẫn tuỳ vào trạng thái nghiệp vụ của tool, quyền sở hữu tài nguyên và hợp đồng bền vững hoá.**
+Bản mới dùng metadata theo từng request và cung cấp khám phá theo nhu cầu qua `server/discover`. Các request không phụ thuộc phiên thì dễ phân bổ sang instance khác nhau hơn; **còn có dùng trực tiếp được load balancing kiểu round-robin hay không thì vẫn tuỳ vào trạng thái nghiệp vụ của tool, quyền sở hữu tài nguyên và hợp đồng bền vững hoá.**
 
 Lời gọi ngược dùng nhiều lượt request qua lại: server trả về kết quả cần input, client mang input tương ứng rồi request lần nữa. Thông báo thay đổi từ server thì subscribe theo loại qua `subscriptions/listen` — **không được diễn giải "lõi phi trạng thái" thành "không có kết nối thông báo liên tục".** Các năng lực như Roots, Sampling và Logging đi vào quy trình deprecation; cửa sổ tương thích cụ thể thì kiểm chứng theo trạng thái tính năng, SDK và version triển khai.
 
@@ -289,7 +289,7 @@ Cách làm về observability đáng được ghi riêng, vì nó là biểu hi�
 
 ![image](../assets/imgs/chapter-12/image-003.png)
 
-Hai bối cảnh cho thấy kênh có thể gánh phần giới hạn tốc độ, subscription và tạm dừng theo người dùng hay theo phiên. Hàng đợi dùng chung cũng xử lý được việc cô lập qua partition, lập lịch công bằng hay quota ứng dụng, **nhưng cần cơ chế bổ sung.** Khi so sánh, hãy kiểm chứng số kênh đang hoạt động, mức tồn đọng trên mỗi kênh, tính công bằng khi tiêu thụ và chi phí quản lý — **chứ không suy năng lực cô lập thẳng từ tên hàng đợi.**
+Hai bối cảnh cho thấy kênh có thể đảm nhiệm giới hạn tốc độ, subscription và tạm dừng theo người dùng hay theo phiên. Hàng đợi dùng chung cũng xử lý được việc cô lập qua partition, lập lịch công bằng hay quota ứng dụng, **nhưng cần cơ chế bổ sung.** Khi so sánh, hãy kiểm chứng số kênh đang hoạt động, mức tồn đọng trên mỗi kênh, tính công bằng khi tiêu thụ và chi phí quản lý — **chứ không suy năng lực cô lập thẳng từ tên hàng đợi.**
 
 ### 12.7.2 Tách quyết định khỏi thực thi ("tách não khỏi tay")
 
@@ -308,9 +308,9 @@ Hợp đồng giao tiếp sau khi tách ba thứ có thể quy thành ba điều
 | Tầng | Vai trò | Trách nhiệm |
 | --- | --- | --- |
 | Não — Agent Runtime | Quyết định và đẩy tiến | Quyết định task tiếp theo làm gì; duy trì trạng thái Session và logic đẩy tiến; hỗ trợ multi-agent và chen ngang |
-| Đường — MQ | Bàn giao bất đồng bộ | Gửi giữ thứ tự; có thứ tự trong Session, song song giữa các Session; gánh phần chờ và backpressure |
+| Đường — MQ | Bàn giao bất đồng bộ | Gửi giữ thứ tự; có thứ tự trong Session, song song giữa các Session; đảm nhiệm chờ và backpressure |
 | Tay — Sandbox Worker | Tính toán theo nhu cầu | Tính xong đúng bước hiện tại; xong là giải phóng; Worker rảnh có thể nhận việc bất cứ lúc nào |
-| Nền — Session State | Bền vững hoá sự thật | Để lại sự thật về việc nhận việc và kết quả; chống đỡ việc treo, khôi phục và phát lại |
+| Nền — Session State | Bền vững hoá sự thật | Để lại sự thật về việc nhận việc và kết quả; hỗ trợ việc treo, khôi phục và phát lại |
 
 *Bảng 12-8 — Các tầng trong kiến trúc tách não–tay của Qoder Cloud Agent*
 
@@ -348,7 +348,7 @@ Bảng dưới liệt kê các nút thắt mà ba loại phương án có thể 
 
 Ngoài bản thân kênh, còn một phản mẫu song hành: **buộc chặt phiên với một worker process thường trú theo tỉ lệ một–một.** Làm vậy khiến cả timeline task chiếm giữ liên tục tài nguyên tính toán và bộ nhớ, mất kết nối thì có rủi ro mất context, và việc mở rộng – di trú trở nên khó. Một tài liệu thực hành mô tả trạng thái này là coi worker process **"như thú cưng"** — nó có tên, có state, không thay được.
 
-Để vẫn duy trì được "một phiên một kênh" ở quy mô như vậy, có thể dùng **kênh nhẹ** hoặc kỹ thuật tái dùng kênh logic tương đương — ví dụ **LiteTopic** của Apache RocketMQ; kênh Session mà Qoder Cloud Agent dùng ở trên chính là dùng LiteTopic của RocketMQ, chống đỡ ngữ nghĩa Session-as-Topic ở quy mô lớn. Nguyên lý kỹ thuật cốt lõi là **tránh duy trì trọn tài nguyên topic chuẩn cho từng kênh logic**: kênh được khai báo lúc chạy theo định danh nghiệp vụ và gắn vào một số ít topic cha dựng sẵn; trong bộ nhớ phía server nó chỉ biểu hiện thành một khoá chuỗi, message vật lý dùng chung phần lưu trữ của topic cha, đồng thời duy trì index nhẹ cùng trạng thái subscription và tiêu thụ cần thiết.
+Để vẫn duy trì được "một phiên một kênh" ở quy mô như vậy, có thể dùng **kênh nhẹ** hoặc kỹ thuật tái dùng kênh logic tương đương — ví dụ **LiteTopic** của Apache RocketMQ; kênh Session mà Qoder Cloud Agent dùng ở trên chính là dùng LiteTopic của RocketMQ, hỗ trợ ngữ nghĩa Session-as-Topic ở quy mô lớn. Nguyên lý kỹ thuật cốt lõi là **tránh duy trì trọn tài nguyên topic chuẩn cho từng kênh logic**: kênh được khai báo lúc chạy theo định danh nghiệp vụ và gắn vào một số ít topic cha dựng sẵn; trong bộ nhớ phía server nó chỉ biểu hiện thành một khoá chuỗi, message vật lý dùng chung phần lưu trữ của topic cha, đồng thời duy trì index nhẹ cùng trạng thái subscription và tiêu thụ cần thiết.
 
 | Cơ chế | Vấn đề nó giải quyết |
 | --- | --- |

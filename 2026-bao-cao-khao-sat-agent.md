@@ -18,7 +18,7 @@ AI Coding là thị trường thương mại đã được kiểm chứng: doanh
 
 **4. Quản lý thông tin, quản trị task và tối ưu hành động là các điểm khó sau khi xây xong Agent.**
 
-Một là quản lý context và memory, với 90% doanh nghiệp có nhu cầu rõ ràng; hai là định tuyến đa model và quản trị chi phí, với 63% doanh nghiệp liệt nó là năng lực cần bù nhất ở giai đoạn hiện tại; ba là đánh giá và observability — khi phán định Agent có dùng tốt không thì 55% doanh nghiệp vẫn dựa vào việc con người lấy mẫu kiểm tra, còn số có thể tự động đánh giá dựa trên trajectory vận hành thì chưa tới 8%. Ba điểm này cũng ánh xạ vào chương 4, chương 5 và chương 6 của phần Xây dựng trong bản white paper này, và chúng tôi sẽ triển khai chi tiết.
+Một là quản lý context và memory, với 90% doanh nghiệp có nhu cầu rõ ràng; hai là định tuyến đa model và quản trị chi phí, với 63% doanh nghiệp liệt nó là năng lực cần bù nhất ở giai đoạn hiện tại; ba là đánh giá và observability — khi đánh giá Agent có dùng tốt không thì 55% doanh nghiệp vẫn dựa vào việc con người lấy mẫu kiểm tra, còn số có thể tự động đánh giá dựa trên trajectory vận hành thì chưa tới 8%. Ba điểm này cũng ánh xạ vào chương 4, chương 5 và chương 6 của phần Xây dựng trong bản white paper này, và chúng tôi sẽ triển khai chi tiết.
 
 **5. Sự phân mảnh về năng lực tính toán, model và ứng dụng đã là sự thật hiển nhiên, nên cần một lối vào traffic thống nhất để quản lý.**
 
@@ -26,7 +26,7 @@ Một là quản lý context và memory, với 90% doanh nghiệp có nhu cầu 
 
 **6. Năng lực đánh giá là con đường bắt buộc để nâng độ tin cậy của Agent trên production.**
 
-Hậu quả của việc mục tiêu đánh giá không rõ và hạ tầng chưa chín thể hiện ở tỉ lệ thành công của task. Doanh nghiệp có tỉ lệ thành công task Agent đạt trên 90% chỉ khoảng một phần mười; đạt trên 70% là khoảng 55%; còn 16% người tham gia khảo sát thì hoàn toàn chưa từng định lượng tỉ lệ thành công. Nhóm doanh nghiệp này thực chất không phán định được Agent của mình có đang làm việc bình thường không.
+Hậu quả của việc mục tiêu đánh giá không rõ và hạ tầng chưa chín thể hiện ở tỉ lệ thành công của task. Doanh nghiệp có tỉ lệ thành công task Agent đạt trên 90% chỉ khoảng một phần mười; đạt trên 70% là khoảng 55%; còn 16% người tham gia khảo sát thì hoàn toàn chưa từng định lượng tỉ lệ thành công. Nhóm doanh nghiệp này thực chất không đánh giá được Agent của mình có đang làm việc bình thường không.
 
 ## Hai — Tiến trình phát triển Agent và mức độ đưa vào production
 
@@ -48,7 +48,7 @@ Khoảng cách về tỉ lệ lên production nhìn chung lớn hơn khoảng c�
 
 ### 1. Hình thái cũ và mới là cùng tồn tại, chứ không phải thay thế
 
-Doanh nghiệp lấy Single Agent làm kiến trúc chính chiếm 40%; doanh nghiệp bắt đầu đưa Multi-Agent làm chính có 42%. Mức tự chủ là một tham số chỉnh được, và các hình thái lai sẽ tồn tại lâu dài. Dữ liệu này ủng hộ phán đoán mà white paper nêu ở chương 1 và chương 12: Chat/RAG, Workflow, Copilot, Agent và Managed Agentic Application thường cùng tồn tại trong nội bộ một doanh nghiệp, và việc chọn phụ thuộc vào mức xác định của task cùng không gian chịu lỗi, chứ không phải vào chuyện công nghệ cũ hay mới. Ngoài ra, 15% doanh nghiệp lấy "người trong vòng lặp" (Human-in-the-Loop, HITL — tức các bước then chốt bắt buộc phải có người xác nhận rồi mới chạy tiếp) làm nguyên tắc kiến trúc khi đưa Agent vào môi trường production, chứ không chỉ coi nó là một công tắc phê duyệt gắn thêm.
+Doanh nghiệp lấy Single Agent làm kiến trúc chính chiếm 40%; doanh nghiệp bắt đầu đưa Multi-Agent làm chính có 42%. Mức tự chủ là một tham số chỉnh được, và các hình thái lai sẽ tồn tại lâu dài. Dữ liệu này ủng hộ nhận định mà white paper nêu ở chương 1 và chương 12: Chat/RAG, Workflow, Copilot, Agent và Managed Agentic Application thường cùng tồn tại trong nội bộ một doanh nghiệp, và việc chọn phụ thuộc vào mức xác định của task cùng không gian chịu lỗi, chứ không phải vào chuyện công nghệ cũ hay mới. Ngoài ra, 15% doanh nghiệp lấy "người trong vòng lặp" (Human-in-the-Loop, HITL — tức các bước then chốt bắt buộc phải có người xác nhận rồi mới chạy tiếp) làm nguyên tắc kiến trúc khi đưa Agent vào môi trường production, chứ không chỉ coi nó là một công tắc phê duyệt gắn thêm.
 
 ![image](assets/imgs/2026-agent-developer-survey/image-003.png)
 
@@ -56,7 +56,7 @@ Doanh nghiệp lấy Single Agent làm kiến trúc chính chiếm 40%; doanh ng
 
 ### 2. Quản lý thông tin, quản trị task và tối ưu hành động là các điểm khó sau khi xây xong Agent
 
-Điểm đau lớn nhất mà người tham gia khảo sát phản hồi là trạng thái và context suy giảm trong quá trình nhiều Agent cộng tác, chiếm 60%. Điểm đau lớn thứ hai và thứ ba lần lượt là deadlock — sụp đổ dây chuyền và chi phí mất kiểm soát, mà về bản chất cũng là hậu quả của việc chuỗi gọi và trạng thái thiếu ràng buộc. Khi được hỏi mong bù đắp những năng lực nào nhất thì hai nhu cầu có tỉ lệ cao hơn: vòng khép kín R&D — test 65%, và nền vận hành phía edge cùng mã nguồn mở 73%. Cái trước cho thấy chi phí kiểm chứng của Multi-Agent đã được cảm nhận như một gánh nặng chính; cái sau cho thấy doanh nghiệp có nhu cầu rõ ràng về việc tự chủ, kiểm soát được nền vận hành.
+Điểm đau lớn nhất mà người tham gia khảo sát phản hồi là trạng thái và context suy giảm trong quá trình nhiều Agent cộng tác, chiếm 60%. Điểm đau lớn thứ hai và thứ ba lần lượt là deadlock — sụp đổ dây chuyền và chi phí mất kiểm soát, mà về bản chất cũng là hậu quả của việc chuỗi gọi và trạng thái thiếu ràng buộc. Khi được hỏi mong bù đắp những năng lực nào nhất thì hai nhu cầu có tỉ lệ cao hơn: vòng lặp khép kín R&D — test 65%, và nền vận hành phía edge cùng mã nguồn mở 73%. Cái trước cho thấy chi phí kiểm chứng của Multi-Agent đã được cảm nhận như một gánh nặng chính; cái sau cho thấy doanh nghiệp có nhu cầu rõ ràng về việc tự chủ, kiểm soát được nền vận hành.
 
 **Hình 4 — Các thách thức chính của Multi-Agent và những năng lực mong được bù đắp nhất**
 
@@ -78,9 +78,9 @@ AI Coding là thị trường thương mại đã được kiểm chứng: doanh
 
 * Tỉ lệ dùng đồng thời cả Agent lập trình lẫn Agent đa dụng gần bốn phần mười, cho thấy các năng lực đang thẩm thấu vào nhau. Những khuôn mẫu kỹ thuật kết tinh từ Agent lập trình — cách tổ chức Skill, việc cô lập workspace, ràng buộc quyền hạn khi gọi tool, việc nạp context theo tầng — đang được di chuyển sang các kịch bản văn phòng của doanh nghiệp.
 
-### 2. Ưu tiên triển khai ở những kịch bản có không gian chịu lỗi lớn và con người đỡ lưng được
+### 2. Ưu tiên triển khai ở những kịch bản có không gian chịu lỗi lớn và con người bảo đảm dự phòng được
 
-Về kịch bản triển khai, rộng nhất là hiệu suất nhân viên, kỹ thuật code và phân tích dữ liệu. Tỉ lệ đưa Agent vào quy trình nghiệp vụ lõi của doanh nghiệp chưa tới 40%, thấp hơn rõ rệt. Thứ tự này nhất quán với tỉ lệ lên production ở chương một: **Agent đi vào những kịch bản có con người đỡ lưng được trước; còn muốn vào các kịch bản nghiêm túc như quy trình nghiệp vụ lõi thì cần bộ quản trị đi kèm hoàn chỉnh hơn.**
+Về kịch bản triển khai, rộng nhất là hiệu suất nhân viên, kỹ thuật code và phân tích dữ liệu. Tỉ lệ đưa Agent vào quy trình nghiệp vụ lõi của doanh nghiệp chưa tới 40%, thấp hơn rõ rệt. Thứ tự này nhất quán với tỉ lệ lên production ở chương một: **Agent đi vào những kịch bản có con người bảo đảm dự phòng được trước; còn muốn vào các kịch bản nghiêm túc như quy trình nghiệp vụ lõi thì cần bộ quản trị đi kèm hoàn chỉnh hơn.**
 
 ![image](assets/imgs/2026-agent-developer-survey/image-006.png)
 
@@ -124,11 +124,11 @@ Trong các nhu cầu về năng lực observability, quy kết chi phí (50%) x�
 
 Khi được hỏi dùng phương pháp nào để đánh giá hiệu quả của Agent, việc con người lấy mẫu kiểm tra đứng vững ở vị trí đầu với 55%; còn việc đánh giá tự động dựa trên trajectory vận hành chỉ có 6%, dùng Benchmark công khai chỉ chưa tới 5%; ngoài ra 28% còn chưa dựng được một hệ đánh giá mang tính hệ thống. Trong ba biện pháp đánh giá thường gặp là LLM-as-Judge (dùng model chấm điểm output của model), thí nghiệm A/B và hồi quy trên dataset offline, thì số doanh nghiệp dùng ít nhất một trong ba là 34%.
 
-Hậu quả của việc mục tiêu đánh giá không rõ và hạ tầng chưa chín thể hiện ở tỉ lệ thành công của task. Doanh nghiệp có tỉ lệ thành công task Agent đạt trên 90% chỉ khoảng một phần mười; đạt trên 70% là khoảng 55%; còn 16% người tham gia khảo sát thì hoàn toàn chưa từng định lượng tỉ lệ thành công. Nhóm doanh nghiệp này thực chất không phán định được Agent của mình có đang làm việc bình thường không.
+Hậu quả của việc mục tiêu đánh giá không rõ và hạ tầng chưa chín thể hiện ở tỉ lệ thành công của task. Doanh nghiệp có tỉ lệ thành công task Agent đạt trên 90% chỉ khoảng một phần mười; đạt trên 70% là khoảng 55%; còn 16% người tham gia khảo sát thì hoàn toàn chưa từng định lượng tỉ lệ thành công. Nhóm doanh nghiệp này thực chất không đánh giá được Agent của mình có đang làm việc bình thường không.
 
 ### 2. Năng lực đánh giá là con đường bắt buộc để nâng độ tin cậy của Agent trên production
 
-Trong số doanh nghiệp đã dùng các biện pháp đánh giá, tỉ lệ đạt thành công task trên 70% cao gấp khoảng hai lần so với doanh nghiệp không có hệ đánh giá; còn trong nhóm đã lên production và lặp liên tục thì tỉ lệ này đạt 84%. Ba thứ liên quan với nhau: **năng lực đánh giá chống đỡ cho việc lặp, việc lặp nâng độ tin cậy, và độ tin cậy mới khiến việc đánh giá liên tục trở nên khả thi.** Ngược lại, đội thiếu đánh giá thì vừa không định vị được vấn đề, vừa không chứng minh được thay đổi có hiệu quả, nên dễ dừng lâu ở giai đoạn thí điểm. Điều này hô ứng với phân bố "gần một nửa đang phát triển, chỉ khoảng một phần năm lên production" ở chương một.
+Trong số doanh nghiệp đã dùng các biện pháp đánh giá, tỉ lệ đạt thành công task trên 70% cao gấp khoảng hai lần so với doanh nghiệp không có hệ đánh giá; còn trong nhóm đã lên production và lặp liên tục thì tỉ lệ này đạt 84%. Ba thứ liên quan với nhau: **năng lực đánh giá hỗ trợ cho việc lặp, việc lặp nâng độ tin cậy, và độ tin cậy mới khiến việc đánh giá liên tục trở nên khả thi.** Ngược lại, đội thiếu đánh giá thì vừa không định vị được vấn đề, vừa không chứng minh được thay đổi có hiệu quả, nên dễ dừng lâu ở giai đoạn thí điểm. Điều này hô ứng với phân bố "gần một nửa đang phát triển, chỉ khoảng một phần năm lên production" ở chương một.
 
 ![image](assets/imgs/2026-agent-developer-survey/image-010.png)
 
@@ -142,6 +142,6 @@ Về hình thái Agent thì hiện tượng phân mảnh khá rõ. Quy mô Singl
 
 Định tuyến thống nhất và quản trị chi phí, việc tối ưu context và memory, cùng hạ tầng đánh giá chưa chín — đó là những điểm còn lại cần bù.
 
-Khi thiết kế mục lục, bản white paper này đã tham chiếu chính báo cáo khảo sát lập trình viên đó, và thiết kế các chương tương ứng nhắm vào những điểm đau mà doanh nghiệp gặp khi triển khai. Phần Kiến trúc trình bày các hình thái ứng dụng Agent cùng khuôn mẫu xây dựng chủ đạo trong ngành, và đưa ra các kiến trúc thiết kế chủ đạo, với việc chọn lựa được định nghĩa dựa trên độ chín và ranh giới trách nhiệm. Phần Xây dựng lấy Harness làm trừu tượng cốt lõi, đưa ra cách tổ hợp không buộc chặt vào framework. Phần Vận hành thiết kế các nội dung Runtime và sandbox, triển khai phân tán, AI Gateway và quản trị traffic thống nhất, task bất đồng bộ và quy trình tự động hoá của Agent, cộng tác và orchestration Multi-Agent, giao tiếp phân tán và quản trị message của Agent — đáp lại những nhu cầu hạ tầng tập trung nhất. Phần Quản trị xử lý observability và bảo mật, đưa chất lượng từ chỗ con người đỡ lưng sang một cơ chế mở rộng quy mô được; còn phần Tối ưu thì đi theo con đường từ Trace tới Trajectory, để hệ thống có được năng lực tốt dần lên liên tục.
+Khi thiết kế mục lục, bản white paper này đã tham chiếu chính báo cáo khảo sát lập trình viên đó, và thiết kế các chương tương ứng nhắm vào những điểm đau mà doanh nghiệp gặp khi triển khai. Phần Kiến trúc trình bày các hình thái ứng dụng Agent cùng khuôn mẫu xây dựng chủ đạo trong ngành, và đưa ra các kiến trúc thiết kế chủ đạo, với việc chọn lựa được định nghĩa dựa trên độ chín và ranh giới trách nhiệm. Phần Xây dựng lấy Harness làm trừu tượng cốt lõi, đưa ra cách tổ hợp không buộc chặt vào framework. Phần Vận hành thiết kế các nội dung Runtime và sandbox, triển khai phân tán, AI Gateway và quản trị traffic thống nhất, task bất đồng bộ và quy trình tự động hoá của Agent, cộng tác và orchestration Multi-Agent, giao tiếp phân tán và quản trị message của Agent — đáp lại những nhu cầu hạ tầng tập trung nhất. Phần Quản trị xử lý observability và bảo mật, đưa chất lượng từ chỗ con người bảo đảm dự phòng sang một cơ chế mở rộng quy mô được; còn phần Tối ưu thì đi theo con đường từ Trace tới Trajectory, để hệ thống có được năng lực tốt dần lên liên tục.
 
 Với những vấn đề mà báo cáo khảo sát nêu ra, white paper sẽ thử đưa ra từng câu trả lời tham chiếu triển khai được.

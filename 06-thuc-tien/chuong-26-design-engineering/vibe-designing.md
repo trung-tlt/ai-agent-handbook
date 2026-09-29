@@ -8,7 +8,7 @@ Các nhà thiết kế bàn về Prompt, LoRA, Workflow… liên tục học cô
 
 Nhưng nhìn lại hơn nửa năm gần đây, thay đổi quan trọng nhất của ngành AI chắc chắn là **đồng thuận về AI Coding đã được viết lại**.
 
-AI Coding đang đi từ một năng lực riêng của người phát triển thành một năng lực sáng tạo phổ quát hơn: một người có thể dùng ngôn ngữ tự nhiên để diễn đạt ý định và phán đoán, rồi tham gia vào việc sáng tạo ra phần mềm, công cụ, trang, trải nghiệm và dịch vụ. Nó không còn chỉ là công cụ để lập trình viên hoàn thành code, sinh test, sửa bug, mà bắt đầu đi vào các kịch bản rộng hơn như sản phẩm, vận hành, giáo dục, đổi mới văn hoá.
+AI Coding đang đi từ một năng lực riêng của người phát triển thành một năng lực sáng tạo phổ quát hơn: một người có thể dùng ngôn ngữ tự nhiên để diễn đạt ý định và nhận định, rồi tham gia vào việc sáng tạo ra phần mềm, công cụ, trang, trải nghiệm và dịch vụ. Nó không còn chỉ là công cụ để lập trình viên hoàn thành code, sinh test, sửa bug, mà bắt đầu đi vào các kịch bản rộng hơn như sản phẩm, vận hành, giáo dục, đổi mới văn hoá.
 
 Chuyện này có ý nghĩa gì với nhà thiết kế? Không phải là "nhà thiết kế cũng biết viết code rồi", mà là: **nhà thiết kế rốt cuộc đã có thể nhanh chóng biến ý tưởng trong đầu thành thứ chạy được, kiểm chứng được và người khác dùng được.**
 
@@ -40,13 +40,13 @@ Sau khi công nghệ được bình đẳng hoá, một người nói ra ý đ�
 
 Nhưng ta vẫn gặp vấn đề thế này: khi thực sự dùng sâu các công cụ AI Coding, Agent không tự nhiên hiểu ngữ cảnh nghiệp vụ của ta, cũng không tự nhiên hiểu ngôn ngữ thiết kế của ta. Ta đối thoại với nó hết lần này tới lần khác, nói chỗ này chưa được, chỗ kia chưa được, nhưng kết quả nó sinh ra vẫn dễ trông như template, như một thứ thẩm mỹ mặc định, không có ngữ cảnh cụ thể.
 
-Khi ý định đã diễn đạt ra được nhanh hơn, thì ai định nghĩa thế nào là một trải nghiệm tốt? Ai biến trải nghiệm tốt thành một hệ thống sản xuất được bền vững? Ai khiến Agent thực sự hiểu nghiệp vụ, hiểu văn hoá, hiểu component, hiểu thẩm mỹ và phán đoán?
+Khi ý định đã diễn đạt ra được nhanh hơn, thì ai định nghĩa thế nào là một trải nghiệm tốt? Ai biến trải nghiệm tốt thành một hệ thống sản xuất được bền vững? Ai khiến Agent thực sự hiểu nghiệp vụ, hiểu văn hoá, hiểu component, hiểu thẩm mỹ và nhận định?
 
 ![khuon-mau-thiet-ke-ai-moi-0710.047.png](../../assets/imgs/chapter-26/image-016.png)
 
 Vấn đề thực sự là: **một ý định được Agent hiện thực thành trải nghiệm sản phẩm chất lượng cao bằng cách nào?**
 
-Từ ý định tới trải nghiệm, ở giữa không phải một prompt, cũng không phải một model, mà là **một hệ năng lực**. **Nhà thiết kế phải chuyển từ người dùng công cụ sang người xây hệ năng lực thiết kế.** Trong thực tiễn của Alibaba Cloud, hệ năng lực đó được gọi là **CloudAI Design**, gồm ba tầng chống đỡ lẫn nhau:
+Từ ý định tới trải nghiệm, ở giữa không phải một prompt, cũng không phải một model, mà là **một hệ năng lực**. **Nhà thiết kế phải chuyển từ người dùng công cụ sang người xây hệ năng lực thiết kế.** Trong thực tiễn của Alibaba Cloud, hệ năng lực đó được gọi là **CloudAI Design**, gồm ba tầng hỗ trợ lẫn nhau:
 
 **Thứ nhất, kỹ thuật thiết kế** (Design Foundation);
 
@@ -68,7 +68,7 @@ Trong CloudAI, chúng tôi tách kỹ thuật thiết kế thành hai loại nă
 
 **Loại thứ nhất là khai báo thiết kế, trả lời câu thế nào là thiết kế tốt.** Nó gồm cấu trúc sản phẩm, ngữ nghĩa nghiệp vụ, phong cách thiết kế, logic tương tác, ràng buộc component và các nguyên tắc trải nghiệm chung — để Agent không còn sinh trong một không gian trừu tượng, mà sinh trong ngữ cảnh nghiệp vụ thật.
 
-**Loại thứ hai là hợp đồng thực thi, trả lời câu làm ra thiết kế tốt bằng cách nào.** Đây chính là cốt lõi của kỹ thuật thiết kế: chúng tôi không để Agent tự do phát huy, mà biến kinh nghiệm, quy trình và phán đoán của nhà thiết kế thành năng lực của Agent.
+**Loại thứ hai là hợp đồng thực thi, trả lời câu làm ra thiết kế tốt bằng cách nào.** Đây chính là cốt lõi của kỹ thuật thiết kế: chúng tôi không để Agent tự do phát huy, mà biến kinh nghiệm, quy trình và nhận định của nhà thiết kế thành năng lực của Agent.
 
 Trong hệ như vậy, khai báo thiết kế kiểm soát chất lượng, hợp đồng thực thi kiểm soát quá trình, và thiết kế không còn chỉ là một sản phẩm bàn giao. Thiết kế bắt đầu trở thành một năng lực kỹ thuật kiểu mới.
 
@@ -110,13 +110,13 @@ Hôm nay, khi dùng AI, ai cũng có cảm giác tương tự: nó cho ra đư�
 
 ![khuon-mau-thiet-ke-ai-moi-0710.037.png](../../assets/imgs/chapter-26/image-021.png)
 
-Một trải nghiệm thực sự xuất sắc vẫn cần **Taste** kéo đi và cần chất lượng đỡ lưng.
+Một trải nghiệm thực sự xuất sắc vẫn cần **Taste** kéo đi và cần chất lượng bảo đảm dự phòng.
 
-Chất lượng quan tâm ngữ nghĩa chính xác, kịch bản hợp lý, nghiệp vụ tuân thủ, tương tác dùng được và thị giác nhất quán; còn taste thì không chỉ là thẩm mỹ thị giác, mà còn gồm phán đoán tổng hợp về văn hoá, tự sự, khí chất sản phẩm và các chi tiết tương tác.
+Chất lượng quan tâm ngữ nghĩa chính xác, kịch bản hợp lý, nghiệp vụ tuân thủ, tương tác dùng được và thị giác nhất quán; còn taste thì không chỉ là thẩm mỹ thị giác, mà còn gồm nhận định tổng hợp về văn hoá, tự sự, khí chất sản phẩm và các chi tiết tương tác.
 
 ![khuon-mau-thiet-ke-ai-moi-0710.038.png](../../assets/imgs/chapter-26/image-022.png)
 
-Mấu chốt của việc tự tiến hoá là kết tinh những luật chất lượng và phán đoán taste đó thành cơ chế đánh giá mà Agent thực thi được. Sinh xong thì hệ thống dùng evaluator và phần tuần tra trải nghiệm để nghiệm thu hiệu quả, nhận ra vấn đề, nêu phần sửa, rồi đưa kết quả sửa nuôi ngược vào vòng sinh kế tiếp. Nhờ vậy, Agent không chỉ cho ra một kết quả "cũng tạm được" một lần, mà đẩy được trải nghiệm đi từ baseline tới trạng thái chín hơn, có lực căng hơn.
+Mấu chốt của việc tự tiến hoá là kết tinh những luật chất lượng và nhận định taste đó thành cơ chế đánh giá mà Agent thực thi được. Sinh xong thì hệ thống dùng evaluator và phần tuần tra trải nghiệm để nghiệm thu hiệu quả, nhận ra vấn đề, nêu phần sửa, rồi đưa kết quả sửa phản hồi trở lại vào vòng sinh kế tiếp. Nhờ vậy, Agent không chỉ cho ra một kết quả "cũng tạm được" một lần, mà đẩy được trải nghiệm đi từ baseline tới trạng thái chín hơn, có lực căng hơn.
 
 ![image.png](../../assets/imgs/chapter-26/image-023.png)
 
@@ -136,4 +136,4 @@ Vì vậy, Go VibeDesigning không đơn giản là dùng AI để sinh giao di�
 
 Điều nó thực sự phải trả lời là: khi Vibe Coding đã cho phép nhiều người biến ý định thành kết quả, thì nhà thiết kế làm sao để những kết quả ấy trở thành trải nghiệm sản phẩm chất lượng cao.
 
-AI không phải tương lai của thiết kế, nhưng AI chắc chắn đang định hình thiết kế của tương lai. Cơ hội thực sự là biến năng lực chuyên môn, hiểu biết nghiệp vụ, phán đoán thẩm mỹ và phương pháp sáng tạo của chúng ta thành hạ tầng thiết kế mới của thời đại Agent.
+AI không phải tương lai của thiết kế, nhưng AI chắc chắn đang định hình thiết kế của tương lai. Cơ hội thực sự là biến năng lực chuyên môn, hiểu biết nghiệp vụ, nhận định thẩm mỹ và phương pháp sáng tạo của chúng ta thành hạ tầng thiết kế mới của thời đại Agent.

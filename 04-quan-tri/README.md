@@ -2,7 +2,7 @@
 
 Agent thực sự đã làm những gì — chúng ta có nhìn thấy không? Nó có vượt qua ranh giới uỷ quyền, hay bị nội dung từ bên ngoài thao túng không? Những Prompt, Skill, MCP, Agent mà nó phụ thuộc đang nằm rải rác khắp nơi — có được quản lý thống nhất không? Và hành vi của nó, trước khi lên production, có kiểm chứng trước được một lượt không? Phần Quản trị làm cho việc vận hành Agent trở nên **quan sát được**, hành vi **có ranh giới**, tài sản phụ thuộc **quản lý được**, và hành vi trước khi lên production **kiểm chứng được** — để một hệ thống chạy tự chủ trở nên đáng tin cậy.
 
-Quản trị không phải một khâu gắn thêm ràng buộc vào việc vận hành, mà là khâu làm cho một hệ thống **đang chạy** trở nên đáng tin: quan sát được, có ranh giới, tài sản quản lý được, hành vi kiểm chứng được. Những chỉ số quan sát, bằng chứng audit, bản ghi tài sản và kết luận kiểm chứng mà quản trị tích luỹ được cũng chính là tập sự thật đáng tin mà phần Tối ưu dựa vào để phán đoán vấn đề. Thiếu tầng này, mọi cải tiến chỉ còn dựa vào phỏng đoán.
+Quản trị không phải một khâu gắn thêm ràng buộc vào việc vận hành, mà là khâu làm cho một hệ thống **đang chạy** trở nên đáng tin: quan sát được, có ranh giới, tài sản quản lý được, hành vi kiểm chứng được. Những chỉ số quan sát, bằng chứng audit, bản ghi tài sản và kết luận kiểm chứng mà quản trị tích luỹ được cũng chính là tập sự thật đáng tin mà phần Tối ưu dựa vào để nhận định vấn đề. Thiếu tầng này, mọi cải tiến chỉ còn dựa vào phỏng đoán.
 
 | Chương tương ứng | Chiều | Đối tượng hoặc vấn đề quản trị | Cơ chế chính |
 | --- | --- | --- | --- |

@@ -4,7 +4,7 @@ Trong năm vừa qua, điểm xuất phát của việc xây dựng ứng dụng
 
 Việc model có được nhiều quyền tự chủ hơn với task không có nghĩa bản thân model đã là một Agent. Task càng dài, tool càng nhiều, tác động lên môi trường càng lớn, thì hệ thống kỹ thuật bên ngoài model lại càng then chốt. Tổ chức context, trạng thái task, kiểm soát tool, cô lập môi trường, khôi phục sau lỗi, đánh giá kết quả và ràng buộc rủi ro — tất cả hợp lại thành **Harness**. Agent được cấu thành từ **Model cộng với Harness**. Nhận định này làm thay đổi đối tượng của kiến trúc: thứ doanh nghiệp cần thiết kế không còn là một lần gọi model, mà là một hệ thống hoàn chỉnh trải dài từ nhận thức, trạng thái, thực thi, kiểm soát đến cải tiến liên tục.
 
-Phần Kiến trúc xử lý giai đoạn đầu tiên trong năm giai đoạn của vòng đời. Nó đưa ra các phán định và ranh giới: chọn hình thái ứng dụng nào, trao bao nhiêu quyền tự chủ, năng lực nào tự xây, năng lực nào do nền tảng dùng chung cung cấp, và kết quả thế nào thì được coi là hoàn thành. Nếu để những ranh giới này đến giai đoạn xây dựng mới xác định, thì vận hành, quản trị và tối ưu về sau chắc chắn sẽ rối loạn.
+Phần Kiến trúc xử lý giai đoạn đầu tiên trong năm giai đoạn của vòng đời. Nó đưa ra các đánh giá và ranh giới: chọn hình thái ứng dụng nào, trao bao nhiêu quyền tự chủ, năng lực nào tự xây, năng lực nào do nền tảng dùng chung cung cấp, và kết quả thế nào thì được coi là hoàn thành. Nếu để những ranh giới này đến giai đoạn xây dựng mới xác định, thì vận hành, quản trị và tối ưu về sau chắc chắn sẽ rối loạn.
 
 | Chương tương ứng | Trục chính | Mô tả |
 | --- | --- | --- |
