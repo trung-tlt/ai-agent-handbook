@@ -60,7 +60,27 @@ Các chiều và đối tượng nêu trên phải được liên kết qua dữ
 
 Stack công nghệ, môi trường vận hành và hình thái triển khai của ứng dụng AI-native khác nhau khá nhiều, nên rất khó dựa vào một loại probe duy nhất để phủ mọi đối tượng. Agent tự phát triển có thể đặt điểm đo ngay trong code và framework; Coding Agent và Agent đa dụng thì thường chỉ tận dụng được Hook, plugin, log phiên hay database cục bộ; AI Gateway và inference engine thường cung cấp metric và access log phía server; còn tool, sandbox thực thi, Pod và GPU thì phải kết hợp event runtime, thu thập ở node và eBPF mới có được sự thật về việc thực thi. Vì vậy, một kiến trúc thu thập thống nhất **không đòi hỏi mọi đối tượng phải dùng cùng một cách tích hợp**, mà cho phép nhiều lối vào thu thập cùng tồn tại, rồi **thống nhất giao thức truyền, ngữ nghĩa thực thi và định danh liên kết trong quá trình tụ họp.**
 
-![ai-observability-collection-architecture.png](../assets/imgs/chapter-13/image-001.png)
+```mermaid
+flowchart LR
+    subgraph S["Đối tượng được quan sát"]
+        A["Agent application<br/>Java · Go · Node.js · Python"]
+        C["Coding / general Agent<br/>CLI · IDE · Desktop · Service"]
+        G["AI Gateway / inference service"]
+        I["Tool · Sandbox · Infrastructure"]
+    end
+    subgraph X["Collection & integration"]
+        X1["SDK / auto instrumentation"]
+        X2["Hook / adapter / daemon"]
+        X3["Native telemetry / probe"]
+        X4["Runtime agent / eBPF / K8s"]
+    end
+    A --> X1
+    C --> X2
+    G --> X3
+    I --> X4
+    X --> P["Unified collection gateway"] --> N["Semantic normalization<br/>Correlation · sampling · redaction"] --> D[("Trace · Metric · Log · Event")]
+    D --> O["Analysis & diagnosis<br/>Search · topology · alert · evaluation · audit"]
+```
 
 Kiến trúc tổng thể có thể chia thành bốn tầng:
 
@@ -241,7 +261,24 @@ Việc hợp nhất nhiều nguồn phải **xác định nguồn thẩm quyền
 
 Adapter trích thông tin cần thiết trong process Agent hay trong môi trường người dùng của nó rồi ghi xuống cục bộ, và giao phần báo cáo qua mạng, retry cùng xử lý xuyên nguồn cho Daemon. Khi thực sự phải parse transcript ngay trong Hook, **phải giới hạn thời gian thực thi và quy mô dữ liệu, tránh để việc thu thập thất bại ảnh hưởng tới kết quả nghiệp vụ của Agent.**
 
-![image](../assets/imgs/chapter-13/image-002.png)
+```mermaid
+flowchart LR
+    subgraph A["Agent runtime"]
+        P["Native plugin / callback"]
+        H["Lifecycle Hook"]
+        L["Local transcript / log / DB"]
+    end
+    subgraph D["Independent Daemon"]
+        C["Incremental collection"] --> N["Semantic normalization<br/>Message · model · token · time"] --> F["Correlation + content filtering"] --> B["Batch / buffer / retry"]
+    end
+    P --> C
+    H --> C
+    L --> C
+    B --> E["Telemetry events<br/>JSONL · SLS · HTTP"]
+    B --> T["Structured Trace<br/>OTLP → backend"]
+    M["Integration management<br/>Discovery · admission · deployment · repair"] -.-> A
+    M -.-> D
+```
 
 *Hình 13.2.3-1 - Kiến trúc thu thập dữ liệu quan sát cho Coding Agent và Agent đa dụng (nguồn: vẽ theo bản hiện thực của LoongSuite Pilot)*
 
@@ -255,7 +292,19 @@ Các nguồn khác nhau trước hết được chuẩn hoá thành **Telemetry 
 
 Định nghĩa Session, Trace và Span cùng ranh giới của một lần chạy tích cực xem 13.3.1; ngữ nghĩa thực thi xem 13.3.2. Trọng tâm ở phía thu thập là **ghép cặp request với response, lời gọi với kết quả theo định danh ổn định.** Hình 13.2.3-2 trình bày một ví dụ ánh xạ của LoongSuite, trong đó các phân cấp ENTRY, AGENT, STEP… **không đại diện cho một cấu trúc cố định mà OpenTelemetry bắt buộc**; chỉ tạo STEP khi nhận diện được ranh giới vòng lặp một cách đáng tin.
 
-![image](../assets/imgs/chapter-13/image-003.png)
+```mermaid
+flowchart LR
+    U["User input"] --> L1["Model call 1<br/>llm.request ↔ llm.response"] --> T["Tool execution<br/>tool.call ↔ tool.result"] --> L2["Model call 2<br/>Generate final answer"]
+    U -.-> E["ENTRY — active execution"]
+    E --> A["AGENT — one Agent invocation"]
+    A --> S1["STEP 1 — reasoning & action"]
+    S1 --> M1["LLM 1"]
+    S1 --> X["TOOL"]
+    A --> S2["STEP 2 — continue reasoning"] --> M2["LLM 2"]
+    L1 -. "session / turn / step / call ID" .-> M1
+    T -.-> X
+    L2 -.-> M2
+```
 
 *Hình 13.2.3-2 - Ví dụ ánh xạ từ telemetry event sang Trace (nguồn: vẽ theo mô hình event và luồng chuyển đổi của LoongSuite Pilot)*
 
@@ -411,7 +460,16 @@ ENTRY  Một request bên ngoài hay một lượt tương tác người dùng
 
 Cấu trúc này **chỉ dùng để minh hoạ** quá trình thực thi điển hình "suy luận - hành động - quan sát - suy luận tiếp" trong một Agent ReAct tổng quát, **không phải template cố định mà mọi Trace Agent phải theo.** Với Agent dựa trên Workflow, cấu trúc Trace phải do chính nội dung orchestration quyết định, ghi theo thứ tự node thực tế, nhánh điều kiện, thực thi song song, vòng lặp và quan hệ sub-flow. Tuy topology của các Workflow khác nhau có thể chênh lệch nhiều, nhưng các thao tác thực tế bên trong thường vẫn ánh xạ được sang các node ngữ nghĩa thực thi như AGENT, WORKFLOW, STEP, LLM, TOOL, RETRIEVAL, MEMORY, GUARDRAIL - nhờ đó hỗ trợ truy vấn và phân tích nhất quán xuyên framework.
 
-![image.png](../assets/imgs/chapter-13/image-004.png)
+```mermaid
+flowchart TB
+    E["ENTRY · 1m06s"] --> A1["AGENT · assistant"]
+    A1 --> L1["LLM · planning · 11.9s"]
+    A1 --> T1["TOOL · spawn_agent · 44.3s"]
+    T1 --> A2["AGENT · researcher · 44.3s"]
+    A2 --> L2["LLM calls"]
+    A2 --> T2["Tool calls<br/>Bash · Read · error / success"]
+    A2 --> O["Output + token usage + TTFT"]
+```
 
 *Ví dụ cây gọi trong Trace thực thi Agent*
 
@@ -602,7 +660,14 @@ Cùng nhóm chỉ số đó còn nên drill-down xuống chiều Pod hay instanc
 
 Trong trang thực thể ví dụ `sgl-512` mà chương này dùng, vùng tổng hợp 15 phút gần nhất hiển thị 596 request, khoảng 7K Input Tokens, 88,89K Output Tokens và 96,05K Total Tokens; bên dưới là các nhóm Requests và Latency với Total Requests, Num Requests Running, Waiting Requests, E2E Request Latency, TTFT và TPOT. Bố cục này đặt các chỉ số lượng dùng, trạng thái đồng thời và trải nghiệm người dùng trong cùng một khoảng thời gian, phù hợp để **nhận định tải có thay đổi không trước, rồi mới quyết định drill-down xuống tầng lập lịch, chuỗi gọi hay tài nguyên.** Tài liệu production **không nên lấy giá trị ví dụ ở một thời điểm nào đó làm baseline**; ngưỡng cảnh báo vẫn phải xây riêng theo model, quy cách phần cứng, độ dài input/output và SLO.
 
-![image](../assets/imgs/chapter-13/image-005.png)
+```mermaid
+flowchart TB
+    D["Model observability dashboard"] --> R["Traffic & reliability<br/>QPS · success rate"]
+    D --> L["Latency<br/>E2E · TTFT · TPOT"]
+    D --> T["Token throughput<br/>Prompt / generation tokens per second"]
+    D --> S["Request shape<br/>Prompt length · generation length · heatmap"]
+    D --> C["Cache efficiency<br/>KV cache hit ratio"]
+```
 
 Dashboard ở mức model trong hình đảm nhận cùng trách nhiệm nhận định tầng một như trang thực thể: tổng hợp lượng request, tỉ lệ thành công, thông lượng token, TTFT, TPOT, độ dài input/output và tỉ lệ KV Cache hit theo chiều model thống nhất; còn khi cần định vị lệch tải thì chuyển sang panel Pod-Level và GPU Stats.
 
@@ -612,11 +677,26 @@ Dashboard ở mức model trong hình đảm nhận cùng trách nhiệm nhận 
 
 Chỉ số nói được **"khi nào, model hay instance nào bất thường"**; còn chuỗi gọi thì lo trả lời **"request nào, chậm ở giai đoạn nào".** Sau khi probe Python tích hợp vào vLLM/SGLang, ta xem được trong Trace các phân cấp Span từ lối vào HTTP tới việc xử lý suy luận rồi tới request model ở tầng dưới - ví dụ `/v1/chat/completions`, `vllm.chat.completion.stream` và `llm_request`. Thuộc tính ở mức request có thể ghi thời lượng đầu cuối, thời gian hàng đợi, thời gian lập lịch, thời điểm token đầu và request ID; khi thoả yêu cầu an toàn dữ liệu và đã bật cấu hình thu thập tương ứng, còn có thể kết hợp Prompt, Completion, tên model cùng số token input/output để giải thích đặc trưng tải. Span và thuộc tính cụ thể thì theo framework, version và cấu hình thu thập thực tế - xem [tài liệu observability cho inference engine vLLM/SGLang](https://help.aliyun.com/zh/cms/cloudmonitor-2-0/observe-the-vllm-and-sglang-inference-engine) của Alibaba Cloud.
 
-![image.png](../assets/imgs/chapter-13/image-006.png)
+```mermaid
+flowchart LR
+    T["Trace"] --> P["Prefill service"] --> D["Decode service"]
+    P --> W["wait"]
+    P --> F["prefill"]
+    D --> X["decode"]
+    T --> M["Span metadata<br/>traceId · spanId · parentSpanId<br/>start/end · status"]
+    M --> A["GenAI attributes<br/>operation · input/output · token · stream"]
+```
 
 Trace này có tổng thời lượng khoảng 193,39 ms, trải qua hai ứng dụng Prefill và Decode. Cây Span bên trái trước hết cho biết vị trí cấu trúc và thời lượng từng giai đoạn của request: phía Prefill lần lượt gồm `POST /v1/chat/completions`, `chat qwen3-0.6b`, `llm_request`, `wait` và `prefill`, trong đó Span `chat` được chọn có input 60 token, thời lượng khoảng 11,88 ms; bên dưới nó `wait` khoảng 16 μs, `prefill` khoảng 9,38 ms. Còn Span HTTP phía Decode khoảng 177,18 ms. Từ đó có thể nhận định trước rằng request này gần như không phải xếp hàng, việc tính toán Prefill cũng không phải phần tốn thời gian chính, mà **thời gian dài chủ yếu rơi vào phía Decode.**
 
-![image.png](../assets/imgs/chapter-13/image-007.png)
+```mermaid
+flowchart TB
+    S["LLM Span"] --> I["Identity<br/>service · endpoint · IP"]
+    S --> T["Timing<br/>start · end · duration"]
+    S --> C["Correlation<br/>spanId · parentSpanId · status"]
+    S --> A["Attributes<br/>gen_ai.input/output.messages<br/>operation · choice count · stream"]
+    S --> O["Resource · detail · event · link"]
+```
 
 Phần Attributes bên phải bổ sung cho biểu đồ thác nước ngữ nghĩa **"lần gọi này cụ thể đã làm gì".** Ở Span `chat qwen3-0.6b` được chọn trong hình, có thể thấy các trường then chốt sau:
 
@@ -644,23 +724,58 @@ Phân tích đồng thời lấy thời gian làm trục hoành, vẽ các giai 
 
 **Tình huống một: Prefill lớn chặn Decode cùng lô.** Trong các triển khai chưa tách Prefill/Decode, hai giai đoạn dùng chung tài nguyên tính toán. Như hình dưới, mức đồng thời tối đa của engine là 8, nên các request chạy đồng thời tạo thành tối đa 8 làn. Khi một request có số token Prompt lớn hơn hẳn đi vào Prefill, khoảng cách giữa các vòng lặp Decode cùng lô có thể bị kéo dài, biểu hiện thành TPOT của những request đó cùng tăng trong khoảng thời gian ấy. Nếu chỉ nhìn một Trace đơn lẻ thì dễ phán nhầm thành bản thân việc sinh của model chậm đi; còn view đồng thời thì cho thấy trực tiếp sự chồng lấn giữa Prefill lớn với nhiều Decode.
 
-![image](../assets/imgs/chapter-13/image-008.png)
+```mermaid
+flowchart LR
+    R["Inference request"] --> W["Wait phase"] --> P["Prefill phase"] --> D["Decode phase"] --> O["Response"]
+    R -.-> E["Engine / thread timeline"]
+    W -.-> E
+    P -.-> E
+    D -.-> E
+    E --> M["E2E · TTFT · phase latency · tokens<br/>Correlation by traceId/requestId"]
+```
 
 Sau khi định vị, có thể đánh giá theo nghiệp vụ và năng lực engine để giới hạn độ dài input tối đa, phân luồng riêng cho Prompt dài, chỉnh tham số lập lịch, giảm mức đồng thời trên một instance, hoặc dùng phương án tách Prefill/Decode. **Việc có điều chỉnh hay không không thể chỉ dựa vào một request chậm**, mà phải kết hợp phân vị TPOT, thông lượng và mức dùng GPU để kiểm chứng xem đó có phải nút thắt ổn định không.
 
 **Tình huống hai: đồng thời tăng đột biến gây xếp hàng.** Khi `time_in_queue` hay giai đoạn Wait trong Trace dài lên rõ rệt, nên xem view đồng thời trong cùng khoảng thời gian. Chuỗi request trong hình dưới trước hết phơi ra một giai đoạn chờ khá dài.
 
-![image](../assets/imgs/chapter-13/image-009.png)
+```mermaid
+flowchart TB
+    H["HTTP POST /v1/chat/completions"] --> L["LLM request span"]
+    L --> W["wait · 1.88s"]
+    L --> P["prefill · 8.06ms"]
+    L --> D["decode · 961ms"]
+    L --> J["template render"]
+    W --> E["E2E · 2.89s"]
+    P --> E
+    D --> E
+```
 
 View đồng thời cho thấy số request trong khoảng đó đột ngột tăng, các khe chạy bị chiếm hết, và request mới chỉ còn cách chờ trong hàng đợi. Lúc này thường sẽ thấy số Waiting, Queue Time và TTFT cùng tăng, còn TPOT sau khi vào Decode thì chưa chắc xấu đi rõ rệt.
 
-![image](../assets/imgs/chapter-13/image-010.png)
+```mermaid
+flowchart TB
+    Q["Inference traffic"] --> S["Scheduler / engine"]
+    S --> W["Queue wait"]
+    S --> P["Prefill"]
+    S --> D["Decode"]
+    W --> V["Timeline by engine and thread"]
+    P --> V
+    D --> V
+    V --> M["Concurrency · phase p95 · request count · E2E p95"]
+```
 
 Với loại vấn đề này, nên xác nhận trước đó là đỉnh nhất thời hay là thiếu dung lượng kéo dài, rồi mới quyết định dùng hàng đợi–rate limit, co giãn đàn hồi, tăng bản sao, tối ưu routing hay chỉnh mức đồng thời tối đa. **Tăng mù quáng mức đồng thời trên một instance có thể nén phần tài nguyên khả dụng cho từng request, khiến TTFT, TPOT và độ trễ đuôi xấu đi thêm.**
 
 Trong bối cảnh tách Prefill/Decode, hai giai đoạn do các Worker khác nhau gánh, nên phân tích đồng thời có thể hiển thị Prefill và Decode ở hai panel riêng và liên kết cùng một request bằng đường nét đứt. Nhờ vậy vừa nhận định được request đang xếp hàng ở phía Prefill, đang truyền xuyên giai đoạn, hay bị chặn ở phía Decode; vừa đánh giá riêng được dung lượng của hai pool tài nguyên có khớp nhau không.
 
-![image](../assets/imgs/chapter-13/image-011.png)
+```mermaid
+flowchart LR
+    R["Requests"] --> P["Producer / Prefill engine"] --> Q["Transfer / queue"] --> D["Consumer / Decode engine"] --> O["Responses"]
+    P -. "prefill spans" .-> T["Cross-engine timeline"]
+    Q -. "wait spans" .-> T
+    D -. "decode spans" .-> T
+    T --> M["Throughput · latency · utilization · token usage"]
+```
 
 #### Vòng khép kín xử lý sự cố: từ phát hiện bất thường tới kiểm chứng tối ưu
 
@@ -684,7 +799,11 @@ Gọi tool là ranh giới then chốt nơi Agent chuyển ý định quyết đ
 
 **Không phải mọi tool đều chạy trong sandbox.** Tool có thể do hàm trong ứng dụng, MCP Server, API từ xa hay process cục bộ cung cấp, và cũng có thể chạy trong container, micro-VM hay môi trường cô lập khác. Với tool từ xa, ranh giới quan sát thường kéo dài tới dịch vụ tool cùng các phụ thuộc hạ nguồn của nó; còn với các tool cần chạy code, lệnh Shell, xử lý file hay thao tác trình duyệt thì nên tiếp tục phủ việc lập lịch sandbox, vòng đời instance, thực thi process, tiêu hao tài nguyên, cùng các ảnh hưởng thực tế mà process gây ra như thay đổi file, truy cập mạng và lời gọi hệ hạ nguồn.
 
-![image](../assets/imgs/chapter-13/image-012.png)
+```mermaid
+flowchart LR
+    A["Agent / tool call<br/>Tên tool · tham số · ý định · retry"] --> P["Policy check<br/>Quyền · input constraint · allow/deny"] --> S["Sandbox lifecycle<br/>Create · prepare · start · recover"] --> X["Process execution<br/>Command · process tree · exit / signal / OOM"] --> E["System effects<br/>CPU · memory · storage<br/>file · network"] --> O["Telemetry aggregation<br/>Trace · metric · log · event · audit"]
+    K["Stable correlation IDs<br/>Task/session · trace · tool_call<br/>sandbox · process · policy version"] --- O
+```
 
 Với tool và sandbox thực thi, cần quan sát trọng tâm các nội dung sau:
 
@@ -700,7 +819,13 @@ Với tool và sandbox thực thi, cần quan sát trọng tâm các nội dung 
 
 *   **Kết quả policy và cô lập.** Ghi việc kiểm tra quyền trước và sau khi thực thi, policy truy cập mạng và file, quota tài nguyên, giới hạn lệnh, kiểm tra an toàn nội dung cùng kết quả phê duyệt của con người, gồm cả policy đã trúng, version luật, hành động xử lý và lý do từ chối. **Thứ quan sát ở đây là kết quả thực thi policy thực tế, không phải việc định nghĩa hệ kiểm soát truy cập;** mục tiêu là giải thích vì sao tool được cho phép, bị giới hạn hay bị chặn, và tạo bằng chứng cho audit bảo mật.
 
-![image](../assets/imgs/chapter-13/image-013.png)
+```mermaid
+flowchart LR
+    A["Ngữ nghĩa tool phía ứng dụng<br/>Tên + tham số · start/end · retry<br/>result · error · policy decision"] --> C["Correlation & cross-validation<br/>Time · Trace · instance · process<br/>Intent ≠ execution fact"] --> R["Sự thật runtime<br/>Command · process tree · exit/OOM<br/>CPU · memory · storage · network<br/>sandbox/container/process identity"]
+    C --> P["Performance diagnosis"]
+    C --> K["Cost attribution"]
+    C --> S["Security audit"]
+```
 
 Dữ liệu quan sát phía tool và phía sandbox có ý nghĩa khác nhau. Span Agent hay Span tool mô tả mục đích lời gọi, tham số, kết quả cùng vị trí của thao tác đó trong task; còn dữ liệu runtime của sandbox thì **chứng minh lệnh có thật sự chạy không, đã tạo những process nào, tiêu bao nhiêu tài nguyên, và sinh ra những tác dụng phụ file và mạng nào.** Hai bên phải được liên kết qua context Trace, tool-call ID, ID instance sandbox, định danh container hay Pod và process ID, để tạo thành chuỗi bằng chứng **từ ý định gọi tới sự thật thực thi.** Với các hành vi có giá trị chẩn đoán độc lập như lời gọi dịch vụ bên ngoài, process con then chốt, thay đổi file quan trọng, có thể biểu đạt thành Span con của Span thực thi lệnh; còn các hành vi runtime số lượng lớn, hạt mịn thì ghi thành Span Event hay log liên kết, rồi truy vấn theo nhu cầu trong view Trace. Định danh Session và task có thể dùng để gom xuyên nhiều Trace, **nhưng không thay thế được việc liên kết Trace với process cần cho một lần thực thi cụ thể.**
 

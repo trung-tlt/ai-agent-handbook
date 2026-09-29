@@ -241,7 +241,20 @@ Với các dịch vụ HTTP hay RPC tồn đọng, Nacos có thể kết hợp k
 
 Con đường này thể hiện hai tác dụng của Agentic Resource Registry. Phía quản lý thì quản trị MCP Server quanh version, công tắc Tool, phạm vi nhìn thấy và trạng thái endpoint; phía vận hành thì để Agent xuất phát từ một Router hay một tích hợp client duy nhất để chọn đúng dịch vụ mà task cần. **Sau khi chọn xong, việc gọi vẫn theo giao thức MCP; Nacos không làm thay đổi ngữ nghĩa nghiệp vụ của Tool.**
 
-![ch15-01-mcp-registry-router.png](../assets/imgs/chapter-15/image-001.png)
+```mermaid
+flowchart LR
+    F["Framework auto-registration"] --> R
+    O["OpenAPI import"] --> R
+    C["Console / API publish"] --> R
+    subgraph R["Nacos MCP Registry"]
+        V["Capability version<br/>Service description · Tool · Resource"]
+        G["Governance metadata<br/>Version · label · visibility"]
+        T["Tool governance<br/>Schema · switch · compatibility"]
+        E["Runtime endpoints<br/>Naming · health"]
+    end
+    R -- "Dynamic filtering" --> M["Nacos MCP Router<br/>Chọn Server / Tool theo task"] --> A["MCP Client / Agent Harness"] -->|"Native MCP call"| S["Target MCP Server"]
+    R -- "Direct discovery" --> A
+```
 
 *Hình 15-1 - Quan hệ giữa Nacos MCP Registry, MCP Router và việc gọi native*
 
@@ -308,7 +321,20 @@ RAD chia quá trình từ truy hồi ứng viên tới duy trì endpoint vận h
 
 Cách chia này khiến **"có thể phù hợp"** và **"hiện gọi được"** trở thành hai nhận định khác nhau. Search chỉ trả về thông tin danh mục nhẹ, dùng để hình thành tập ứng viên theo tên, nhãn, giao thức…, và **không cam kết rằng ứng viên hiện có endpoint khoẻ.** Sau khi bên gọi chọn Agent, Discover mới phân giải version online chính xác và trả về snapshot gọi theo các điều kiện giao thức, version giao thức, cách truyền tải và nguồn endpoint. Với endpoint vận hành, RAD đồng thời ghi version hiện thực triển khai cùng khoảng version Agent mà nó phục vụ được, **tránh trả về instance không tương thích cho bên gọi trong lúc nâng cấp version.**
 
-![ch15-02-agent-registry-rad.png](../assets/imgs/chapter-15/image-002.png)
+```mermaid
+flowchart LR
+    S["AgentSpec Registry<br/>Prompt · Skill · MCP reference"] -->|"Build / deploy"| R
+    P["Runtime publisher<br/>Register / deregister endpoints"] --> R
+    subgraph R["Nacos Agent Registry"]
+        I["Agent identity · version · label"]
+        C["CallInterface<br/>protocol · nativeDescriptor"]
+        D["Declarative endpoint"]
+        E["Runtime endpoint<br/>Naming · health · version range"]
+    end
+    R --> RAD["RAD discovery<br/>Search · Discover · Watch<br/>Register · Deregister"] --> A["Agent protocol client<br/>Chọn protocol và endpoint"]
+    A --> A2A["A2A"]
+    A --> X["Các protocol mở rộng"]
+```
 
 *Hình 15-2 - Ranh giới trách nhiệm giữa Agent Registry, AgentSpec, RAD và giao thức native*
 
@@ -328,7 +354,13 @@ Prompt, Skill, MCP Server, Agent và AgentSpec có hình thức nội dung khác
 
 Quá trình phát hành khuyến nghị của tài sản năng lực như hình 15-3.
 
-![ch15-03-release-lifecycle.png](../assets/imgs/chapter-15/image-003.png)
+```mermaid
+flowchart LR
+    D["Draft<br/>Thay đổi liên tục"] --> S["Submit review<br/>Khoá candidate digest"] --> A["Automated checks<br/>Format · security · evaluation"] --> H["Human review<br/>Impact · permission · exception"] --> R["Immutable release"] --> P["Rollout / canary<br/>Label + scope"] --> V["Runtime verification<br/>Metric · Trace"]
+    A -- "Reject" --> D
+    H -- "Return" --> D
+    V -. "Feedback creates a new candidate,<br/>không sửa nội dung đang chạy" .-> D
+```
 
 *Hình 15-3 - Vòng khép kín phát hành, thẩm định và lặp của Agentic Resource*
 
@@ -468,7 +500,24 @@ Trong mô hình chung của Nacos, một tài nguyên AI được định danh b
 
 Quan hệ nội bộ của chúng như hình 15-4.
 
-![ch15-04-agentic-resource-registry.png](../assets/imgs/chapter-15/image-004.png)
+```mermaid
+flowchart LR
+    C["Console"] --> R
+    API["CLI / API / SDK"] --> R
+    F["Framework / development tools"] --> R
+    subgraph R["Nacos Agentic Resource Registry"]
+        K["Prompt · Skill · MCP Server · Agent · AgentSpec"]
+        V["Logical resource + version<br/>Label · lifecycle"]
+        P["Visibility & authorization<br/>Namespace · permission"]
+        L["AI release pipeline<br/>Scan · review · audit"]
+        S["Storage / config<br/>Versioned content & bundle"]
+        N["Naming<br/>Runtime endpoint & health"]
+        X["AI resource search<br/>Document · chunk · index"]
+    end
+    R --> D["Declarative resolution<br/>Exact version / lock"]
+    R --> A["ARD unified discovery"]
+    R --> M["MCP Router"] --> H["Agent Harness / developer tools"]
+```
 
 *Hình 15-4 - Toàn cảnh kiến trúc Nacos Agentic Resource Registry*
 
@@ -610,7 +659,17 @@ Hệ thống production thường dùng kết hợp **phụ thuộc cố định
 
 Với các thao tác rủi ro cao, kết quả khám phá có thể yêu cầu con người xác nhận, hoặc chỉ trả về mô tả năng lực mà không cho nạp tự động. Hệ thống xác định mức tự động hoá theo rủi ro tài nguyên, môi trường task và khả năng khôi phục của thao tác. **Tính linh hoạt của Agent động do phạm vi tài nguyên khám phá được cung cấp; còn ranh giới của nó thì vẫn do trạng thái tài nguyên, quyền hạn và policy vận hành cùng xác định.**
 
-![ch15-05-stable-dynamic-discovery.png](../assets/imgs/chapter-15/image-005.png)
+```mermaid
+flowchart TB
+    subgraph S["Agent ổn định"]
+        S1["AgentSpec<br/>Tên tài nguyên + version policy"] --> S2["Resolver<br/>Name / label"] --> S3["Exact version + digest<br/>Lock Manifest"] --> S4["Load / connect"] --> S5["Deterministic Context<br/>+ native client"]
+    end
+    subgraph D["Agent động"]
+        D1["Task facts<br/>Capability requirement"] --> D2["ARD unified discovery<br/>Prompt · Skill · MCP · Agent"] --> D3["Governance filter + version resolve"] --> D4["Context Compiler<br/>Assemble on demand"] --> D5["Context Manifest<br/>+ native client"]
+    end
+    G["Shared governance<br/>Registry · namespace · visibility · permission<br/>health · exact version"] -.-> S2
+    G -.-> D2
+```
 
 *Hình 15-5 - Đường lấy tài nguyên của Agent ổn định và Agent động*
 
@@ -730,7 +789,12 @@ Giữa hai bên có thể thiết lập một interface ổn định qua **Conte
 
 Khi nhãn, trạng thái online hay tập endpoint trong Nacos thay đổi, **Context Compiler không được lặng lẽ thay nội dung trong một lượt task đang chạy.** Runtime phải hoàn tất việc phân giải lại và kiểm chứng trước, rồi sinh Manifest mới ở ranh giới task hay giai đoạn. Nacos lọc ứng viên theo Namespace, khả năng nhìn thấy, trạng thái tài nguyên và luật quyền hạn; còn Harness thì vẫn phải kết hợp uỷ quyền task, tính tương thích giao thức và rủi ro vận hành để hoàn tất đánh giá trước khi gọi, và **bảo đảm Context thực sự dùng trong một lần chạy là rõ ràng, giải thích được và phát lại được.**
 
-![ch15-06-context-assembly.png](../assets/imgs/chapter-15/image-006.png)
+```mermaid
+flowchart LR
+    D["1. Discover candidates<br/>Lightweight metadata only<br/>name · description · type · relevance · source"] --> G["2. Govern & resolve<br/>Visibility / permission filter<br/>ARD exact resource · protocol / endpoint"] --> L["3. Load on demand<br/>Prompt template · Skill files<br/>selected Tool schema · Agent call description"] --> C["4. Context Compiler<br/>Instruction hierarchy · trust boundary<br/>token budget · remove duplicates<br/>Context Manifest"] --> A["Agent execution<br/>Prompt · Skill · MCP · Remote Agent"]
+    A --> T["Trace / Manifest<br/>Version · digest · endpoint<br/>discovery reason · permission decision"]
+    T -. "Runtime feedback forms<br/>a new candidate version" .-> D
+```
 
 *Hình 15-6 - Luồng lắp ráp từ khám phá tài nguyên tới Context lúc chạy*
 

@@ -50,7 +50,15 @@ Nó gồm hai phần. **User Simulation** đảm nhiệm con người tương t�
 
 Hai phần hợp lại chính là **dời "thế giới mà Agent vận hành trong đó" từ production vào phần mềm**: thế giới có thể lưu lại, sửa, phát lại, và khi sai thì không có hậu quả thật nào. Hình 16-1 cho thấy vị trí của nó trong hệ kỹ thuật chất lượng - Simulation cùng Evaluation, Testing, Governance là những năng lực **tổ hợp được, không phải một dây chuyền cố định**: Simulation sinh ra việc thực thi có kiểm soát và bằng chứng; Evaluation thiết lập đánh giá; Testing tổ chức hoạt động kiểm chứng; Governance nắm quyền phát hành. Việc đánh giá Trace production và unit test có tính xác định thì hoàn toàn không cần đi qua Simulation. Quan hệ này sẽ được nhìn lại từ phía bàn giao ở mục 16.6.
 
-![image](../assets/imgs/chapter-16/image-001.png)
+```mermaid
+flowchart LR
+    A["Agent system<br/>Test version / production run<br/>Generate real Trace"] --> S["Simulation<br/>Controlled execution<br/>Scenario + assets + simulators<br/>→ Run Result / evidence"]
+    A -. "Production Trace may bypass Simulation" .-> E
+    S --> E["Evaluation<br/>criterion → evidence_refs → verdict<br/>Insufficient evidence → indeterminate"]
+    E --> T["Testing<br/>Regression comparison<br/>baseline × candidate<br/>Aggregate verdict material"]
+    T --> G["Governance gate<br/>Release authorization · exception approval<br/>Decision based on evidence"]
+    G -->|"New version rollout"| A
+```
 
 *Hình 16-1 - Kiến trúc kỹ thuật chất lượng cho Agent: quan hệ tổ hợp được giữa Simulation với Evaluation, Testing và Governance*
 
@@ -149,7 +157,25 @@ Mục trên định nghĩa "dữ liệu trông như thế nào"; mục này tr�
 
 **Harness là engine thực thi của Simulation:** nhận Scenario Spec, đẩy một lần thực thi có kiểm soát, và bàn giao Run Result. Bên trong engine có ba mối quan tâm. **Tầng orchestration** đọc đặc tả kịch bản, quản vòng đời Run, phối hợp dòng dữ liệu và ranh giới cô lập - đó là bộ khung của engine; **simulator người dùng** và **simulator môi trường** lần lượt gánh đối phương của Agent được test và thế giới bên ngoài mà nó phụ thuộc - đó là hai cánh. **Ba thứ không ngang hàng nhau:** tầng orchestration định nghĩa trách nhiệm và ràng buộc ở mức kiến trúc; còn hai simulator thì quyết định mô phỏng cái gì, mô phỏng ra sao ở mức hiện thực. Hình 16-2 cho kiến trúc tổng thể; phần dưới triển khai theo thứ tự tầng kiến trúc, mô phỏng người dùng, mô phỏng môi trường.
 
-![image](../assets/imgs/chapter-16/image-002.png)
+```mermaid
+flowchart TB
+    subgraph H["Simulation Harness boundary"]
+        O["Orchestration backbone<br/>Spec→Manifest · setup→run→stop→cleanup<br/>isolation · trace correlation · reset"]
+        U["User simulator<br/>Persona · cognitive state · behavior policy<br/>Hybrid state machine + generated utterance"]
+        S["SUT — Agent under test<br/>Reasoning · tool choice · error handling"]
+        E["Environment simulator<br/>API/database state · fault injection<br/>file · browser · code environment"]
+        O --> U
+        O --> S
+        O --> E
+        U <--> S
+        S <--> E
+        U --> R
+        S --> R
+        E --> R
+        R["Run Result<br/>Run · Task · Session · Event<br/>Records · Artifacts · Observations · Evidence · Completeness"]
+    end
+    R --> V["Independent evaluator"] --> G["Governance gate"]
+```
 
 *Hình 16-2 - Kiến trúc kỹ thuật của Simulation Harness: tầng orchestration (khung) + simulator người dùng, simulator môi trường (hai cánh)*
 
@@ -337,7 +363,16 @@ Năm mục trước đã đi hết chuỗi: định nghĩa ranh giới (16.2), h
 
 **Kiểm tra tính hợp lệ là output cuối cùng của Simulation:** xác minh cấu hình kịch bản có đúng không, hành vi người dùng có tuân thủ luật nhận thức và tiết lộ không, sự cố có hiệu lực và trúng đích không, bằng chứng bắt buộc có truy cập được không. Kết quả kiểm tra được giao cho bộ đánh giá cùng với Run Result. Phần kiểm tra tính dùng được của bằng chứng ở phía bộ đánh giá **cũng không phải một cánh cổng, mà là ba cánh** - tính đầy đủ của bản ghi (tài liệu có không), tính hợp lệ của lần chạy (điều kiện có thành lập không), và tính đầy đủ của bằng chứng (có đủ để hỗ trợ mục đánh giá này không), như hình 16-3. **Những mục thiếu bằng chứng thì xuất ra "không đánh giá được", còn lại thì đánh giá theo bằng chứng hiện có - "không đánh giá được" là một kết luận trung thực, tốt hơn việc ép chấm bằng bằng chứng không đủ.**
 
-![image](../assets/imgs/chapter-16/image-003.png)
+```mermaid
+flowchart LR
+    R["Run Result<br/>Records · Artifacts · Observations<br/>Completeness · validity checks"] --> C1{"1. Record completeness<br/>complete / partial"}
+    C1 --> C2{"2. Run validity<br/>valid / violated / unchecked"}
+    C2 --> C3{"3. Evidence sufficiency<br/>Đủ cho từng criterion?"}
+    C1 -- "Thiếu" --> I["Indeterminate<br/>Không đủ bằng chứng"]
+    C2 -- "Vi phạm / chưa kiểm tra" --> I
+    C3 -- "Không" --> I
+    C3 -- "Có" --> E["Evaluation<br/>criterion → evidence_refs → verdict<br/>Assertion · LLM Judge · human"] --> O["Evaluation Result<br/>Verdict material, không phải business Outcome<br/>và không phải release authorization"]
+```
 
 *Hình 16-3 - Quy trình đánh giá dựa trên bằng chứng mô phỏng: ba cánh cổng kiểm tra tính dùng được của bằng chứng*
 
@@ -359,7 +394,13 @@ Khi đọc một kết quả hồi quy **zero vi phạm**, hãy cẩn thận v�
 
 Công dụng làm cổng kiểm soát đặc biệt phải giữ ranh giới: **Testing Gate tổng hợp kết quả kiểm chứng và tổ chức bằng chứng hồi quy, nhưng nó không phải bên ra quyết định phát hành** - một node quản trị được uỷ quyền cầm bằng chứng mà Testing bàn giao để ra quyết định phát hành, và các đường ngoại lệ thì có phê duyệt cùng lưu dấu, như hình 16-4.
 
-![image](../assets/imgs/chapter-16/image-004.png)
+```mermaid
+flowchart LR
+    R["Scenario & asset regression set<br/>Data · tool · simulator · rubric<br/>Locked version combination"] --> T["Testing activity<br/>Baseline × candidate<br/>Same conditions / asset versions"] --> G["Testing Gate<br/>Aggregate result + evidence<br/>Có thể yêu cầu bổ sung"] --> A["Authorized governance node<br/>Approve / reject release<br/>Business risk + Testing evidence"]
+    A -- "Normal approval" --> O["Production observation<br/>Real runtime data · human takeover signal"]
+    A -. "Exception approval<br/>audit + trace" .-> O
+    O -. "Anomaly / uncovered event" .-> R
+```
 
 *Hình 16-4 - Vòng khép kín ứng dụng Testing: phân công giữa Testing Gate và node quản trị được uỷ quyền*
 

@@ -12,7 +12,21 @@ Vì vậy, bước sang năm 2026, bảo mật Agent đã nâng cấp toàn di�
 
 **Phòng thủ là cái khiên.** Từ tài sản và chuỗi cung ứng, tới input–output của model, rồi tới môi trường vận hành hệ thống và mạng - bố trí phòng thủ chiều sâu toàn stack theo từng lớp, để cuộc tấn công không thắng được ở bất kỳ tầng nào. **Kiểm soát là dây cương.** Bằng định danh–xác thực, nhận diện ý định, kiểm tra từng lời gọi, uỷ quyền lần hai cho thao tác rủi ro cao và chặn dữ liệu rời khỏi biên - ràng buộc mỗi hành động tự chủ của Agent trong một ranh giới kiểm soát được. **Khiên bảo đảm nó không bị lợi dụng; dây cương bảo đảm nó không bị buông lỏng.**
 
-![Ảnh chụp màn hình 2026-09-14 13.53.20.png](../assets/imgs/chapter-14/image-001.png)
+```mermaid
+flowchart LR
+    L["Các tầng cần bảo vệ<br/>Application · Model · Infrastructure"] --> T
+    subgraph T["Threat protection"]
+        T1["Asset & supply-chain<br/>AI BOM · Skill · MCP · dependency audit"]
+        T2["Input / output defense<br/>Prompt injection · jailbreak · data leakage"]
+        T3["System-to-network defense<br/>RASP · gateway · sandbox"]
+    end
+    L --> B
+    subgraph B["Behavior governance"]
+        B1["Data egress control"]
+        B2["Intent & high-risk action control<br/>Progressive validation · approval"]
+        B3["Identity & full-call-chain control<br/>Dynamic authorization · audit · freeze"]
+    end
+```
 
 **Chiều sâu quyết định năng lực, chiều rộng quyết định ứng phó với cái gì.** Điều đó được cụ thể hoá thành: ở mỗi tầng công nghệ - từ hạ tầng, tới định danh, dữ liệu và ứng dụng - đều đồng thời gánh cả phòng thủ lẫn kiểm soát; và mỗi yêu cầu kiểm soát đều được triển khai xuyên suốt toàn stack. **Chỉ khi có đủ cả phòng thủ và kiểm soát, ta mới vừa trao nhiều quyền hơn cho Agent vừa giữ cho rủi ro luôn hội tụ - khi đó Agent mới thực sự "mở ra được mà vẫn quản được".**
 
@@ -88,7 +102,18 @@ Việc bảo vệ ở tầng ứng dụng Web truyền thống chủ yếu gồm
 
 Để ứng phó với các thách thức trên, các cơ chế phòng thủ native cho mô hình lớn (như **AI guardrail**) đã ra đời, đóng vai trò **"tầng trung gian đáng tin"** nối logic ứng dụng với năng lực mô hình lớn, cung cấp một hệ phòng thủ trọn gói phủ toàn chuỗi input, suy luận và output. Từ góc độ bảo vệ ứng dụng AI, năng lực cốt lõi phủ chín chiều:
 
-![image](../assets/imgs/chapter-14/image-002.png)
+```mermaid
+flowchart TB
+    A["Ứng dụng<br/>Smart speaker · customer service · assistant<br/>education · office · healthcare"] --> D
+    subgraph D["Defense dimensions"]
+        C["Compliance baseline<br/>Content compliance · sensitive content · watermark"]
+        T["Threat defense<br/>Prompt injection · malicious file · malicious URL"]
+        M["Model health<br/>Jailbreak · hallucination · prompt crawling"]
+    end
+    D --> P["Detection capabilities<br/>General model · security model · dynamic policy · threat intelligence"]
+    P --> F["Foundation platforms<br/>Model development · deployment · decision engine · stability"]
+    F --> R["Content review models<br/>Text · image · multimodal"]
+```
 
 *   **Kiểm duyệt tuân thủ nội dung:** trong quá trình hội thoại liên tục với người dùng, Agent có thể sinh nội dung vi phạm như chính trị nhạy cảm, thô tục, phân biệt đối xử do bị context dẫn dắt hay do trôi ngữ nghĩa. Cơ chế guardrail dựa trên engine kiểm duyệt bằng mô hình lớn, quét nội dung thời gian thực trước khi Agent sinh phản hồi, nhận diện chính xác cả vi phạm lộ liễu lẫn cách diễn đạt ẩn dụ (biến thể, đồng âm, thẩm thấu ý thức hệ), bảo đảm output luôn phù hợp pháp luật và giá trị chủ đạo của xã hội.
 
@@ -124,7 +149,12 @@ Trong tương lai, khi năng lực Agent tiếp tục tiến hoá, AI guardrail 
 
 Quá trình ứng dụng mô hình lớn trải qua sáu giai đoạn dữ liệu: thu thập và tiếp nhận dữ liệu, truyền dữ liệu, lưu trữ dữ liệu, truy cập dữ liệu, sử dụng dữ liệu và xoá dữ liệu. Cốt lõi là **bảo đảm an toàn và ổn định cho nhiều loại dữ liệu mà nghiệp vụ dùng trong quá trình đó**: dữ liệu huấn luyện, prompt, kho tri thức, dữ liệu đa phương thức và log.
 
-![image](../assets/imgs/chapter-14/image-003.png)
+```mermaid
+flowchart LR
+    C["Thu thập & tiếp nhận"] --> T["Truyền dữ liệu"] --> S["Lưu trữ"] --> A["Truy cập"] --> U["Sử dụng"] --> D["Xoá dữ liệu"]
+    P["Các loại dữ liệu cần bảo vệ<br/>Pretraining · fine-tuning · Prompt<br/>knowledge base · multimodal · log/telemetry"] --- C
+    P --- D
+```
 
 Việc ứng dụng và sử dụng mô hình lớn trên cloud có ba nhóm rủi ro an toàn dữ liệu sau:
 
@@ -142,13 +172,37 @@ Việc dữ liệu người dùng bị ứng dụng model xử lý đòi hỏi *
 
 Một mặt, cần ràng buộc trước về nguyên tắc đối với trách nhiệm mà mỗi bên phải gánh khi rò rỉ hay lạm dụng dữ liệu. Mặt khác, khi gọi model để orchestration ứng dụng, cần ghi lại và quản lý quá trình cùng thông tin về quyền của nhiều bên, để về sau tìm được đúng nguồn gốc vấn đề và mắt xích yếu về an toàn, và để các bên liên quan đòi quyền lợi. Ngoài ra, **quá trình này khó có thể do chính nhà cung cấp dịch vụ model tự chứng minh**, nên cần cơ chế quản lý minh bạch và kiểm chứng tốt hơn để làm được việc audit thao tác.
 
-![image](../assets/imgs/chapter-14/image-004.png)
+```mermaid
+flowchart LR
+    subgraph T["Model training"]
+        T1["Nguồn dữ liệu khó kiểm soát"]
+        T2["Loại dữ liệu phức tạp"]
+        T3["Data poisoning"]
+    end
+    subgraph B["Model building"]
+        B1["Dữ liệu học chưa lọc"]
+        B2["Dữ liệu nhạy cảm chưa được uỷ quyền"]
+        B3["Dữ liệu nhạy cảm không gắn nhãn"]
+    end
+    subgraph A["Model application"]
+        A1["Rò rỉ dữ liệu nhạy cảm"]
+        A2["Instruction hijacking"]
+        A3["Output khó kiểm soát"]
+    end
+    T --> B --> A
+```
 
 ## 14.4.2 Khung phòng thủ
 
 Để ứng phó với các thách thức an toàn dữ liệu nêu trên và giảm mối lo của người dùng về an toàn dữ liệu trên nền tảng dịch vụ mô hình lớn, cần dựa trên cơ chế và năng lực phòng thủ nền tảng của cloud, **lấy dữ liệu của dịch vụ mô hình lớn làm đối tượng bảo vệ trọng tâm**, xoay quanh nhu cầu bảo đảm an toàn dữ liệu trong toàn vòng đời - thu thập, truyền, lưu trữ, truy cập, xử lý, xoá - để phủ mọi khâu bảo vệ an toàn dữ liệu của dịch vụ mô hình lớn. Từ đó xây năng lực phòng thủ **"nền tảng public cloud + nền tảng dịch vụ mô hình lớn"**, và kiểm chứng tính tuân thủ của chính mình qua audit nghiêm ngặt của tổ chức uy tín bên thứ ba, tạo nên hệ bảo đảm an toàn dữ liệu **"nền tảng đáng tin, đường truyền đáng tin, dữ liệu kiểm soát được, tự chủ chọn được, thao tác audit được, trách nhiệm truy được".**
 
-![image](../assets/imgs/chapter-14/image-005.png)
+```mermaid
+flowchart LR
+    C["Collection<br/>Classification · redaction · sanitization"] --> T["Transfer<br/>Private network · TLS · protocol encryption"] --> S["Storage<br/>Isolation · encryption · backup"] --> A["Access<br/>IAM/RAM · key management · audit log"] --> P["Processing<br/>Trusted environment · compute isolation · guardrail"] --> D["Deletion<br/>Revoke account · erase · migrate"]
+    C --> O["Mục tiêu<br/>Platform reliability · trusted chain · controllable data<br/>user choice · auditable action · accountability"]
+    D --> O
+    F["Security foundation<br/>Secure-by-design · native controls<br/>red/blue validation · incident response · availability"] --> O
+```
 
 ## 14.4.3 Xây dựng bảo đảm an toàn cho toàn vòng đời của toàn bộ dữ liệu
 
@@ -242,7 +296,16 @@ Có thể dùng sản phẩm dịch vụ kiểm soát truy cập cloud-native (n
 
 An toàn khi xử lý dữ liệu là cực kỳ quan trọng; có thể dùng cơ chế guardrail cho mô hình lớn theo kiểu cloud-native. Lấy AI Guardrail của Alibaba Cloud làm ví dụ: nó có thể lọc và chặn thời gian thực để bảo đảm an toàn cho dữ liệu và thông tin nội dung trong quá trình khách hàng dùng Agent và model, nhờ đó kiểm soát hiệu quả an toàn dữ liệu trong quá trình người dùng dùng Agent, giảm rủi ro rò rỉ dữ liệu. Năng lực an toàn của AI Guardrail hỗ trợ nhận diện bất thường rủi ro, hỗ trợ nhận diện ý định, lọc thời gian thực các nội dung về đạo đức, giá trị, dữ liệu nhạy cảm cá nhân, và chặn ở khâu hỏi–đáp an toàn. Có thể theo nhu cầu người dùng để xây kho tri thức an toàn và kho tri thức chuyên đề, triển khai tự định nghĩa linh hoạt luật an toàn dữ liệu và quyết định rủi ro.
 
-![image](../assets/imgs/chapter-14/image-006.png)
+```mermaid
+flowchart LR
+    U["Hiểu câu hỏi người dùng<br/>Domain · intent · topic<br/>conversation attack · data risk"] --> R["Risk decision<br/>S1 no risk<br/>S2 enhance prompt<br/>S3 enhance retrieval<br/>S4 block"]
+    R -- "Pass" --> G["LLM response"]
+    R -- "Block" --> B["AI safety guardrail"]
+    B --> X["Realtime prompt guard"]
+    B --> A["Risk anomaly detection<br/>Baseline · ethics · privacy"]
+    B --> K["Safety knowledge base<br/>Domain knowledge · secure retrieval"]
+    B --> D["Safety blocking<br/>Data-security risk library"]
+```
 
 ### 6. Xoá dữ liệu
 
@@ -337,7 +400,15 @@ Sau khi phát hiện, cần quản lý nhất thể về định danh, quyền h
 
 *   **Cô lập mức dòng/mức trường:** IDaaS hỗ trợ cô lập dữ liệu trong bối cảnh Agent nhiều người dùng
 
-![image.png](../assets/imgs/chapter-14/image-007.png)
+```mermaid
+flowchart LR
+    U["End user / automation"] -->|"Agent input"| A["Cloud AI Agent"] -->|"Agent output"| U
+    I["Identity provider<br/>RAM · Okta · …"] -->|"Authentication"| ID["Agent Identity<br/>Authenticate · credential · authorize"]
+    ID -->|"Secure credential"| A
+    A -->|"STS / API key / OAuth"| C["Cloud services<br/>Model · compute · storage"]
+    A -->|"API key / OAuth"| E["Enterprise services<br/>OA · CRM · KM"]
+    A -->|"API key / OAuth"| S["Third-party SaaS<br/>Slack · Jira · …"]
+```
 
 ## 14.5.3 Quản trị uỷ quyền định danh
 
