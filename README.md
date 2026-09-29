@@ -1,20 +1,20 @@
 # README
 
-Tiếng Việt | [English](./README_EN.md) | [中文](https://github.com/aliyun/ai-agent-handbook)
+Tiếng Việt | [English](./README_EN.md)
 
 # AI Agent HandBook
 
-Bám theo vòng đời ứng dụng của Agent — kiến trúc, xây dựng, vận hành, quản trị và tối ưu — cuốn sách này tổng kết những kinh nghiệm và bài học chúng tôi rút ra trong quá trình đưa Agent vào môi trường doanh nghiệp. Nếu cuốn sách trắng này đóng góp được dù chỉ một phần nhỏ cho việc học tập cá nhân và cho việc triển khai Agent ở doanh nghiệp, đó đã là niềm vinh hạnh lớn của chúng tôi.
+Bám theo vòng đời của ứng dụng Agent — kiến trúc, xây dựng, vận hành, quản trị và tối ưu — cuốn sách cung cấp một khung kỹ thuật có hệ thống để đưa Agent từ bản demo vào môi trường production.
 
-Xin dành tặng dự án này cho tất cả những người đồng hành đang góp sức xây dựng AI.
+Trọng tâm của tài liệu không nằm ở một model, framework hay nền tảng cụ thể. Nội dung tập trung vào các nguyên tắc có thể sử dụng lâu dài: phân định trách nhiệm giữa Model và Harness, duy trì state có thẩm quyền, kiểm soát quyền hạn, cô lập môi trường thực thi, lưu lại bằng chứng và đánh giá Agent bằng dữ liệu thực.
 
-> **Về bản tiếng Việt.** Đây là bản dịch tiếng Việt của *AI Agent HandBook* do Alibaba Cloud khởi xướng và duy trì mã nguồn mở. Bản dịch giữ nguyên các thuật ngữ kỹ thuật tiếng Anh đã phổ biến trong cộng đồng (Agent, Harness, Context, Sandbox, Trajectory, Observability…) và diễn giải bằng tiếng Việt, nhằm giúp kỹ sư Việt Nam đọc hiểu nhanh mà vẫn tra cứu được tài liệu gốc. Xem thêm [Bảng thuật ngữ](./THUAT-NGU.md).
+Tài liệu được biên tập cho cộng đồng kỹ thuật Việt Nam và sẽ tiếp tục được điều chỉnh theo kinh nghiệm triển khai thực tế tại Việt Nam. Các thuật ngữ tiếng Anh đã phổ biến như Agent, Harness, Context, Sandbox, Trajectory và Observability được giữ nguyên để thuận tiện tra cứu và trao đổi chuyên môn. Xem [Bảng thuật ngữ](./THUAT-NGU.md) để biết quy ước sử dụng.
 
 ---
 
-## 1. Bối cảnh và cấu trúc của cuốn sách trắng
+## 1. Bối cảnh và cách tiếp cận
 
-Tháng 9 năm 2025, chúng tôi phát hành [*Sách trắng Kiến trúc Ứng dụng AI-Native*](https://developer.aliyun.com/ebook/8479), xoay quanh toàn bộ vòng đời DevOps của ứng dụng AI-native: từ thiết kế kiến trúc, lựa chọn công nghệ, thực hành kỹ thuật cho đến vận hành và tối ưu. Cuốn sách đó bóc tách một cách hệ thống các khái niệm và điểm khó, đồng thời đề xuất một số hướng giải quyết. Nhưng cùng với tốc độ phát triển rất nhanh của model và công nghệ Agent, chúng tôi nhận thấy mối quan tâm của thị trường đã dịch chuyển từ "xây Agent thật nhanh" sang ba thách thức mới:
+Một Agent có thể tạo ra bản demo thuyết phục chỉ trong thời gian ngắn. Tuy nhiên, khi đưa vào quy trình nghiệp vụ thực tế, hệ thống phải giải quyết đồng thời ba nhóm thách thức:
 
 *   **Thách thức kỹ thuật (Engineering):** đi từ trí tuệ mang tính xác suất đến năng lực sản xuất đáng tin cậy, để Agent có thể đảm nhiệm những nhiệm vụ trọng yếu.
 
@@ -22,13 +22,11 @@ Tháng 9 năm 2025, chúng tôi phát hành [*Sách trắng Kiến trúc Ứng d
 
 *   **Thách thức tổ chức (Organization):** đi từ những "ốc đảo Agent" rời rạc đến một tổ chức thông minh, để Agent thực sự bước vào các quy trình nghiệp vụ cốt lõi.
 
-Cuốn sách trắng của năm ngoái rõ ràng không còn đủ để đáp ứng những nhu cầu mới này.
-
-Vì vậy, chúng tôi đã tổ chức lại cấu trúc cuốn sách: nội dung cập nhật hơn, tỉ trọng phần thực hành cao hơn, và cách cộng tác mang tính cộng đồng hơn — nhằm cung cấp một tài liệu tham chiếu cho việc lựa chọn công nghệ và lập đề án nội bộ trong doanh nghiệp. Cuốn sách được duy trì lâu dài theo hình thức mã nguồn mở, để liên tục phản ánh những tư duy tiên phong và thực tiễn triển khai của kiến trúc ứng dụng AI-native.
+Cuốn sách được tổ chức theo vòng đời của một Agentic Application để kết nối các quyết định kiến trúc với công việc xây dựng, vận hành, quản trị và tối ưu. Mục tiêu là giúp người đọc lựa chọn kiến trúc phù hợp với mục tiêu nghiệp vụ, mức rủi ro và quy mô triển khai, thay vì mặc định rằng hệ thống càng phức tạp hoặc mức tự chủ càng cao thì càng tốt.
 
 ## 2. Đối tượng độc giả và những gì bạn nhận được
 
-Cuốn sách trắng này chủ yếu hướng tới bối cảnh xây dựng và triển khai Agent ở quy mô doanh nghiệp. Nó phù hợp với kỹ sư quan tâm đến phát triển Agent, đồng thời có thể dùng cho việc lựa chọn công nghệ nội bộ, review kiến trúc, lập đề án dự án và xây dựng nhận thức chung giữa các nhóm.
+Cuốn sách chủ yếu hướng tới bối cảnh xây dựng và triển khai Agent ở quy mô doanh nghiệp. Nội dung phù hợp với kỹ sư phát triển Agent, đồng thời có thể dùng khi lựa chọn công nghệ, review kiến trúc, lập đề án và xây dựng nhận thức chung giữa các nhóm.
 
 | Độc giả | Nên tập trung vào | Bạn sẽ nhận được |
 | --- | --- | --- |
@@ -55,7 +53,7 @@ Sau khi đọc trọn vẹn, bạn sẽ có thể:
 | Phần | Thư mục | Phạm vi chương | Trọng tâm |
 | --- | --- | --- | --- |
 | [Báo cáo khảo sát lập trình viên Agent 2026](./2026-bao-cao-khao-sat-agent.md) | Thư mục gốc | — | Hiện trạng phát triển, đưa vào production, lựa chọn kiến trúc, bộ công cụ, quản trị và đánh giá Agent tại doanh nghiệp. |
-| [Lời nói đầu](./00-loi-noi-dau/00-loi-noi-dau.md) | `00-loi-noi-dau/` | — | Cấu trúc và bối cảnh của cuốn sách trắng. |
+| [Lời nói đầu](./00-loi-noi-dau/00-loi-noi-dau.md) | `00-loi-noi-dau/` | — | Mục tiêu, cách tiếp cận, danh mục chương và danh mục Case Study. |
 | [Phần Kiến trúc](./01-kien-truc/) | `01-kien-truc/` | Chương 1–2 | Định nghĩa đối tượng, xác định hình thái, chọn mức trưởng thành và dựng kiến trúc tham chiếu. |
 | [Phần Xây dựng](./02-xay-dung/) | `02-xay-dung/` | Chương 3–6 | Lấy Harness làm trung tâm để tổ chức task, thông tin và hành động. |
 | [Phần Vận hành](./03-van-hanh/) | `03-van-hanh/` | Chương 7–12 | Từ việc chạy ổn định một Agent đơn lẻ mở rộng sang bất đồng bộ, multi-agent và giao tiếp phân tán. |
@@ -99,25 +97,27 @@ Sau khi đọc trọn vẹn, bạn sẽ có thể:
 | Thực tiễn | [Chương 29 — Hạng mục GOAI Agent Infra: khám phá tiên phong về cộng tác multi-agent](./06-thuc-tien/chuong-29-goai-agent-infra.md) | Các tác phẩm xuất sắc tại Giải thưởng Mã nguồn mở AI Thế giới và những khám phá Agent Infra đa lĩnh vực. |
 | Tổng kết và triển vọng | [Chương 30 — Từ Agentic Application đến Agentic OS](./07-tong-ket/chuong-30-tu-agentic-application-den-agentic-os.md) | Từ một ứng dụng đơn lẻ đi tới hệ thống trí tuệ có thể cộng tác, quản trị và tiến hoá bền vững. |
 
-### Điều hướng các case study
+### Danh mục Case Study
+
+Danh mục này được duy trì độc lập với phần nội dung nền tảng để thuận tiện bổ sung và thay thế bằng những trường hợp triển khai Agent tại Việt Nam.
 
 | Chương | Case study |
 | --- | --- |
 | Chương 25 — Hiệu suất kỹ thuật | [ABACI: Agent kiểm thử có định hướng và phát hiện lỗi cho patch kernel](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/abaci-kiem-thu-patch-kernel-va-phat-hien-loi.md) |
 | Chương 25 — Hiệu suất kỹ thuật | [Kitta: Code Review Agent chuyên ngành](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/kitta-code-review-agent-chuyen-nganh.md) |
-| Chương 25 — Hiệu suất kỹ thuật | [PatchPilot Agents: biến việc bàn giao patch kernel thành vòng lặp kỹ thuật điều phối được và kiểm chứng được](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/patchpilot-agents.md) |
+| Chương 25 — Hiệu suất kỹ thuật | [PatchPilot Agents: biến việc bàn giao patch kernel thành vòng lặp kỹ thuật có thể điều phối và kiểm chứng](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/patchpilot-agents.md) |
 | Chương 25 — Hiệu suất kỹ thuật | [Từ cảnh báo đến tự động sửa lỗi: thực tiễn kỹ thuật Loop của PolarDB-X](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/polardb-x-tu-canh-bao-den-tu-dong-sua-loi.md) |
-| Chương 25 — Hiệu suất kỹ thuật | [Từ tăng tốc viết code đến bàn giao đầu cuối: thực tiễn cộng tác người–máy tại Cloud Communication](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/hop-tac-nguoi-may-tai-cloud-communication.md) |
-| Chương 25 — Hiệu suất kỹ thuật | [Từ eval-driven đến bàn giao đầu cuối: thực tiễn tăng hiệu suất phát triển sản phẩm bảo mật AI Agent](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/eval-driven-phat-trien-san-pham-bao-mat.md) |
-| Chương 25 — Hiệu suất kỹ thuật | [Đội multi-agent: AI trong R&D đi từ viết code tới bàn giao đầu cuối](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/doi-multi-agent-giao-hang-dau-cuoi.md) |
-| Chương 26 — Design Engineering | [GenUI: đưa Agent từ chỗ đưa ra câu trả lời tới chỗ bàn giao kết quả](./06-thuc-tien/chuong-26-design-engineering/genui.md) |
-| Chương 26 — Design Engineering | [Vibe Designing: sự tiến hoá của paradigm thiết kế AI dẫn dắt bởi ý định](./06-thuc-tien/chuong-26-design-engineering/vibe-designing.md) |
+| Chương 25 — Hiệu suất kỹ thuật | [Từ tăng tốc viết code đến bàn giao đầu cuối: cộng tác người–máy tại Cloud Communication](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/hop-tac-nguoi-may-tai-cloud-communication.md) |
+| Chương 25 — Hiệu suất kỹ thuật | [Từ eval-driven đến bàn giao đầu cuối: tăng hiệu suất phát triển sản phẩm bảo mật AI Agent](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/eval-driven-phat-trien-san-pham-bao-mat.md) |
+| Chương 25 — Hiệu suất kỹ thuật | [Đội Multi-Agent: AI trong R&D đi từ viết code tới bàn giao đầu cuối](./06-thuc-tien/chuong-25-hieu-suat-ky-thuat/doi-multi-agent-giao-hang-dau-cuoi.md) |
+| Chương 26 — Design Engineering | [GenUI: đưa Agent từ trả lời câu hỏi tới bàn giao kết quả](./06-thuc-tien/chuong-26-design-engineering/genui.md) |
+| Chương 26 — Design Engineering | [Vibe Designing: sự tiến hoá của paradigm thiết kế do AI dẫn dắt theo ý định](./06-thuc-tien/chuong-26-design-engineering/vibe-designing.md) |
 | Chương 27 — Vận hành, bảo mật và IT doanh nghiệp | [Thực tiễn triển khai AIOps tại Geely Auto](./06-thuc-tien/chuong-27-van-hanh-bao-mat-va-it-doanh-nghiep/geely-aiops.md) |
-| Chương 27 — Vận hành, bảo mật và IT doanh nghiệp | [Vòng lặp AIOps khép kín cho chuỗi vạn cửa hàng Tastien](./06-thuc-tien/chuong-27-van-hanh-bao-mat-va-it-doanh-nghiep/tastien-aiops-chuoi-cua-hang.md) |
+| Chương 27 — Vận hành, bảo mật và IT doanh nghiệp | [Vòng lặp AIOps khép kín cho chuỗi cửa hàng Tastien](./06-thuc-tien/chuong-27-van-hanh-bao-mat-va-it-doanh-nghiep/tastien-aiops-chuoi-cua-hang.md) |
 | Chương 27 — Vận hành, bảo mật và IT doanh nghiệp | [Thực tiễn observability và AIOps tại Chanjet](./06-thuc-tien/chuong-27-van-hanh-bao-mat-va-it-doanh-nghiep/chanjet-observability-va-aiops.md) |
-| Chương 28 — Khách hàng, bán hàng và vận hành | [MiniMax xây nền tảng dữ liệu bộ nhớ dài hạn quy mô lớn](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/minimax-nen-tang-du-lieu-memory.md) |
-| Chương 28 — Khách hàng, bán hàng và vận hành | [Hãng kiểm toán ShineWing khám phá việc nâng cao hiệu suất văn phòng](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/shinewing-nang-cao-hieu-suat-van-phong.md) |
-| Chương 28 — Khách hàng, bán hàng và vận hành | [Bilibili xây dựng năng lực insight nội dung toàn cục](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/bilibili-content-insight.md) |
+| Chương 28 — Khách hàng, bán hàng và vận hành | [MiniMax xây dựng nền tảng dữ liệu bộ nhớ dài hạn quy mô lớn](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/minimax-nen-tang-du-lieu-memory.md) |
+| Chương 28 — Khách hàng, bán hàng và vận hành | [ShineWing ứng dụng Agent để nâng cao hiệu suất văn phòng](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/shinewing-nang-cao-hieu-suat-van-phong.md) |
+| Chương 28 — Khách hàng, bán hàng và vận hành | [Bilibili xây dựng năng lực phân tích nội dung toàn cục](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/bilibili-content-insight.md) |
 | Chương 28 — Khách hàng, bán hàng và vận hành | [Thực tiễn Data Agent cho phân tích vận hành](./06-thuc-tien/chuong-28-khach-hang-ban-hang-va-van-hanh/data-agent-phan-tich-van-hanh.md) |
 
 ### Lộ trình đọc gợi ý
@@ -128,16 +128,16 @@ Sau khi đọc trọn vẹn, bạn sẽ có thể:
 - **Phụ trách đánh giá và tối ưu liên tục:** Chương 13 → Chương 18–23 → case study của lĩnh vực tương ứng.
 - **Phụ trách lựa chọn công nghệ hoặc lập đề án:** Báo cáo khảo sát → Chương 1–3 → Phần Thực tiễn → Chương 30.
 
-## 4. Kế hoạch tiếp theo
+## 4. Định hướng phát triển
 
-Cuốn sách trắng sẽ được duy trì liên tục như một dự án mở, thay vì đóng băng sau lần phát hành đầu tiên. Các trọng tâm sắp tới bao gồm:
+Cuốn sách sẽ được duy trì như một dự án mở và tiếp tục điều chỉnh theo nhu cầu của cộng đồng kỹ thuật Việt Nam. Các trọng tâm gồm:
 
-- **Mở rộng case study doanh nghiệp:** bổ sung thêm các case thực chiến từ R&D, vận hành, chăm sóc khách hàng, dữ liệu, bảo mật, tài chính và các bối cảnh ngành dọc, kèm theo con đường thành công, đánh đổi kiến trúc và những kiểu thất bại có thật.
+- **Xây dựng Case Study tại Việt Nam:** bổ sung các trường hợp triển khai thực tế trong R&D, vận hành, chăm sóc khách hàng, dữ liệu, bảo mật, tài chính và các ngành dọc; trình bày cả kiến trúc, kết quả, giới hạn và những bài học thất bại.
 - **Bổ sung trải nghiệm thực hành trên cloud:** thiết kế các luồng trải nghiệm có thể tái lập trên cloud xoay quanh những năng lực then chốt như sandbox, Runtime, AI Gateway, lưu trữ trạng thái, observability và đánh giá, để độc giả đi từ đọc sang tự tay kiểm chứng.
 - **Hoàn thiện nội dung quản trị:** theo sát các chủ đề cốt lõi của doanh nghiệp như định danh và phân quyền, phòng chống Prompt Injection, dữ liệu rời khỏi biên, audit, đăng ký tài sản, quản trị version và mô phỏng trước khi lên production.
 - **Hoàn thiện hệ thống đánh giá:** bổ sung các phương pháp và case về tỉ lệ thành công của task, đánh giá trajectory, LLM-as-Judge, golden dataset, hồi quy badcase, thí nghiệm online và đánh đổi giữa chi phí với chất lượng.
 - **Bám sát tiến hoá công nghệ:** liên tục hấp thụ tiến bộ mới về model, Harness, giao thức, Runtime, multi-agent và Agentic OS, đồng thời kịp thời đính chính những nhận định không còn phù hợp.
-- **Xây dựng cơ chế cộng tác cộng đồng:** từng bước hoàn thiện quy chuẩn nội dung, template case study, bảng thuật ngữ, quy trình hiệu đính và cách phát hành phiên bản, nhằm hạ thấp rào cản cho những đóng góp chất lượng cao.
+- **Xây dựng cơ chế cộng tác cộng đồng:** hoàn thiện quy chuẩn nội dung, template Case Study, bảng thuật ngữ, quy trình hiệu đính và cách phát hành phiên bản để các đóng góp mới có cấu trúc nhất quán.
 
 ### Hoan nghênh đóng góp
 
@@ -151,36 +151,19 @@ Chúng tôi hoan nghênh lập trình viên, kiến trúc sư, nhà nghiên cứ
 
 Nội dung đóng góp cần tôn trọng bản quyền và ranh giới cấp phép; khi liên quan tới dữ liệu doanh nghiệp, thông tin khách hàng, hệ thống nội bộ và chi tiết bảo mật, vui lòng hoàn tất việc ẩn danh hoá và xác nhận quyền sử dụng trước.
 
-#### Đóng góp cho bản tiếng Việt
+#### Quy ước biên tập
 
-Bản dịch này hướng tới cộng đồng kỹ thuật Việt Nam. Khi đóng góp, vui lòng:
+Nội dung hướng tới cộng đồng kỹ thuật Việt Nam. Khi đóng góp, vui lòng:
 
 - Bám theo [Bảng thuật ngữ](./THUAT-NGU.md) để giữ thuật ngữ nhất quán giữa các chương;
 - Giữ nguyên thuật ngữ kỹ thuật tiếng Anh đã phổ biến, thay vì dịch cứng sang tiếng Việt;
-- Giữ nguyên cấu trúc heading, bảng và đường dẫn ảnh so với bản gốc, để dễ đối chiếu và merge các cập nhật từ upstream.
+- Viết rõ bối cảnh, giả định và giới hạn của các nhận định kỹ thuật;
+- Với Case Study, ưu tiên mô tả bài toán, kiến trúc, dữ liệu kiểm chứng, kết quả, đánh đổi và bài học có thể tái sử dụng.
 
 ## 5. Người đóng góp
 
-Xin cảm ơn tất cả những người đã tham gia thiết kế kiến trúc, viết chương, biên soạn case study và hiệu đính nội dung.
-
-### Alibaba Cloud
-
-| Lĩnh vực đóng góp | Người đóng góp |
-| --- |-----------------------------------------------------|
-| Lời nói đầu | Ma Peng |
-| Báo cáo khảo sát lập trình viên | Ren Juan, Wang Chen |
-| Phần Kiến trúc | Wang Chen, Liu Jun, Shen Lin |
-| Phần Xây dựng | Liu Jun, Pan Shengwei, Wang Chen |
-| Phần Vận hành | Zhao Qingjie, Li Shibo, Lin Qingshan, Huang Xiaomeng, Zhang Tianyi, Zhao Yuanxiao, Sun Xiao, Song Zhen, Hu Qingda, Liu Zunfei, Zhu Tong, Yu Huafeng, Luo Xin, Kong Keqing |
-| Phần Quản trị | Xiao Changjun, Zhou Yang, Zhang Lei, Wang Fang, Zhang Haibin, Cheng Shuyi, Liu Ziming, Rao Zihao, Ren Yi, Yang Yong, Wang Shuo, Ma Xin, Liu Yuxuan, Yang Yi |
-| Phần Tối ưu | Zhang Hanmeng, Li Shengrong, Wang Yaning, Sun Jianyun, Ma Yunlei, Wang Zhen, Zheng Qianyi, Liu Hang, Chen Xin |
-| Phần Thực tiễn | Yang Tao, Zhu Yan, Yu Ailin, Hu Jun |
-| Phần Tổng kết và triển vọng | Lin Yan |
-
-### Người đóng góp bên ngoài
-
-Dự án luôn mở cho đóng góp từ cộng đồng. Chúng tôi hoan nghênh lập trình viên, kiến trúc sư, nhà nghiên cứu, đội kỹ thuật doanh nghiệp và những người làm sản phẩm cùng xây dựng nội dung qua Issue hoặc Pull Request; sau khi đóng góp được chấp nhận, thông tin người đóng góp sẽ được bổ sung vào mục này.
+Dự án mở cho đóng góp từ cộng đồng. Lập trình viên, kiến trúc sư, nhà nghiên cứu, đội kỹ thuật doanh nghiệp và những người làm sản phẩm có thể tham gia qua Issue hoặc Pull Request. Thông tin người đóng góp sẽ được bổ sung khi nội dung tương ứng được chấp nhận.
 
 ---
 
-Nếu cuốn sách trắng này giúp bạn hiểu, xây dựng, vận hành, quản trị và tối ưu Agent tốt hơn, rất mong bạn chia sẻ, thảo luận và cùng tham gia xây dựng.
+Nếu cuốn sách giúp bạn hiểu, xây dựng, vận hành, quản trị và tối ưu Agent tốt hơn, hãy chia sẻ phản hồi hoặc đóng góp những kinh nghiệm thực tế để tài liệu ngày càng phù hợp hơn với bối cảnh Việt Nam.
