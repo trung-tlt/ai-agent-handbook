@@ -85,9 +85,27 @@ Một Agent tối thiểu có thể chỉ hiện thực một phần trong số 
 
 Những đối tượng này có thể quy tiếp thành ba miền năng lực: thực thi và orchestration, context và state, hành động và phản hồi. Ở đây chúng chỉ được dùng như một checklist xây dựng; các chương 4–6 sẽ lần lượt triển khai nguyên lý bên trong, cách hiện thực và phương pháp tối ưu của chúng.
 
-*Hình 3-1 - Quan hệ giữa việc xây dựng và việc đảm nhiệm Agent trong doanh nghiệp*
+```mermaid
+flowchart TB
+    B["Business & Application<br/>Mục tiêu · Người dùng · Tương tác · Tiêu chí thành công"]
+    M["Model<br/>Hiểu · Suy luận · Lập kế hoạch · Tạo sinh"]
+    H["Harness Orchestration<br/>Loop · Context · Planning · Tool · Verification"]
+    R["Production Execution Foundation<br/>Runtime · Sandbox · State · Workspace · Gateway"]
+    P["Agent Platform<br/>Xây dựng · Tiếp nhận · Bàn giao · Vận hành · Cộng tác<br/>Quản trị · Quan sát · Tối ưu"]
+    O["Artifact & Outcome<br/>Sản phẩm · Bằng chứng · Nghiệm thu nghiệp vụ"]
 
-![Chương 3 - 1.svg](../assets/imgs/chapter-03/image-001.svg)
+    B -->|Mục tiêu và hợp đồng task| H
+    M -->|Năng lực nhận thức| H
+    H -->|Yêu cầu thực thi có kiểm soát| R
+    R -->|Kết quả và bằng chứng| O
+
+    P -.->|Năng lực dùng chung và cơ chế kiểm soát| H
+    P -.->|Lập lịch · Cô lập · Observability| R
+    O -.->|Phản hồi và Evaluation| P
+    O -.->|Xác nhận nghiệp vụ| B
+```
+
+*Hình 3-1 - Quan hệ giữa việc xây dựng và việc đảm nhiệm Agent trong doanh nghiệp*
 
 Xây Agent không nên bắt đầu từ việc chọn framework hay mở công cụ, mà nên cố định **hợp đồng task (Agent Contract)** trước. Hợp đồng task nói rõ Agent làm việc cho ai, nhận input gì, bàn giao kết quả gì, được phép ảnh hưởng tới hệ thống nào, thao tác nào bắt buộc phải từ chối hoặc phê duyệt, và bằng chứng nào chứng minh được task đã hoàn thành. Cùng một mục tiêu "vá lỗ hổng phụ thuộc rủi ro cao", Agent có thể chỉ sinh ra báo cáo phân tích, cũng có thể sửa code và chạy test trong môi trường cô lập, thậm chí tạo merge request; nhưng **trừ khi hợp đồng nói rõ đã trao quyền phát hành và quy định điều kiện phê duyệt, không Agent nào trong số đó được diễn giải "đã vá xong" thành "đã phát hành lên production".**
 
@@ -319,9 +337,33 @@ Phần tái sử dụng mà trợ lý workspace mang lại không chỉ là vi�
 
 Trải nghiệm liên tục trong một workspace cá nhân không thay thế được dịch vụ task cấp doanh nghiệp. Khi tích hợp trợ lý workspace, doanh nghiệp cần bổ sung ở vòng ngoài phần kiểm soát về định danh, tenant, Task, phê duyệt và Outcome, đồng thời làm rõ ranh giới cô lập của Workspace, Memory, Credential và Sandbox cho từng người dùng, từng team hoặc từng task. Hình 3-3 lấy QwenPaw làm ví dụ để minh hoạ kiến trúc mục tiêu: Harness đóng gói sản phẩm giữ lại các năng lực workspace, Memory, Skill, MCP, Subagent và Channel; còn tầng tiếp nhận của doanh nghiệp lo việc ánh xạ chúng sang đối tượng nghiệp vụ và yêu cầu kiểm soát.
 
-*Hình 3-3 - Đóng gói tiếp nhận trợ lý workspace vào doanh nghiệp, ví dụ với QwenPaw (minh hoạ kiến trúc mục tiêu)*
+```mermaid
+flowchart TB
+    U["Users & Business Systems<br/>Người dùng · Hệ thống nghiệp vụ · TUI · Web · Messaging Channel"]
+    A["Enterprise Access Layer<br/>Định danh · Tenant · Quota · Routing"]
+    T["Business Task Service ↔ Product Session<br/>Business State · Approval · Artifact · Outcome"]
+    Q["Task Queue & Instance Scheduling<br/>Hàng đợi task · Lập lịch instance"]
 
-![Chương 3 - 2.svg](../assets/imgs/chapter-03/image-002.svg)
+    subgraph TARGET["Controlled Assistant Instance & Workspace — Kiến trúc mục tiêu"]
+        H["Productized Harness<br/>Loop · Context · Tool · Permission"]
+        S["Workspace Capabilities<br/>Workspace · Memory · Skill · MCP · Cron · Subagent"]
+        M["Model Service<br/>Dịch vụ model"]
+        X["Sandbox & Controlled Workspace<br/>Sandbox · Workspace được kiểm soát"]
+        E["Enterprise Capabilities<br/>Tool · MCP · Data · Credential ngắn hạn"]
+        V["Event · Trace · Result<br/>Sự kiện · Vết thực thi · Kết quả trả về"]
+
+        H --> S
+        H --> M
+        H --> X
+        H --> E
+        H --> V
+    end
+
+    U --> A --> T --> Q --> H
+    V -.->|Cập nhật trạng thái và bằng chứng| T
+```
+
+*Hình 3-3 - Đóng gói tiếp nhận trợ lý workspace vào doanh nghiệp, ví dụ với QwenPaw (minh hoạ kiến trúc mục tiêu)*
 
 Phần lối vào multi-tenant, hàng đợi task và lập lịch instance trong hình thuộc về **kiến trúc mục tiêu**, không phải phát biểu trực tiếp về năng lực sản phẩm hiện tại của QwenPaw. QwenPaw Hub cho phép các team tin nhau dùng instance riêng của mình trên cùng một máy chủ, nhưng nhà cung cấp đánh dấu đây là bản sớm và nói rõ nó **không** tạo thành ranh giới multi-tenant mạnh hướng tới người dùng lạ. Doanh nghiệp không được diễn giải một triển khai dùng chung thành nền tảng cô lập mạnh, và cũng không được phát lại một cách máy móc các thao tác tác động lớn trước thời điểm hỏng chỉ vì lịch sử workspace đọc được. Trước khi khôi phục vẫn phải đối chiếu khoá idempotent, trạng thái hệ thống bên ngoài và các Artifact đã sinh ra.
 
@@ -516,9 +558,40 @@ Agent Platform nên thống nhất các đối tượng công cộng và hợp �
 
 Hình 3-5 trình bày hai mặt tác dụng của cùng một Agent Platform dưới dạng kiến trúc mục tiêu. Các nền tảng như AgentCore vừa có thể cung cấp lối vào xây dựng native, vừa có thể tiếp nhận các Agent dị chủng bên ngoài thông qua hợp đồng thống nhất. Thứ được thống nhất là danh mục, định danh, tài nguyên, task, vận hành và các sự thật về chất lượng - chứ không phải đòi hỏi mọi cách hiện thực dùng chung một kiến trúc nội bộ. Vị trí thực thi có thể nằm trong miền managed của nền tảng, trong cụm tự dựng và workspace của doanh nghiệp, cũng có thể là một Agent managed từ xa hoặc Agent dạng SaaS (Software as a Service).
 
-*Hình 3-5 - Agent native và Agent bên ngoài cùng tiếp nhận vào Agent Platform doanh nghiệp (minh hoạ kiến trúc mục tiêu)*
+```mermaid
+flowchart TB
+    D["Native Build Entry<br/>Lối vào xây dựng native trong nền tảng<br/>Ví dụ: AgentCore"]
 
-![Chương 3 - 3.svg](../assets/imgs/chapter-03/image-003.svg)
+    subgraph EXTERNAL["External Heterogeneous Agents — Agent dị chủng bên ngoài"]
+        direction LR
+        A["High-code Framework Workload<br/>Ví dụ: AgentScope"]
+        B["Coding Agent · Workspace Assistant<br/>Ví dụ: QwenPaw"]
+        C["Managed Agent · Remote Endpoint<br/>Ví dụ: Qoder Cloud Agents"]
+    end
+
+    U["Common Objects & Integration Contract<br/>Agent Definition · Task · Session · Event · Identity<br/>State · Checkpoint · Artifact · Trace · Outcome"]
+
+    subgraph PLATFORM["Enterprise Agent Platform — Nền tảng Agent doanh nghiệp"]
+        direction LR
+        P1["Create · Catalog · Delivery<br/>Tạo Agent · Danh mục · Bàn giao"]
+        P2["Capability Assets<br/>Model · Tool · Skill · Memory · Knowledge"]
+        P3["Execution Resources<br/>Runtime · Queue · Sandbox · Workspace · Budget"]
+        P4["Agent Collaboration<br/>Team · Delegation · Handoff · Approval"]
+        P5["Control & Improvement<br/>Policy · Audit · Observability · Evaluation · Optimization"]
+        P1 --> P2 --> P3 --> P4 --> P5
+    end
+
+    X["Execution Locations<br/>Miền managed của nền tảng · Miền doanh nghiệp kiểm soát · Dịch vụ bên ngoài"]
+
+    D --> U
+    A --> U
+    B --> U
+    C --> U
+    U --> P1
+    P3 <--> X
+```
+
+*Hình 3-5 - Agent native và Agent bên ngoài cùng tiếp nhận vào Agent Platform doanh nghiệp (minh hoạ kiến trúc mục tiêu)*
 
 Lối vào native trong nền tảng và ba loại lối vào bên ngoài trong hình cần đi vào hệ đối tượng chung theo những cách khác nhau, và trách nhiệm bên trong với bên ngoài nền tảng cũng không được lẫn lộn chỉ vì đã quản lý thống nhất.
 
