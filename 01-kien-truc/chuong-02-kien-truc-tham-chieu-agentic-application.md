@@ -32,9 +32,60 @@ Ba góc nhìn không suy ra được lẫn nhau. Component đầy đủ không c
 
 Hình 2-1 trình bày năm miền trách nhiệm năng lực của kiến trúc tham chiếu từ góc nhìn component. Trong hình, nét liền đậm biểu thị quan hệ chính từ mục tiêu nghiệp vụ tới thực thi task; nét liền mảnh trong từng miền biểu thị quan hệ gọi và đọc ghi giữa các component; nét đứt biểu thị các tác động ngang như version, định danh, policy, quan sát, đánh giá và bằng chứng thay đổi. Chữ "tầng" ở đây dùng để tổ chức trách nhiệm kiến trúc, không biểu thị một call stack nghiêm ngặt hay thứ tự xây dựng. Các viết tắt trong hình gồm: LLM (Large Language Model), API (Application Programming Interface), MCP (Model Context Protocol) và A2A (Agent-to-Agent).
 
-*Hình 2-1 - Kiến trúc tham chiếu cấp doanh nghiệp của Agentic Application (góc nhìn component)*
+```mermaid
+flowchart TB
+    subgraph BIZ["1 · Business & Application — Nghiệp vụ và ứng dụng"]
+        direction LR
+        B1["Business Goal & Task Contract<br/>Mục tiêu nghiệp vụ · Hợp đồng task · Điều kiện nghiệm thu"]
+        B2["Application Form<br/>Single-Agent · Long-Horizon · Multi-Agent · Hybrid"]
+        B3["Interaction & Trigger<br/>User · API · Message · Event · Schedule"]
+        B1 --> B2 --> B3
+    end
 
-![diagram.svg](../assets/imgs/chapter-02/image-001.svg)
+    subgraph BUILD["2 · Agent Build & Orchestration — Xây dựng và điều phối"]
+        direction LR
+        C2["Model<br/>Suy luận · Đa phương thức · Structured Output · Tool Calling"]
+        C1["Harness Orchestration<br/>Agent Loop · Planning · Middleware · HITL · Verification"]
+        C3["Context · Memory · Knowledge · Skill<br/>Chính sách context · Tri thức · Tài sản năng lực"]
+        C4["Tool · Protocol · Connector<br/>Function Calling · MCP · A2A · API"]
+        C2 --> C1
+        C1 --> C3
+        C1 --> C4
+    end
+
+    subgraph RUN["3 · Production Runtime — Vận hành production"]
+        direction LR
+        R2["State Store · Workspace · Artifact<br/>Sự thật về task · Workspace · Artifact · Snapshot"]
+        R1["Agent Runtime<br/>Session · Task · Queue · Checkpoint · Recovery"]
+        R3["Sandbox · Execution Environment<br/>File · Code · Network · Secrets · Resource Isolation"]
+        R4["AI Gateway<br/>Quản trị traffic LLM · MCP · Agent"]
+        R2 <--> R1
+        R1 --> R3
+        R1 <--> R4
+    end
+
+    subgraph GOV["4 · Governance & Control — Quản trị và kiểm soát"]
+        direction LR
+        G1["Registry · Version · Deployment · Release Gate<br/>Đăng ký năng lực · Version · Phát hành · Kiểm soát đầu vào"]
+        G2["Identity · Tenant · Policy · Approval · Audit<br/>Định danh · Tenant · Policy · Phê duyệt · Audit"]
+    end
+
+    subgraph OPT["5 · Optimization — Tối ưu"]
+        direction LR
+        O1["Trace · Metrics · Logs · Cost · Outcome · Feedback<br/>Bằng chứng về quá trình · Kết quả · Chi phí · Phản hồi"]
+        O2["Evaluation · Security Analysis · Simulation · Experiment<br/>Đánh giá · Phân tích bảo mật · Mô phỏng · Thí nghiệm"]
+        O1 --> O2
+    end
+
+    BIZ ==>|Yêu cầu task và điều kiện nghiệm thu| BUILD
+    BUILD ==>|Ngữ nghĩa task và yêu cầu gọi năng lực| RUN
+    GOV -.->|Version · Định danh · Policy · Phê duyệt| BUILD
+    GOV -.->|Quota · Credential · Chính sách cô lập · Kết quả kiểm soát| RUN
+    RUN ==>|Trace · State · Outcome · Cost · Incident| OPT
+    OPT -.->|Thay đổi ứng viên và bằng chứng kiểm chứng| BUILD
+```
+
+*Hình 2-1 - Kiến trúc tham chiếu cấp doanh nghiệp của Agentic Application (góc nhìn component)*
 
 **Tầng nghiệp vụ và ứng dụng**
 
@@ -201,13 +252,33 @@ Vì vậy, đơn vị phát hành nhỏ nhất của vòng đời không nên ch
 
 Chỉ khi những yếu tố này truy vết được, doanh nghiệp mới trả lời được rằng một task nào đó trong production rốt cuộc đã dùng Agent Release nào, mới tái hiện được thất bại, và mới chứng minh được rằng sau khi thay đổi thì chất lượng **thực sự tăng lên**, chứ không đơn thuần là *đã thay đổi*. Ngược lại, nếu Prompt có thể được sửa bất cứ lúc nào trong production mà không để lại version, thì mọi kết luận đánh giá chỉ đúng cho đúng khoảnh khắc ấy.
 
-### 2.4.2 Vòng khép kín năm giai đoạn
+### 2.4.2 Vòng lặp khép kín năm giai đoạn
 
 Hình 2-2 trình bày trục vòng đời chính của cuốn sách này. Đây không phải một quy trình thác nước chỉ chảy về phía trước, mà là một vòng lặp trong đó **sự thật từ production dẫn dắt version mới**, và khi cần thì quay ngược lại tới quyết định kiến trúc.
 
-![image.png](../assets/imgs/chapter-02/image-002.png)
+```mermaid
+flowchart LR
+    ARCH["Architecture Design<br/>Hình thái · Mức tự chủ · Ranh giới trách nhiệm"]
+    BUILD["Build<br/>Agent Release ứng viên"]
+    GATE{"Release Gate<br/>Đánh giá offline · Kiểm tra bảo mật<br/>Phê duyệt · Khả năng rollback"}
+    APPROVED["Approved Release<br/>Version · Baseline · Điểm phê duyệt và rollback"]
+    RUN["Run<br/>Task · Session"]
+    GOV["Governance<br/>Observability · Security · Policy · Human Oversight"]
+    FACTS["Risk · Incident · Feedback · Policy"]
+    OPT["Optimization<br/>Evaluation · Debugging · Simulation · Controlled Change"]
 
-*Hình 2-2 - Vòng khép kín vòng đời: thiết kế kiến trúc → xây dựng → vận hành → quản trị → tối ưu*
+    ARCH --> BUILD --> GATE
+    GATE -->|Đạt| APPROVED --> RUN
+    GATE -.->|Không đạt · Sửa lại| BUILD
+    RUN -->|Trace · State · Outcome · Cost| GOV
+    GOV --> FACTS --> OPT
+    OPT -.->|Thay đổi đã kiểm chứng| BUILD
+    OPT -.->|Online evaluation · A/B observation| RUN
+    GOV -.->|Phản hồi rủi ro · Sự cố · Tuân thủ| ARCH
+    OPT -.->|Vấn đề ở cấp kiến trúc| ARCH
+```
+
+*Hình 2-2 - Vòng lặp khép kín của vòng đời: thiết kế kiến trúc → xây dựng → vận hành → quản trị → tối ưu*
 
 | Giai đoạn | Câu hỏi cốt lõi | Đầu vào chính | Sản phẩm chính | Cơ chế chấp nhận hoặc phản hồi |
 | --- | --- | --- | --- | --- |
